@@ -171,6 +171,16 @@
 (require 'use-package)
 (setq use-package-verbose t)
 
+(use-package zoom-frm
+  :ensure t
+  :config
+  (global-set-key (kbd "C-+") 'zoom-frm-in)
+  (global-set-key (kbd "C--") 'zoom-frm-out)
+  (global-set-key (kbd "C-0") 'zoom-frm-unzoom)
+  (global-set-key (kbd "C-x C-+") 'text-scale-increase)
+  (global-set-key (kbd "C-x C--") 'text-scale-decrease)
+  (global-set-key (kbd "C-x C-0") 'text-scale-adjust))
+
 (use-package lisp-mode
   :config
   (defun bozhidar-visit-ielm ()
