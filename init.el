@@ -219,10 +219,12 @@ Start `ielm' if it's not already running."
   (add-hook 'ielm-mode-hook #'eldoc-mode)
   (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode))
 
-(use-package zenburn-theme
+
+;; themes
+(use-package ample-theme
   :ensure t
   :config
-  (load-theme 'zenburn t))
+  (load-theme 'ample t))
 
 ;; highlight the current line
 (global-hl-line-mode +1)
@@ -565,11 +567,6 @@ Start `ielm' if it's not already running."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector
-   ["#292929" "#ff3333" "#aaffaa" "#aaeecc" "#aaccff" "#FF1F69" "#aadddd" "#999999"])
- '(background-color nil)
- '(background-mode dark)
- '(cursor-color nil)
  '(custom-safe-themes
    (quote
     ("40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" "0c311fb22e6197daba9123f43da98f273d2bfaeeaeb653007ad1ee77f0003037" default)))
