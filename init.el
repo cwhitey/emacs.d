@@ -73,6 +73,9 @@
 ;; never want the menu bar (at least on OSX anyway)
 (menu-bar-mode -1)
 
+;; remove scroll bars
+(scroll-bar-mode -1)
+
 ;; disable the annoying bell ring
 (setq ring-bell-function 'ignore)
 
@@ -88,6 +91,12 @@
 (line-number-mode t)
 (column-number-mode t)
 (size-indication-mode t)
+
+;; Set default font (only verified in OSX)
+;; For other solutions see https://www.emacswiki.org/emacs/SetFonts
+(when (eq system-type 'darwin)
+  (set-face-attribute 'default nil :family "Menlo")
+  (set-face-attribute 'default nil :height 140))
 
 ;; enable y/n answers
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -138,6 +147,10 @@
                                          try-complete-lisp-symbol-partially
                                          try-complete-lisp-symbol))
 
+;; More convenient key bindings cycling buffers (hands stay on home)
+(global-set-key (kbd "C-,") 'previous-buffer)
+(global-set-key (kbd "C-.") 'next-buffer)
+
 ;; use hippie-expand instead of dabbrev
 (global-set-key (kbd "M-/") #'hippie-expand)
 (global-set-key (kbd "s-/") #'hippie-expand)
@@ -171,15 +184,19 @@
 (require 'use-package)
 (setq use-package-verbose t)
 
-(use-package zoom-frm
+(use-package fasd
   :ensure t
   :config
-  (global-set-key (kbd "C-+") 'zoom-frm-in)
-  (global-set-key (kbd "C--") 'zoom-frm-out)
-  (global-set-key (kbd "C-0") 'zoom-frm-unzoom)
-  (global-set-key (kbd "C-x C-+") 'text-scale-increase)
-  (global-set-key (kbd "C-x C--") 'text-scale-decrease)
-  (global-set-key (kbd "C-x C-0") 'text-scale-adjust))
+  (global-fasd-mode 1))
+
+(use-package zoom-frm
+  :ensure t
+  :bind (("C-+" . zoom-frm-in)
+         ("C--" . zoom-frm-out)
+         ("C-0" . zoom-frm-unzoom)
+         ("C-x C-+" . text-scale-increase)
+         ("C-x C--" . text-scale-decrease)
+         ("C-x C-0" . text-scale-adjust)))
 
 (use-package lisp-mode
   :config
@@ -202,10 +219,10 @@ Start `ielm' if it's not already running."
   (add-hook 'ielm-mode-hook #'eldoc-mode)
   (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode))
 
-(use-package noctilux-theme
+(use-package zenburn-theme
   :ensure t
   :config
-  (load-theme 'noctilux t))
+  (load-theme 'zenburn t))
 
 ;; highlight the current line
 (global-hl-line-mode +1)
@@ -359,7 +376,7 @@ Start `ielm' if it's not already running."
     (add-hook hook #'whitespace-mode))
   (add-hook 'before-save-hook #'whitespace-cleanup)
   :config
-  (setq whitespace-line-column 80) ;; limit line length
+  ;; (setq whitespace-line-column 80) ;; limit line length
   (setq whitespace-style '(face tabs empty trailing lines-tail)))
 
 (use-package inf-ruby
@@ -378,8 +395,19 @@ Start `ielm' if it's not already running."
   (add-hook 'clojure-mode-hook #'subword-mode)
   (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode))
 
+;; Shortcut for calling user/reset when using the reloaded workflow
+;; https://github.com/stuartsierra/reloaded
+(defun cider-repl-reset ()
+  (interactive)
+  (save-some-buffers)
+  (with-current-buffer (cider-current-repl-buffer)
+    (goto-char (point-max))
+    (insert "(user/reset)")
+    (cider-repl-return)))
+
 (use-package cider
   :ensure t
+  :bind ("C-c r" . cider-repl-reset)
   :config
   (add-hook 'cider-mode-hook #'eldoc-mode)
   (add-hook 'cider-repl-mode-hook #'eldoc-mode)
@@ -537,6 +565,15 @@ Start `ielm' if it's not already running."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["#292929" "#ff3333" "#aaffaa" "#aaeecc" "#aaccff" "#FF1F69" "#aadddd" "#999999"])
+ '(background-color nil)
+ '(background-mode dark)
+ '(cursor-color nil)
+ '(custom-safe-themes
+   (quote
+    ("40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" "0c311fb22e6197daba9123f43da98f273d2bfaeeaeb653007ad1ee77f0003037" default)))
+ '(foreground-color nil)
  '(package-selected-packages
    (quote
     (cask-mode buttercup rainbow-mode ztree zop-to-char zenburn-theme yasnippet yaml-mode which-key use-package super-save smex rainbow-delimiters pt projectile paredit noflet multiple-cursors move-text markdown-mode magit inflections inf-ruby inf-clojure imenu-anywhere ido-ubiquitous hydra flycheck flx-ido expand-region exec-path-from-shell evil erlang elisp-slime-nav edn easy-kill crux company cider avy anzu aggressive-indent ag)))
