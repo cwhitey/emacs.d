@@ -70,6 +70,9 @@
 ;; the blinking cursor is nothing, but an annoyance
 (blink-cursor-mode -1)
 
+;; never want the menu bar (at least on OSX anyway)
+(menu-bar-mode -1)
+
 ;; disable the annoying bell ring
 (setq ring-bell-function 'ignore)
 
@@ -189,10 +192,10 @@ Start `ielm' if it's not already running."
   (add-hook 'ielm-mode-hook #'eldoc-mode)
   (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode))
 
-(use-package zenburn-theme
+(use-package noctilux-theme
   :ensure t
   :config
-  (load-theme 'zenburn t))
+  (load-theme 'noctilux t))
 
 ;; highlight the current line
 (global-hl-line-mode +1)
