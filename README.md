@@ -8,3 +8,6 @@ I'm putting it here mostly as a source of inspiration. :-)
 
 If you're looking for a nice (and way better structured) setup, check out
 my [Prelude](https://github.com/bbatsov/prelude) project.
+
+# System dependencies:
+- Aspell for Flyspell
