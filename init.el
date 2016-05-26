@@ -510,7 +510,6 @@ Start `ielm' if it's not already running."
   :bind (("C-c o" . crux-open-with)
          ("M-o" . crux-smart-open-line)
          ("C-c n" . crux-cleanup-buffer-or-region)
-         ("C-c f" . crux-recentf-ido-find-file)
          ("C-M-z" . crux-indent-defun)
          ("C-c u" . crux-view-url)
          ("C-c e" . crux-eval-and-replace)
@@ -522,7 +521,6 @@ Start `ielm' if it's not already running."
          ("C-c TAB" . crux-indent-rigidly-and-copy-to-clipboard)
          ("C-c I" . crux-find-user-init-file)
          ("C-c S" . crux-find-shell-init-file)
-         ("s-r" . crux-recentf-ido-find-file)
          ("s-j" . crux-top-join-line)
          ("C-^" . crux-top-join-line)
          ("s-k" . crux-kill-whole-line)
@@ -591,7 +589,7 @@ Start `ielm' if it's not already running."
  '(foreground-color nil)
  '(package-selected-packages
    (quote
-    (cask-mode buttercup rainbow-mode ztree zop-to-char zenburn-theme yasnippet yaml-mode which-key use-package super-save smex rainbow-delimiters pt projectile paredit noflet multiple-cursors move-text markdown-mode magit inflections inf-ruby inf-clojure imenu-anywhere ido-ubiquitous hydra flycheck flx-ido expand-region exec-path-from-shell evil erlang elisp-slime-nav edn easy-kill crux company cider avy anzu aggressive-indent ag)))
+    (cask-mode buttercup rainbow-mode ztree zop-to-char zenburn-theme yasnippet yaml-mode which-key use-package super-save smex rainbow-delimiters pt projectile paredit noflet multiple-cursors move-text markdown-mode magit inflections inf-ruby inf-clojure imenu-anywhere flycheck expand-region exec-path-from-shell evil erlang elisp-slime-nav edn easy-kill crux company cider avy anzu aggressive-indent ag)))
  '(safe-local-variable-values
    (quote
     ((checkdoc-package-keywords-flag)
