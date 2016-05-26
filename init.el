@@ -42,8 +42,8 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(setq user-full-name "Bozhidar Batsov"
-      user-mail-address "bozhidar@batsov.com")
+(setq user-full-name "Callum White"
+      user-mail-address "callumw1991@gmail.com")
 
 ;; Always load newest byte code
 (setq load-prefer-newer t)
@@ -198,7 +198,9 @@
          ("C-x C--" . text-scale-decrease)
          ("C-x C-0" . text-scale-adjust)))
 
+;; neaten this up
 (use-package lisp-mode
+  :ensure crux
   :config
   (defun bozhidar-visit-ielm ()
     "Switch to default `ielm' buffer.
@@ -262,6 +264,7 @@ Start `ielm' if it's not already running."
   (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
     (add-hook hook #'elisp-slime-nav-mode)))
 
+;; TODO: Smartparens?
 (use-package paredit
   :ensure t
   :config
@@ -419,34 +422,39 @@ Start `ielm' if it's not already running."
 (use-package erlang
   :ensure t)
 
-(use-package ido
+;; HELM HELM HELM
+(use-package helm
+  :ensure t
+  :bind (("M-x" . helm-M-x)
+         ("C-x C-m" . helm-M-x)
+         ("M-y" . helm-show-kill-ring)
+         ("C-x b" . helm-mini)
+         ("C-x C-b". helm-buffers-list)
+         ("C-x C-f" . helm-find-files)
+         ("C-h r" . helm-info-emacs))
+  :init
+  (setq helm-split-window-in-side-p           t
+        helm-buffers-fuzzy-matching           t
+        helm-move-to-line-cycle-in-source     t
+        helm-ff-search-library-in-sexp        t
+        helm-ff-file-name-history-use-recentf t)
+  :config
+  (require 'helm-config)
+  (require 'helm-eshell))
+
+(use-package helm-descbinds
   :ensure t
   :config
-  (setq ido-enable-prefix nil
-        ido-enable-flex-matching t
-        ido-create-new-buffer 'always
-        ido-use-filename-at-point 'guess
-        ido-max-prospects 10
-        ido-save-directory-list-file (expand-file-name "ido.hist" bozhidar-savefile-dir)
-        ido-default-file-method 'selected-window
-        ido-auto-merge-work-directories-length -1)
-  (ido-mode +1))
+  (helm-descbinds-mode))
 
-(use-package ido-ubiquitous
+(use-package helm-ag
+  :ensure t)
+
+(use-package helm-projectile
   :ensure t
   :config
-  (ido-ubiquitous-mode +1))
-
-(use-package flx-ido
-  :ensure t
-  :config
-  (flx-ido-mode +1)
-  ;; disable ido faces to see flx highlights
-  (setq ido-use-faces nil))
-
-(use-package smex
-  :ensure t
-  :bind ("M-x" . smex))
+  (setq projectile-completion-system 'helm)
+  (helm-projectile-on))
 
 (use-package markdown-mode
   :ensure t)
@@ -539,12 +547,16 @@ Start `ielm' if it's not already running."
 
 (use-package undo-tree
   :ensure t
+  :bind (("C-/" . undo-tree-undo)
+         ("C-?" . undo-tree-redo))
   :config
   ;; autosave the undo-tree history
   (setq undo-tree-history-directory-alist
         `((".*" . ,temporary-file-directory)))
   (setq undo-tree-auto-save-history t))
 
+
+;; Windows stuff
 (when (eq system-type 'windows-nt)
   (setq w32-pass-lwindow-to-system nil)
   (setq w32-lwindow-modifier 'super) ; Left Windows key
