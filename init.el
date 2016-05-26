@@ -73,6 +73,12 @@
 ;; never want the menu bar (at least on OSX anyway)
 (menu-bar-mode -1)
 
+(defun server-visit-presets ()
+  "Things to run when server is hit by new emacsclient instances."
+  (message "Running server-visit-presets")
+  (menu-bar-mode -1))
+(add-hook 'server-visit-hook 'server-visit-presets)
+
 ;; remove scroll bars
 (scroll-bar-mode -1)
 
