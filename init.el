@@ -390,6 +390,16 @@ Start `ielm' if it's not already running."
   ;; (setq whitespace-line-column 80) ;; limit line length
   (setq whitespace-style '(face tabs empty trailing lines-tail)))
 
+(use-package web-mode
+  :ensure t)
+
+;; TODO: Sort JS stuff out
+(use-package js2-mode
+  :ensure t)
+
+(use-package jade-mode
+  :ensure t)
+
 (use-package inf-ruby
   :ensure t
   :config
@@ -431,13 +441,18 @@ Start `ielm' if it's not already running."
 ;; HELM HELM HELM
 (use-package helm
   :ensure t
+  :bind-keymap (("C-c h" . helm-command-prefix))
   :bind (("M-x" . helm-M-x)
          ("C-x C-m" . helm-M-x)
          ("M-y" . helm-show-kill-ring)
          ("C-x b" . helm-mini)
          ("C-x C-b". helm-buffers-list)
          ("C-x C-f" . helm-find-files)
-         ("C-h r" . helm-info-emacs))
+         ("C-h r" . helm-info-emacs)
+         :map helm-command-map
+         ("o" . helm-occur)
+         ("g" . helm-do-grep)
+         ("SPC" . helm-all-mark-rings))
   :init
   (setq helm-split-window-in-side-p           t
         helm-buffers-fuzzy-matching           t
@@ -500,6 +515,7 @@ Start `ielm' if it's not already running."
   :config
   (add-hook 'after-init-hook #'global-flycheck-mode))
 
+;; save emacs buffers when they lose focus
 (use-package super-save
   :ensure t
   :config
@@ -535,7 +551,8 @@ Start `ielm' if it's not already running."
 (use-package aggressive-indent
   :ensure t
   :config
-  (global-aggressive-indent-mode +1))
+  (global-aggressive-indent-mode +1)
+  (add-to-list 'aggressive-indent-excluded-modes 'jade-mode))
 
 (use-package diff-hl
   :ensure t
