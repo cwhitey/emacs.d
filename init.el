@@ -496,11 +496,6 @@ Start `ielm' if it's not already running."
   :bind (("M-z" . zop-up-to-char)
          ("M-Z" . zop-to-char)))
 
-(use-package imenu-anywhere
-  :ensure t
-  :bind (("C-c i" . imenu-anywhere)
-         ("s-i" . imenu-anywhere)))
-
 (use-package flyspell
   :config
   (when (eq system-type 'windows-nt)
