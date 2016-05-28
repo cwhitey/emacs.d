@@ -38,9 +38,17 @@
 ;; keep the installed packages in .emacs.d
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 (package-initialize)
-;; update the package metadata is the local cache is missing
+
+;; update the package metadata if the local cache is missing
 (unless package-archive-contents
   (package-refresh-contents))
+
+(eval-when-compile
+  (require 'use-package))
+(require 'diminish)
+(require 'bind-key)
+
+(setq use-package-verbose t)
 
 (setq user-full-name "Callum White"
       user-mail-address "callumw1991@gmail.com")
@@ -55,11 +63,11 @@
 ;; warn when opening files bigger than 100MB
 (setq large-file-warning-threshold 100000000)
 
-(defconst bozhidar-savefile-dir (expand-file-name "savefile" user-emacs-directory))
+(defconst cwhitey-savefile-dir (expand-file-name "savefile" user-emacs-directory))
 
 ;; create the savefile dir if it doesn't exist
-(unless (file-exists-p bozhidar-savefile-dir)
-  (make-directory bozhidar-savefile-dir))
+(unless (file-exists-p cwhitey-savefile-dir)
+  (make-directory cwhitey-savefile-dir))
 
 ;; the toolbar is just a waste of valuable screen estate
 ;; in a tty tool-bar-mode does not properly auto-load, and is
@@ -184,11 +192,9 @@
 ;; smart tab behavior - indent or complete
 (setq tab-always-indent 'complete)
 
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-
-(require 'use-package)
-(setq use-package-verbose t)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Packages
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (use-package fasd
   :ensure t
@@ -203,30 +209,6 @@
          ("C-x C-+" . text-scale-increase)
          ("C-x C--" . text-scale-decrease)
          ("C-x C-0" . text-scale-adjust)))
-
-;; neaten this up
-(use-package lisp-mode
-  :ensure crux
-  :config
-  (defun bozhidar-visit-ielm ()
-    "Switch to default `ielm' buffer.
-Start `ielm' if it's not already running."
-    (interactive)
-    (crux-start-or-switch-to 'ielm "*ielm*"))
-
-  (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
-  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'bozhidar-visit-ielm)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer)
-  (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
-  (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode))
-
-(use-package ielm
-  :config
-  (add-hook 'ielm-mode-hook #'eldoc-mode)
-  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode))
-
 
 ;; themes
 (use-package ample-theme
@@ -251,35 +233,18 @@ Start `ielm' if it's not already running."
 (use-package ag
   :ensure t)
 
+(use-package pt
+  :ensure t)
+
 (use-package projectile
   :ensure t
   :bind ("s-p" . projectile-command-map)
   :config
   (projectile-global-mode +1))
 
-(use-package pt
-  :ensure t)
-
 (use-package expand-region
   :ensure t
   :bind ("C-=" . er/expand-region))
-
-(use-package elisp-slime-nav
-  :ensure t
-  :config
-  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
-    (add-hook hook #'elisp-slime-nav-mode)))
-
-;; TODO: Smartparens?
-(use-package paredit
-  :ensure t
-  :config
-  (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
-  ;; enable in the *scratch* buffer
-  (add-hook 'lisp-interaction-mode-hook #'paredit-mode)
-  (add-hook 'ielm-mode-hook #'paredit-mode)
-  (add-hook 'lisp-mode-hook #'paredit-mode)
-  (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode))
 
 (use-package paren
   :config
@@ -303,10 +268,11 @@ Start `ielm' if it's not already running."
 (require 'saveplace)
 (use-package saveplace
   :config
-  (setq save-place-file (expand-file-name "saveplace" bozhidar-savefile-dir))
+  (setq save-place-file (expand-file-name "saveplace" cwhitey-savefile-dir))
   ;; activate it for all buffers
   (setq-default save-place t))
 
+;; save minibuffer histories and defined savehist-additional-variables
 (use-package savehist
   :config
   (setq savehist-additional-variables
@@ -315,12 +281,12 @@ Start `ielm' if it's not already running."
         ;; save every minute
         savehist-autosave-interval 60
         ;; keep the home clean
-        savehist-file (expand-file-name "savehist" bozhidar-savefile-dir))
+        savehist-file (expand-file-name "savehist" cwhitey-savefile-dir))
   (savehist-mode +1))
 
 (use-package recentf
   :config
-  (setq recentf-save-file (expand-file-name "recentf" bozhidar-savefile-dir)
+  (setq recentf-save-file (expand-file-name "recentf" cwhitey-savefile-dir)
         recentf-max-saved-items 500
         recentf-max-menu-items 15
         ;; disable recentf-cleanup on Emacs start, because it can cause
@@ -356,6 +322,7 @@ Start `ielm' if it's not already running."
   :config
   (global-anzu-mode))
 
+;; investigate easy-kill's easy-mark
 (use-package easy-kill
   :ensure t
   :config
@@ -382,20 +349,75 @@ Start `ielm' if it's not already running."
   (add-hook 'prog-mode-hook #'rainbow-mode))
 
 (use-package whitespace
+  :disabled t
   :init
   (dolist (hook '(prog-mode-hook text-mode-hook))
     (add-hook hook #'whitespace-mode))
   (add-hook 'before-save-hook #'whitespace-cleanup)
   :config
-  ;; (setq whitespace-line-column 80) ;; limit line length
+  (setq whitespace-line-column 80) ;; limit line length
   (setq whitespace-style '(face tabs empty trailing lines-tail)))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Programming modes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; neaten this up
+(use-package lisp-mode
+  :ensure crux
+  :config
+  (defun cwhitey-visit-ielm ()
+    "Switch to default `ielm' buffer.
+Start `ielm' if it's not already running."
+    (interactive)
+    (crux-start-or-switch-to 'ielm "*ielm*"))
+
+  (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
+  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'cwhitey-visit-ielm)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer)
+  (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
+  (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode))
+
+(use-package ielm
+  :config
+  (add-hook 'ielm-mode-hook #'eldoc-mode)
+  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode))
+
+(use-package elisp-slime-nav
+  :ensure t
+  :config
+  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
+    (add-hook hook #'elisp-slime-nav-mode)))
+
+;; TODO: Smartparens?
+(use-package paredit
+  :ensure t
+  :config
+  (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
+  ;; enable in the *scratch* buffer
+  (add-hook 'lisp-interaction-mode-hook #'paredit-mode)
+  (add-hook 'ielm-mode-hook #'paredit-mode)
+  (add-hook 'lisp-mode-hook #'paredit-mode)
+  (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode))
 
 (use-package web-mode
   :ensure t)
 
-;; TODO: Sort JS stuff out
-(use-package js2-mode
+(use-package json-mode
   :ensure t)
+
+;; TODO: Sort JS stuff out
+(use-package js2-mode 
+  :ensure t
+  :mode ("\\.js\\'"
+         "\\.pac\\'")
+  :interpreter "node"
+  :config
+  (add-hook 'js2-mode-hook (lambda () (setq mode-name "JS2"))))
 
 (use-package jade-mode
   :ensure t)
@@ -438,6 +460,12 @@ Start `ielm' if it's not already running."
 (use-package erlang
   :ensure t)
 
+(use-package markdown-mode
+  :ensure t)
+
+(use-package yaml-mode
+  :ensure t)
+
 ;; HELM HELM HELM
 (use-package helm
   :ensure t
@@ -476,12 +504,6 @@ Start `ielm' if it's not already running."
   :config
   (setq projectile-completion-system 'helm)
   (helm-projectile-on))
-
-(use-package markdown-mode
-  :ensure t)
-
-(use-package yaml-mode
-  :ensure t)
 
 (use-package cask-mode
   :ensure t)
@@ -549,6 +571,7 @@ Start `ielm' if it's not already running."
   (global-aggressive-indent-mode +1)
   (add-to-list 'aggressive-indent-excluded-modes 'jade-mode))
 
+;; highlight uncommitted changes on left side of buffer
 (use-package diff-hl
   :ensure t
   :config
