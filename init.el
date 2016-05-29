@@ -213,10 +213,10 @@
   (interactive)
   (ignore-errors (forward-char 5)))
 
-(bind-keys ("C-N" . super-next-line)
-           ("C-P" . super-previous-line)
-           ("C-B" . super-backward-char)
-           ("C-F" . super-forward-char))
+(bind-keys ("C-S-n" . super-next-line)
+           ("C-S-p" . super-previous-line)
+           ("C-S-b" . super-backward-char)
+           ("C-S-f" . super-forward-char))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -533,8 +533,8 @@ Start `ielm' if it's not already running."
 
 (use-package helm-descbinds
   :ensure t
-  :config
-  (helm-descbinds-mode))
+  :bind ("C-h b" . helm-descbinds)
+  :config (helm-descbinds-mode))
 
 (use-package helm-ag
   :ensure t)
@@ -654,6 +654,18 @@ Start `ielm' if it's not already running."
 (bind-key "C-x 2" 'vsplit-last-buffer)
 (bind-key "C-x 3" 'hsplit-last-buffer)
 
+(use-package multiple-cursors
+  :ensure t :defer t
+  :bind
+  (("C-c m t" . mc/mark-all-like-this)
+   ("C-c m m" . mc/mark-all-like-this-dwim)
+   ("C-c m l" . mc/edit-lines)
+   ("C-c m e" . mc/edit-ends-of-lines)
+   ("C-c m a" . mc/edit-beginnings-of-lines)
+   ("C-c m n" . mc/mark-next-like-this)
+   ("C-c m p" . mc/mark-previous-like-this)
+   ("C-c m s" . mc/mark-sgml-tag-pair)
+   ("C-c m d" . mc/mark-all-like-this-in-defun)))
 
 ;; Windows stuff
 (when (eq system-type 'windows-nt)
