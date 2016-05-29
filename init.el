@@ -43,18 +43,25 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(eval-when-compile
-  (require 'use-package))
+(eval-when-compile (require 'use-package))
 (require 'diminish)
 (require 'bind-key)
 
 (setq use-package-verbose t)
+;; (setq use-package-always-ensure t)
 
-(setq user-full-name "Callum White"
-      user-mail-address "callumw1991@gmail.com")
+
 
 ;; Always load newest byte code
 (setq load-prefer-newer t)
+(use-package auto-compile
+  :ensure t
+  :config
+  (auto-compile-on-load-mode)
+  (auto-compile-on-save-mode))
+
+(setq user-full-name "Callum White"
+      user-mail-address "callumw1991@gmail.com")
 
 ;; reduce the frequency of garbage collection by making it happen on
 ;; each 50MB of allocated data (the default is on every 0.76MB)
@@ -198,8 +205,7 @@
 
 (use-package fasd
   :ensure t
-  :config
-  (global-fasd-mode 1))
+  :config (global-fasd-mode 1))
 
 (use-package zoom-frm
   :ensure t
@@ -213,8 +219,7 @@
 ;; themes
 (use-package ample-theme
   :ensure t
-  :config
-  (load-theme 'ample t))
+  :config (load-theme 'ample t))
 
 ;; highlight the current line
 (global-hl-line-mode +1)
@@ -243,12 +248,10 @@
   (projectile-global-mode +1))
 
 (use-package expand-region
-  :ensure t
   :bind ("C-=" . er/expand-region))
 
 (use-package paren
-  :config
-  (show-paren-mode +1))
+  :config (show-paren-mode +1))
 
 (use-package abbrev
   :config
@@ -265,7 +268,6 @@
   (setq uniquify-ignore-buffers-re "^\\*"))
 
 ;; saveplace remembers your location in a file when saving files
-(require 'saveplace)
 (use-package saveplace
   :config
   (setq save-place-file (expand-file-name "saveplace" cwhitey-savefile-dir))
@@ -319,8 +321,7 @@
   :ensure t
   :bind (("M-%" . anzu-query-replace)
          ("C-M-%" . anzu-query-replace-regexp))
-  :config
-  (global-anzu-mode))
+  :config (global-anzu-mode))
 
 ;; investigate easy-kill's easy-mark
 (use-package easy-kill
@@ -336,9 +337,8 @@
 
 (use-package move-text
   :ensure t
-  :bind
-  (([(meta shift up)] . move-text-up)
-   ([(meta shift down)] . move-text-down)))
+  :bind (([(meta shift up)] . move-text-up)
+         ([(meta shift down)] . move-text-down)))
 
 (use-package rainbow-delimiters
   :ensure t)
@@ -366,9 +366,9 @@
 
 ;; neaten this up
 (use-package lisp-mode
-  :ensure crux
   :config
-  (defun cwhitey-visit-ielm ()
+  (use-package crux)
+  (defun cal-visit-ielm ()
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
     (interactive)
@@ -376,7 +376,7 @@ Start `ielm' if it's not already running."
 
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'cwhitey-visit-ielm)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'cal-visit-ielm)
   (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
   (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer)
   (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
@@ -392,6 +392,14 @@ Start `ielm' if it's not already running."
   :config
   (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
     (add-hook hook #'elisp-slime-nav-mode)))
+
+(use-package shell-script-mode
+  :mode (("\\zshrc\\'" . shell-script-mode)
+         ("\\zshenv\\'" . shell-script-mode)
+         ("\\zpreztorc\\'" . shell-script-mode)
+         ("\\zprofile\\'" . shell-script-mode)
+         ("\\zlogin\\'" . shell-script-mode)
+         ("\\zlogout\\'" . shell-script-mode)))
 
 ;; TODO: Smartparens?
 (use-package paredit
@@ -411,10 +419,10 @@ Start `ielm' if it's not already running."
   :ensure t)
 
 ;; TODO: Sort JS stuff out
-(use-package js2-mode 
+(use-package js2-mode
   :ensure t
-  :mode ("\\.js\\'"
-         "\\.pac\\'")
+  :mode (("\\.js\\'" . js2-mode)
+         ("\\.pac\\'" . js2-mode))
   :interpreter "node"
   :config
   (add-hook 'js2-mode-hook (lambda () (setq mode-name "JS2"))))
@@ -422,14 +430,23 @@ Start `ielm' if it's not already running."
 (use-package jade-mode
   :ensure t)
 
+(use-package ruby-mode
+  :config
+  (add-hook 'ruby-mode-hook #'subword-mode))
+
 (use-package inf-ruby
   :ensure t
   :config
   (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode))
 
-(use-package ruby-mode
+(use-package projectile-rails
+  :ensure t
+  :bind (:map projectile-rails-mode-map
+              ("s-r m" . projectile-rails-find-model)
+              ("s-r c" . projectile-rails-find-controller)
+              ("s-r v" . projectile-rails-find-view))
   :config
-  (add-hook 'ruby-mode-hook #'subword-mode))
+  (add-hook 'projectile-mode-hook 'projectile-rails-on))
 
 (use-package clojure-mode
   :ensure t
@@ -505,13 +522,9 @@ Start `ielm' if it's not already running."
   (setq projectile-completion-system 'helm)
   (helm-projectile-on))
 
-(use-package cask-mode
-  :ensure t)
-
 (use-package company
   :ensure t
-  :config
-  (global-company-mode))
+  :config (global-company-mode))
 
 (use-package zop-to-char
   :ensure t
@@ -519,6 +532,7 @@ Start `ielm' if it's not already running."
          ("M-Z" . zop-to-char)))
 
 (use-package flyspell
+  :ensure t
   :config
   (when (eq system-type 'windows-nt)
     (add-to-list 'exec-path "C:/Program Files (x86)/Aspell/bin/"))
