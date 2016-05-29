@@ -362,7 +362,8 @@
          ([(meta shift down)] . move-text-down)))
 
 (use-package rainbow-delimiters
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package rainbow-mode
   :ensure t
@@ -388,6 +389,7 @@
 
 ;; neaten this up
 (use-package lisp-mode
+  :defer t
   :config
   (use-package crux)
   (defun cal-visit-ielm ()
@@ -405,12 +407,14 @@ Start `ielm' if it's not already running."
   (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode))
 
 (use-package ielm
+  :defer t
   :config
   (add-hook 'ielm-mode-hook #'eldoc-mode)
   (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode))
 
 (use-package elisp-slime-nav
   :ensure t
+  :defer t
   :config
   (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
     (add-hook hook #'elisp-slime-nav-mode)))
@@ -436,10 +440,12 @@ Start `ielm' if it's not already running."
   (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode))
 
 (use-package web-mode
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package json-mode
-  :ensure t)
+  :ensure t
+  :defer t)
 
 ;; TODO: Sort JS stuff out
 (use-package js2-mode
@@ -498,13 +504,24 @@ Start `ielm' if it's not already running."
   (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
 
 (use-package erlang
-  :ensure t)
+  :ensure t
+  :commands 'erlang-mode)
 
 (use-package markdown-mode
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package yaml-mode
-  :ensure t)
+  :ensure t
+  :defer t)
+
+(use-package gitconfig-mode
+  :ensure t
+  :defer t
+  :config (add-hook 'gitconfig-mode-hook
+                    (lambda ()
+                      (setf indent-tabs-mode nil
+                            tab-width 4))))
 
 ;; HELM HELM HELM
 (use-package helm
@@ -534,6 +551,7 @@ Start `ielm' if it's not already running."
 (use-package helm-descbinds
   :ensure t
   :bind ("C-h b" . helm-descbinds)
+  :init (fset 'describe-bindings 'helm-descbinds)
   :config (helm-descbinds-mode))
 
 (use-package helm-ag
