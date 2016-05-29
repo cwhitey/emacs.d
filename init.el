@@ -654,8 +654,9 @@ Start `ielm' if it's not already running."
 (bind-key "C-x 2" 'vsplit-last-buffer)
 (bind-key "C-x 3" 'hsplit-last-buffer)
 
+(global-unset-key (kbd "M-<down-mouse-1>"))
 (use-package multiple-cursors
-  :ensure t :defer t
+  :ensure t
   :bind
   (("C-c m t" . mc/mark-all-like-this)
    ("C-c m m" . mc/mark-all-like-this-dwim)
@@ -665,7 +666,8 @@ Start `ielm' if it's not already running."
    ("C-c m n" . mc/mark-next-like-this)
    ("C-c m p" . mc/mark-previous-like-this)
    ("C-c m s" . mc/mark-sgml-tag-pair)
-   ("C-c m d" . mc/mark-all-like-this-in-defun)))
+   ("C-c m d" . mc/mark-all-like-this-in-defun)
+   ("M-<mouse-1>" . mc/add-cursor-on-click)))
 
 ;; Windows stuff
 (when (eq system-type 'windows-nt)
