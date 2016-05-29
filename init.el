@@ -48,9 +48,6 @@
 (require 'bind-key)
 
 (setq use-package-verbose t)
-;; (setq use-package-always-ensure t)
-
-
 
 ;; Always load newest byte code
 (setq load-prefer-newer t)
