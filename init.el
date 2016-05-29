@@ -632,6 +632,28 @@ Start `ielm' if it's not already running."
         `((".*" . ,temporary-file-directory)))
   (setq undo-tree-auto-save-history t))
 
+;; goto edit history locations without changing anything
+(use-package goto-chg
+  :ensure t
+  :bind (("C-c ," . goto-last-change)
+         ("C-c ." . goto-last-change-reverse)))
+
+;; split using last buffer instead of current
+(defun vsplit-last-buffer ()
+  (interactive)
+  (split-window-vertically)
+  (other-window 1 nil)
+  (switch-to-next-buffer))
+
+(defun hsplit-last-buffer ()
+  (interactive)
+  (split-window-horizontally)
+  (other-window 1 nil)
+  (switch-to-next-buffer))
+
+(bind-key "C-x 2" 'vsplit-last-buffer)
+(bind-key "C-x 3" 'hsplit-last-buffer)
+
 
 ;; Windows stuff
 (when (eq system-type 'windows-nt)
