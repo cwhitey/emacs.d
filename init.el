@@ -218,6 +218,7 @@
            ("C-B" . super-backward-char)
            ("C-F" . super-forward-char))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -273,7 +274,8 @@
   :config (show-paren-mode +1))
 
 (use-package abbrev
-  :config
+  :diminish 'abbrev-mode
+  :config 
   (setq save-abbrevs 'silently)
   (setq-default abbrev-mode t))
 
@@ -364,6 +366,7 @@
 
 (use-package rainbow-mode
   :ensure t
+  :diminish 'rainbow-mode
   :config
   (add-hook 'prog-mode-hook #'rainbow-mode))
 
@@ -422,7 +425,8 @@ Start `ielm' if it's not already running."
 
 ;; TODO: Smartparens?
 (use-package paredit
-  :ensure t 
+  :ensure t
+  :diminish 'paredit-mode
   :config
   (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
   ;; enable in the *scratch* buffer
