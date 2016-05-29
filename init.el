@@ -196,6 +196,28 @@
 ;; smart tab behavior - indent or complete
 (setq tab-always-indent 'complete)
 
+;; quicker movement when needed
+(defun super-next-line ()
+  (interactive)
+  (ignore-errors (next-line 5)))
+
+(defun super-previous-line ()
+  (interactive)
+  (ignore-errors (previous-line 5)))
+
+(defun super-backward-char ()
+  (interactive)
+  (ignore-errors (backward-char 5)))
+
+(defun super-forward-char ()
+  (interactive)
+  (ignore-errors (forward-char 5)))
+
+(bind-keys ("C-N" . super-next-line)
+           ("C-P" . super-previous-line)
+           ("C-B" . super-backward-char)
+           ("C-F" . super-forward-char))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -400,7 +422,7 @@ Start `ielm' if it's not already running."
 
 ;; TODO: Smartparens?
 (use-package paredit
-  :ensure t
+  :ensure t 
   :config
   (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
   ;; enable in the *scratch* buffer
@@ -546,6 +568,7 @@ Start `ielm' if it's not already running."
 ;; save emacs buffers when they lose focus
 (use-package super-save
   :ensure t
+  :diminish 'super-save-mode
   :config
   (super-save-mode +1))
 
