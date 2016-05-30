@@ -498,7 +498,9 @@ Start `ielm' if it's not already running."
     :init (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode))
   (use-package robe
     :ensure t
-    :init (add-hook 'ruby-mode-hook #'robe-mode)))
+    :init (add-hook 'ruby-mode-hook #'robe-mode)
+    :config (eval-after-load 'company
+              '(push 'company-robe company-backends))))
 
 (use-package chruby
   :ensure t
