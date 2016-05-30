@@ -73,6 +73,9 @@
 (unless (file-exists-p cwhitey-savefile-dir)
   (make-directory cwhitey-savefile-dir))
 
+;; suppress warnings for redefinitions
+(setq ad-redefinition-action 'accept)
+
 ;; the toolbar is just a waste of valuable screen estate
 ;; in a tty tool-bar-mode does not properly auto-load, and is
 ;; already disabled anyway
@@ -256,10 +259,12 @@
   :bind (("C-x g" . magit-status)))
 
 (use-package ag
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package pt
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package projectile
   :ensure t
@@ -347,6 +352,7 @@
 ;; investigate easy-kill's easy-mark
 (use-package easy-kill
   :ensure t
+  :defer t
   :config
   (global-set-key [remap kill-ring-save] 'easy-kill))
 
@@ -368,6 +374,7 @@
 (use-package rainbow-mode
   :ensure t
   :diminish 'rainbow-mode
+  :commands (rainbow-mode)
   :config
   (add-hook 'prog-mode-hook #'rainbow-mode))
 
@@ -381,6 +388,33 @@
   (setq whitespace-line-column 80) ;; limit line length
   (setq whitespace-style '(face tabs empty trailing lines-tail)))
 
+(use-package crux
+  :ensure t
+  :commands (crux-start-or-switch-to)
+  :bind (("C-c o" . crux-open-with)
+         ("M-o" . crux-smart-open-line)
+         ("C-c n" . crux-cleanup-buffer-or-region)
+         ("C-M-z" . crux-indent-defun)
+         ("C-c u" . crux-view-url)
+         ("C-c e" . crux-eval-and-replace)
+         ("C-c w" . crux-swap-windows)
+         ("C-c D" . crux-delete-file-and-buffer)
+         ("C-c r" . crux-rename-buffer-and-file)
+         ("C-c t" . crux-visit-term-buffer)
+         ("C-c k" . crux-kill-other-buffers)
+         ("C-c TAB" . crux-indent-rigidly-and-copy-to-clipboard)
+         ("C-c I" . crux-find-user-init-file)
+         ("C-c S" . crux-find-shell-init-file)
+         ("s-j" . crux-top-join-line)
+         ("C-^" . crux-top-join-line)
+         ("s-k" . crux-kill-whole-line)
+         ("C-<backspace>" . crux-kill-line-backwards)
+         ("s-o" . crux-smart-open-line-above)
+         ([remap move-beginning-of-line] . crux-move-beginning-of-line)
+         ([(shift return)] . crux-smart-open-line)
+         ([(control shift return)] . crux-smart-open-line-above)
+         ([remap kill-whole-line] . crux-kill-whole-line)
+         ("C-c s" . crux-ispell-word-then-abbrev)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -391,19 +425,18 @@
 (use-package lisp-mode
   :defer t
   :config
-  (use-package crux)
   (defun cal-visit-ielm ()
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
     (interactive)
     (crux-start-or-switch-to 'ielm "*ielm*"))
 
+  (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
   (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'cal-visit-ielm)
   (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
   (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer)
-  (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
   (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode))
 
 (use-package ielm
@@ -416,8 +449,8 @@ Start `ielm' if it's not already running."
   :ensure t
   :defer t
   :config
-  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
-    (add-hook hook #'elisp-slime-nav-mode)))
+  (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode)
+  (add-hook 'ielm-mode-hook #'elisp-slime-nav-mode))
 
 (use-package shell-script-mode
   :mode (("\\zshrc\\'" . shell-script-mode)
@@ -432,11 +465,11 @@ Start `ielm' if it's not already running."
   :ensure t
   :diminish 'paredit-mode
   :config
+  (add-hook 'lisp-mode-hook #'paredit-mode)
+  (add-hook 'ielm-mode-hook #'paredit-mode)
   (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
   ;; enable in the *scratch* buffer
-  (add-hook 'lisp-interaction-mode-hook #'paredit-mode)
-  (add-hook 'ielm-mode-hook #'paredit-mode)
-  (add-hook 'lisp-mode-hook #'paredit-mode)
+  (add-hook 'lisp-interaction-mode-hook #'paredit-mode) 
   (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode))
 
 (use-package web-mode
@@ -457,16 +490,29 @@ Start `ielm' if it's not already running."
   (add-hook 'js2-mode-hook (lambda () (setq mode-name "JS2"))))
 
 (use-package jade-mode
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package ruby-mode
-  :config
-  (add-hook 'ruby-mode-hook #'subword-mode))
+  :defer t
+  :init
+  (add-hook 'ruby-mode-hook #'subword-mode) 
+  :config 
+  (use-package inf-ruby
+    :ensure t
+    :init (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode))
+  (use-package robe
+    :ensure t
+    :init (add-hook 'ruby-mode-hook #'robe-mode)))
 
-(use-package inf-ruby
+(use-package chruby
   :ensure t
-  :config
-  (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode))
+  :defer t
+  :config (chruby "ruby 2.2.3"))
+
+(use-package bundler
+  :ensure t
+  :commands (bundle-open bundle-console bundle-install bundle-update bundle-check))
 
 (use-package projectile-rails
   :ensure t
@@ -550,12 +596,13 @@ Start `ielm' if it's not already running."
 
 (use-package helm-descbinds
   :ensure t
-  :bind ("C-h b" . helm-descbinds)
-  :init (fset 'describe-bindings 'helm-descbinds)
-  :config (helm-descbinds-mode))
+  :defer t
+  :bind (("C-h b" . helm-descbinds)
+         ("C-h w" . helm-descbinds)))
 
 (use-package helm-ag
-  :ensure t)
+  :ensure t
+  :defer t)
 
 (use-package helm-projectile
   :ensure t
@@ -565,7 +612,8 @@ Start `ielm' if it's not already running."
 
 (use-package company
   :ensure t
-  :config (global-company-mode))
+  :commands (company-mode)
+  :config (add-hook 'prog-mode-hook #'company-mode))
 
 (use-package zop-to-char
   :ensure t
@@ -594,33 +642,6 @@ Start `ielm' if it's not already running."
   :config
   (super-save-mode +1))
 
-(use-package crux
-  :ensure t
-  :bind (("C-c o" . crux-open-with)
-         ("M-o" . crux-smart-open-line)
-         ("C-c n" . crux-cleanup-buffer-or-region)
-         ("C-M-z" . crux-indent-defun)
-         ("C-c u" . crux-view-url)
-         ("C-c e" . crux-eval-and-replace)
-         ("C-c w" . crux-swap-windows)
-         ("C-c D" . crux-delete-file-and-buffer)
-         ("C-c r" . crux-rename-buffer-and-file)
-         ("C-c t" . crux-visit-term-buffer)
-         ("C-c k" . crux-kill-other-buffers)
-         ("C-c TAB" . crux-indent-rigidly-and-copy-to-clipboard)
-         ("C-c I" . crux-find-user-init-file)
-         ("C-c S" . crux-find-shell-init-file)
-         ("s-j" . crux-top-join-line)
-         ("C-^" . crux-top-join-line)
-         ("s-k" . crux-kill-whole-line)
-         ("C-<backspace>" . crux-kill-line-backwards)
-         ("s-o" . crux-smart-open-line-above)
-         ([remap move-beginning-of-line] . crux-move-beginning-of-line)
-         ([(shift return)] . crux-smart-open-line)
-         ([(control shift return)] . crux-smart-open-line-above)
-         ([remap kill-whole-line] . crux-kill-whole-line)
-         ("C-c s" . crux-ispell-word-then-abbrev)))
-
 (use-package aggressive-indent
   :ensure t
   :config
@@ -643,7 +664,8 @@ Start `ielm' if it's not already running."
 (use-package undo-tree
   :ensure t
   :bind (("C-/" . undo-tree-undo)
-         ("C-?" . undo-tree-redo))
+         ("C-?" . undo-tree-redo)
+         ("C-x u" . undo-tree-visualize))
   :config
   ;; autosave the undo-tree history
   (setq undo-tree-history-directory-alist
