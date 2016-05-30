@@ -567,6 +567,7 @@ Start `ielm' if it's not already running."
 ;; HELM HELM HELM
 (use-package helm
   :ensure t
+  :defer 2
   :bind-keymap (("C-c h" . helm-command-prefix))
   :bind (("M-x" . helm-M-x)
          ("C-x C-m" . helm-M-x)
@@ -601,9 +602,9 @@ Start `ielm' if it's not already running."
 
 (use-package helm-projectile
   :ensure t
-  :config
-  (setq projectile-completion-system 'helm)
-  (helm-projectile-on))
+  :defer 2
+  :init (setq projectile-completion-system 'helm)
+  :config (helm-projectile-on))
 
 (use-package company
   :ensure t
@@ -615,18 +616,18 @@ Start `ielm' if it's not already running."
   :bind (("M-z" . zop-up-to-char)
          ("M-Z" . zop-to-char)))
 
-(use-package flyspell
-  :ensure t
-  :config
-  (when (eq system-type 'windows-nt)
-    (add-to-list 'exec-path "C:/Program Files (x86)/Aspell/bin/"))
-  (setq ispell-program-name "aspell" ; use aspell instead of ispell
-        ispell-extra-args '("--sug-mode=ultra"))
-  (add-hook 'text-mode-hook #'flyspell-mode)
-  (add-hook 'prog-mode-hook #'flyspell-prog-mode))
+;; (use-package flyspell
+;;   :ensure t
+;;   :defer 2
+;;   :config
+;;   (setq ispell-program-name "aspell" ; use aspell instead of ispell
+;;         ispell-extra-args '("--sug-mode=ultra"))
+;;   (add-hook 'text-mode-hook #'flyspell-mode)
+;;   (add-hook 'prog-mode-hook #'flyspell-prog-mode))
 
 (use-package flycheck
   :ensure t
+  :defer 2
   :config
   (add-hook 'after-init-hook #'global-flycheck-mode))
 
@@ -646,6 +647,7 @@ Start `ielm' if it's not already running."
 ;; highlight uncommitted changes on left side of buffer
 (use-package diff-hl
   :ensure t
+  :defer 2
   :config
   (global-diff-hl-mode +1)
   (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
