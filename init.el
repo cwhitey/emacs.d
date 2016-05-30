@@ -51,11 +51,6 @@
 
 ;; Always load newest byte code
 (setq load-prefer-newer t)
-(use-package auto-compile
-  :ensure t
-  :config
-  (auto-compile-on-load-mode)
-  (auto-compile-on-save-mode))
 
 (setq user-full-name "Callum White"
       user-mail-address "callumw1991@gmail.com")
