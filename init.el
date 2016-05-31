@@ -569,7 +569,7 @@ Start `ielm' if it's not already running."
 ;; HELM HELM HELM
 (use-package helm
   :ensure t
-  :defer 2
+  :defer 1
   :bind-keymap (("C-c h" . helm-command-prefix))
   :bind (("M-x" . helm-M-x)
          ("C-x C-m" . helm-M-x)
@@ -693,9 +693,10 @@ Start `ielm' if it's not already running."
 (bind-key "C-x 2" 'vsplit-last-buffer)
 (bind-key "C-x 3" 'hsplit-last-buffer)
 
-(global-unset-key (kbd "M-<down-mouse-1>"))
+
 (use-package multiple-cursors
   :ensure t
+  :init (global-unset-key (kbd "M-<down-mouse-1>"))
   :bind
   (("C-c m t" . mc/mark-all-like-this)
    ("C-c m m" . mc/mark-all-like-this-dwim)
