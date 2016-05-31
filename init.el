@@ -709,24 +709,6 @@ Start `ielm' if it's not already running."
    ("C-c m d" . mc/mark-all-like-this-in-defun)
    ("M-<mouse-1>" . mc/add-cursor-on-click)))
 
-;; Windows stuff
-(when (eq system-type 'windows-nt)
-  (setq w32-pass-lwindow-to-system nil)
-  (setq w32-lwindow-modifier 'super) ; Left Windows key
-
-  (setq w32-pass-rwindow-to-system nil)
-  (setq w32-rwindow-modifier 'super) ; Right Windows key
-
-  (setq w32-pass-apps-to-system nil)
-  (setq w32-apps-modifier 'hyper) ; Menu/App key
-
-  (set-frame-font "Source Code Pro 12")
-  (add-to-list 'exec-path "C:/Program Files/Git/bin")
-  (add-to-list 'exec-path "C:/Program Files/Git/mingw64/bin")
-  (setenv "PATH" (concat "C:/Program Files/Git/bin;" "C:/Program Files/Git/mingw64/bin;" (getenv "PATH")))
-  ;; needed for arc-mode
-  (add-to-list 'exec-path "C:/Program Files/7-Zip"))
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
