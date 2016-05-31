@@ -693,7 +693,6 @@ Start `ielm' if it's not already running."
 (bind-key "C-x 2" 'vsplit-last-buffer)
 (bind-key "C-x 3" 'hsplit-last-buffer)
 
-
 (use-package multiple-cursors
   :ensure t
   :init (global-unset-key (kbd "M-<down-mouse-1>"))
@@ -709,32 +708,5 @@ Start `ielm' if it's not already running."
    ("C-c m d" . mc/mark-all-like-this-in-defun)
    ("M-<mouse-1>" . mc/add-cursor-on-click)))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("40f6a7af0dfad67c0d4df2a1dd86175436d79fc69ea61614d668a635c2cd94ab" "0c311fb22e6197daba9123f43da98f273d2bfaeeaeb653007ad1ee77f0003037" default)))
- '(foreground-color nil)
- '(package-selected-packages
-   (quote
-    (cask-mode buttercup rainbow-mode ztree zop-to-char zenburn-theme yasnippet yaml-mode which-key use-package super-save smex rainbow-delimiters pt projectile paredit noflet multiple-cursors move-text markdown-mode magit inflections inf-ruby inf-clojure imenu-anywhere flycheck expand-region exec-path-from-shell evil erlang elisp-slime-nav edn easy-kill crux company cider avy anzu aggressive-indent ag)))
- '(safe-local-variable-values
-   (quote
-    ((checkdoc-package-keywords-flag)
-     (eval when
-           (require
-            (quote rainbow-mode)
-            nil t)
-           (rainbow-mode 1))
-     (bug-reference-bug-regexp . "#\\(?2:[[:digit:]]+\\)")))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
 
 ;;; init.el ends here
