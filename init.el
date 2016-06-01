@@ -416,7 +416,7 @@
 ;; Programming modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; neaten this up
+;; neaten this up (use-package emacs-lisp-mode)?
 (use-package lisp-mode
   :defer t
   :config
@@ -428,7 +428,7 @@ Start `ielm' if it's not already running."
 
   (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
-  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode) 
   (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'cal-visit-ielm)
   (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
   (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer)
@@ -630,8 +630,11 @@ Start `ielm' if it's not already running."
 (use-package flycheck
   :ensure t
   :defer 2
+  :init
+  (setq-default flycheck-emacs-lisp-load-path 'inherit)
   :config
-  (add-hook 'after-init-hook #'global-flycheck-mode))
+  (global-flycheck-mode +1)
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
 
 ;; save emacs buffers when they lose focus
 (use-package super-save
