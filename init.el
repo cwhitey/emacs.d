@@ -469,20 +469,37 @@ Start `ielm' if it's not already running."
 
 (use-package web-mode
   :ensure t
-  :defer t)
+  :defer t
+  :mode (("\\.hbs\\'" . web-mode)))
+
+;; TODO: add CSS mode
+(use-package scss-mode
+  :ensure t
+  :defer t
+  ;;   :init (setq scss-compile-at-save nil) ;; TODO: take this out without getting errors. (ruby env issue with scss exec.?)
+  :mode (("\\.scss\\'" . web-mode)
+         ("\\.sass\\'" . web-mode)))
 
 (use-package json-mode
   :ensure t
   :defer t)
 
-;; TODO: Sort JS stuff out
+
+(use-package tern
+  :ensure t
+  :disabled t ;; must install tern-server
+  :defer t)
+
 (use-package js2-mode
   :ensure t
   :mode (("\\.js\\'" . js2-mode)
          ("\\.pac\\'" . js2-mode))
   :interpreter "node"
   :config
-  (add-hook 'js2-mode-hook (lambda () (setq mode-name "JS2"))))
+  (add-hook 'js2-mode-hook (lambda ()
+                             (setq mode-name "JS2")
+                             ;; (tern-mode t)
+                             )))
 
 (use-package jade-mode
   :ensure t
@@ -561,6 +578,7 @@ Start `ielm' if it's not already running."
 (use-package gitconfig-mode
   :ensure t
   :defer t
+  :mode ("\\gitconfig\\'" . gitconfig-mode)
   :config (add-hook 'gitconfig-mode-hook
                     (lambda ()
                       (setf indent-tabs-mode nil
@@ -608,9 +626,18 @@ Start `ielm' if it's not already running."
   :init (setq projectile-completion-system 'helm)
   :config (helm-projectile-on))
 
+(use-package helm-open-github
+  :ensure t
+  :defer t
+  :bind (("C-c g f" . helm-open-github-from-file)
+         ("C-c g c" . helm-open-github-from-commit)
+         ("C-c g i" . helm-open-github-from-issues)
+         ("C-c g p" . helm-open-github-from-pull-requests)))
+
 (use-package company
   :ensure t
   :commands (company-mode)
+  :init (setq company-idle-delay 0.3)
   :config (add-hook 'prog-mode-hook #'company-mode))
 
 (use-package zop-to-char
@@ -681,6 +708,7 @@ Start `ielm' if it's not already running."
          ("C-c ." . goto-last-change-reverse)))
 
 ;; split using last buffer instead of current
+;; TODO: if in projectile project, use last project buffer if exists
 (defun vsplit-last-buffer ()
   (interactive)
   (split-window-vertically)
