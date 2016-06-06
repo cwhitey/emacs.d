@@ -473,12 +473,13 @@ Start `ielm' if it's not already running."
   :mode (("\\.hbs\\'" . web-mode)))
 
 ;; TODO: add CSS mode
+
+;; Required in PATH: `scss` and `scss_lint`
 (use-package scss-mode
   :ensure t
   :defer t
-  ;;   :init (setq scss-compile-at-save nil) ;; TODO: take this out without getting errors. (ruby env issue with scss exec.?)
-  :mode (("\\.scss\\'" . web-mode)
-         ("\\.sass\\'" . web-mode)))
+  :mode (("\\.scss\\'" . scss-mode)
+         ("\\.sass\\'" . scss-mode)))
 
 (use-package json-mode
   :ensure t
