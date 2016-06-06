@@ -4,3 +4,4 @@ Adapted from Bozhidar's personal config. Some things may not work properly for y
 
 ### System dependencies:
 - Aspell for Flyspell
+- `scss` and `scss_lint` gems for `scss-mode`
