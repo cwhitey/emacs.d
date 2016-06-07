@@ -416,6 +416,10 @@
 ;; Programming modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(use-package dumb-jump
+  :ensure t
+  :config (dumb-jump-mode))
+
 ;; neaten this up (use-package emacs-lisp-mode)?
 (use-package lisp-mode
   :defer t
@@ -487,7 +491,6 @@ Start `ielm' if it's not already running."
 
 
 (use-package tern
-  :ensure t
   :disabled t ;; must install tern-server
   :defer t)
 
@@ -621,6 +624,15 @@ Start `ielm' if it's not already running."
   :ensure t
   :defer t)
 
+;; efficiently hopping squeezed lines powered by helm interface
+(use-package helm-swoop 
+  :ensure t
+  :defer t
+  :bind (("M-i" . helm-swoop)
+         ("M-I" . helm-multi-swoop)
+         :map isearch-mode-map ("M-i" . helm-swoop-from-isearch)
+         :map helm-swoop-map ("M-i" . helm-multi-swoop-all-from-helm-swoop)))
+
 (use-package helm-projectile
   :ensure t
   :defer 2
@@ -686,6 +698,7 @@ Start `ielm' if it's not already running."
   (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
   (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 
+;; display key binding completion help for partially typed commands
 (use-package which-key
   :ensure t
   :config
@@ -707,6 +720,10 @@ Start `ielm' if it's not already running."
   :ensure t
   :bind (("C-c ," . goto-last-change)
          ("C-c ." . goto-last-change-reverse)))
+
+;; undo and redo window configuration with <C-left> and <C-right>
+(use-package winner-mode
+  :config (winner-mode 1))
 
 ;; split using last buffer instead of current
 ;; TODO: if in projectile project, use last project buffer if exists
