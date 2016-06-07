@@ -340,11 +340,12 @@
 
 (use-package anzu
   :ensure t
+  :diminish 'anzu-mode
   :bind (("M-%" . anzu-query-replace)
          ("C-M-%" . anzu-query-replace-regexp))
   :config (global-anzu-mode))
 
-;; investigate easy-kill's easy-mark
+;; TODO: investigate easy-kill's easy-mark
 (use-package easy-kill
   :ensure t
   :defer t
@@ -512,16 +513,18 @@ Start `ielm' if it's not already running."
 (use-package ruby-mode
   :defer t
   :init
-  (add-hook 'ruby-mode-hook #'subword-mode) 
+  (add-hook 'ruby-mode-hook #'subword-mode)
+  (add-hook 'ruby-mode-hook #'robe-mode)
+  (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode) 
   :config 
   (use-package inf-ruby
     :ensure t
-    :init (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode))
+    :init
+    (push 'company-inf-ruby company-backends))
   (use-package robe
     :ensure t
-    :init (add-hook 'ruby-mode-hook #'robe-mode)
-    :config (eval-after-load 'company
-              '(push 'company-robe company-backends))))
+    :init
+    (push 'company-robe company-backends)))
 
 (use-package chruby
   :ensure t
