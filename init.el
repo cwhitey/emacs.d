@@ -146,6 +146,9 @@
 ;; revert buffers automatically when underlying files are changed externally
 (global-auto-revert-mode t)
 
+;; undo and redo window configuration with <C-left> and <C-right>
+(winner-mode 1)
+
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
 (set-terminal-coding-system 'utf-8)
@@ -270,6 +273,7 @@
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
+;; highlight pairs
 (use-package paren
   :config (show-paren-mode +1))
 
@@ -630,11 +634,12 @@ Start `ielm' if it's not already running."
 ;; efficiently hopping squeezed lines powered by helm interface
 (use-package helm-swoop 
   :ensure t
-  :defer t
+  :defer t 
   :bind (("M-i" . helm-swoop)
          ("M-I" . helm-multi-swoop)
          :map isearch-mode-map ("M-i" . helm-swoop-from-isearch)
-         :map helm-swoop-map ("M-i" . helm-multi-swoop-all-from-helm-swoop)))
+         :map helm-swoop-map ("M-i" . helm-multi-swoop-all-from-helm-swoop))
+  :init (setq helm-swoop-speed-or-color t))
 
 (use-package helm-projectile
   :ensure t
@@ -688,9 +693,12 @@ Start `ielm' if it's not already running."
 
 (use-package aggressive-indent
   :ensure t
+  :init
+  (add-to-list 'aggressive-indent-excluded-modes 'jade-mode)
+  ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate.
+  (add-to-list 'aggressive-indent-excluded-modes 'ruby-mode)
   :config
-  (global-aggressive-indent-mode +1)
-  (add-to-list 'aggressive-indent-excluded-modes 'jade-mode))
+  (global-aggressive-indent-mode +1))
 
 ;; highlight uncommitted changes on left side of buffer
 (use-package diff-hl
@@ -723,10 +731,6 @@ Start `ielm' if it's not already running."
   :ensure t
   :bind (("C-c ," . goto-last-change)
          ("C-c ." . goto-last-change-reverse)))
-
-;; undo and redo window configuration with <C-left> and <C-right>
-(use-package winner-mode
-  :config (winner-mode 1))
 
 ;; split using last buffer instead of current
 ;; TODO: if in projectile project, use last project buffer if exists
