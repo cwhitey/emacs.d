@@ -224,6 +224,13 @@
 ;; Packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;; supply :chords keyword for use-package definitions
+;; this also gives us the key-chord library
+(use-package use-package-chords
+  :ensure t
+  :config
+  (key-chord-mode 1))
+
 (use-package fasd
   :ensure t
   :config (global-fasd-mode 1))
@@ -272,10 +279,6 @@
 
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
-
-;; highlight pairs
-(use-package paren
-  :config (show-paren-mode +1))
 
 (use-package abbrev
   :diminish 'abbrev-mode
@@ -352,7 +355,7 @@
 ;; TODO: investigate easy-kill's easy-mark
 (use-package easy-kill
   :ensure t
-  :defer t
+  :defer t 
   :config
   (global-set-key [remap kill-ring-save] 'easy-kill))
 
@@ -367,10 +370,12 @@
   :bind (([(meta shift up)] . move-text-up)
          ([(meta shift down)] . move-text-down)))
 
+;; rainbow parens based on depth
 (use-package rainbow-delimiters
   :ensure t
   :defer t)
 
+;; colorise color names in programming buffers (e.g. #000000)
 (use-package rainbow-mode
   :ensure t
   :diminish 'rainbow-mode
@@ -421,6 +426,11 @@
 ;; Programming modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(use-package company
+  :ensure t
+  :init (setq company-idle-delay 0.3)
+  :config (add-hook 'prog-mode-hook #'company-mode))
+
 (use-package dumb-jump
   :ensure t
   :config (dumb-jump-mode))
@@ -464,17 +474,19 @@ Start `ielm' if it's not already running."
          ("\\zlogin\\'" . shell-script-mode)
          ("\\zlogout\\'" . shell-script-mode)))
 
-;; TODO: Smartparens?
-(use-package paredit
+(use-package smartparens
   :ensure t
-  :diminish 'paredit-mode
   :config
-  (add-hook 'lisp-mode-hook #'paredit-mode)
-  (add-hook 'ielm-mode-hook #'paredit-mode)
-  (add-hook 'emacs-lisp-mode-hook #'paredit-mode)
-  ;; enable in the *scratch* buffer
-  (add-hook 'lisp-interaction-mode-hook #'paredit-mode) 
-  (add-hook 'eval-expression-minibuffer-setup-hook #'paredit-mode))
+  (require 'smartparens-config)
+  (setq sp-autoskip-closing-pair 'always)
+  (setq sp-hybrid-kill-entire-symbol nil)
+  ;; remove annoying highlighting of pair region after creation
+  (setq sp-highlight-pair-overlay nil)
+  ;; borrow keybindings from paredit
+  (setq sp-base-key-bindings 'paredit)
+  (sp-use-paredit-bindings)
+  (show-smartparens-global-mode t)
+  (smartparens-global-mode t))
 
 (use-package web-mode
   :ensure t
@@ -482,7 +494,6 @@ Start `ielm' if it's not already running."
   :mode (("\\.hbs\\'" . web-mode)))
 
 ;; TODO: add CSS mode
-
 ;; Required in PATH: `scss` and `scss_lint`
 (use-package scss-mode
   :ensure t
@@ -493,7 +504,6 @@ Start `ielm' if it's not already running."
 (use-package json-mode
   :ensure t
   :defer t)
-
 
 (use-package tern
   :disabled t ;; must install tern-server
@@ -506,21 +516,31 @@ Start `ielm' if it's not already running."
   :interpreter "node"
   :config
   (add-hook 'js2-mode-hook (lambda ()
-                             (setq mode-name "JS2")
                              ;; (tern-mode t)
-                             )))
+                             (setq mode-name "JS2"))))
 
 (use-package jade-mode
   :ensure t
   :defer t)
 
+;; TODO: use enh-ruby-mode instead (may solve aggressive-indenting problems?)
 (use-package ruby-mode
   :defer t
+  :mode ("\\.rake\\'"
+         "\\Rakefile\\'"
+         "\\.gemspec\\'"
+         "\\.ru\\'"
+         "\\Gemfile\\'"
+         "\\Guardfile\\'"
+         "\\Capfile\\'"
+         "\\.cap\\'"
+         "\\.rabl\\'"
+         "\\Vagrantfile\\'")
   :init
   (add-hook 'ruby-mode-hook #'subword-mode)
   (add-hook 'ruby-mode-hook #'robe-mode)
-  (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode) 
-  :config 
+  (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
+  :config
   (use-package inf-ruby
     :ensure t
     :init
@@ -528,12 +548,12 @@ Start `ielm' if it's not already running."
   (use-package robe
     :ensure t
     :init
-    (push 'company-robe company-backends)))
-
-(use-package chruby
-  :ensure t
-  :defer t
-  :config (chruby "ruby 2.2.3"))
+    (push 'company-robe company-backends))
+  (use-package ruby-tools
+    :ensure t)
+  (use-package chruby
+    :ensure t
+    :config (chruby "ruby 2.2.3")))
 
 (use-package bundler
   :ensure t
@@ -600,6 +620,7 @@ Start `ielm' if it's not already running."
   :ensure t
   :defer 1
   :bind-keymap (("C-c h" . helm-command-prefix))
+  :chords (("yy" . helm-show-kill-ring))
   :bind (("M-x" . helm-M-x)
          ("C-x C-m" . helm-M-x)
          ("M-y" . helm-show-kill-ring)
@@ -634,12 +655,17 @@ Start `ielm' if it's not already running."
 ;; efficiently hopping squeezed lines powered by helm interface
 (use-package helm-swoop 
   :ensure t
-  :defer t 
+  :defer t
+  :disabled t
   :bind (("M-i" . helm-swoop)
-         ("M-I" . helm-multi-swoop)
-         :map isearch-mode-map ("M-i" . helm-swoop-from-isearch)
-         :map helm-swoop-map ("M-i" . helm-multi-swoop-all-from-helm-swoop))
+         ("M-I" . helm-multi-swoop))
   :init (setq helm-swoop-speed-or-color t))
+
+;; helm-swoop alternative. consider using non-helm swiper (ivy backend).
+(use-package swiper-helm 
+  :ensure t
+  :defer t
+  :bind (("M-i" . swiper-helm)))
 
 (use-package helm-projectile
   :ensure t
@@ -654,12 +680,6 @@ Start `ielm' if it's not already running."
          ("C-c g c" . helm-open-github-from-commit)
          ("C-c g i" . helm-open-github-from-issues)
          ("C-c g p" . helm-open-github-from-pull-requests)))
-
-(use-package company
-  :ensure t
-  :commands (company-mode)
-  :init (setq company-idle-delay 0.3)
-  :config (add-hook 'prog-mode-hook #'company-mode))
 
 (use-package zop-to-char
   :ensure t
@@ -693,11 +713,10 @@ Start `ielm' if it's not already running."
 
 (use-package aggressive-indent
   :ensure t
-  :init
+  :config
   (add-to-list 'aggressive-indent-excluded-modes 'jade-mode)
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate.
   (add-to-list 'aggressive-indent-excluded-modes 'ruby-mode)
-  :config
   (global-aggressive-indent-mode +1))
 
 ;; highlight uncommitted changes on left side of buffer
