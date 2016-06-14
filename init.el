@@ -433,6 +433,8 @@
 
 (use-package dumb-jump
   :ensure t
+  :bind (:map dumb-jump-mode-map
+              ("C-M-," . dumb-jump-back))
   :config (dumb-jump-mode))
 
 ;; neaten this up (use-package emacs-lisp-mode)?
@@ -486,7 +488,8 @@ Start `ielm' if it's not already running."
   (setq sp-base-key-bindings 'paredit)
   (sp-use-paredit-bindings)
   (show-smartparens-global-mode t)
-  (smartparens-global-mode t))
+  (smartparens-global-mode t)
+  (add-hook 'lisp-mode #'turn-on-smartparens-strict-mode))
 
 (use-package web-mode
   :ensure t
