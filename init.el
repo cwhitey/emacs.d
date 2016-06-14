@@ -433,8 +433,10 @@
 
 (use-package dumb-jump
   :ensure t
-  :bind (:map dumb-jump-mode-map
-              ("C-M-," . dumb-jump-back))
+  ;; bind keys (have to override globals by using *)
+  :bind* (:map dumb-jump-mode-map
+               ("C-M-." . dumb-jump-go)
+               ("C-M-," . dumb-jump-back))
   :config (dumb-jump-mode))
 
 ;; neaten this up (use-package emacs-lisp-mode)?
