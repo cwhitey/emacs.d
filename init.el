@@ -489,8 +489,7 @@ Start `ielm' if it's not already running."
   (setq sp-highlight-pair-overlay nil)
   ;; skip closing pair even when backspace is pressed beforehand
   (setq sp-cancel-autoskip-on-backward-movement nil)
-  ;; borrow keybindings from paredit
-  (sp-use-paredit-bindings)
+  (sp-use-smartparens-bindings)
   (show-smartparens-global-mode t)
   (smartparens-global-mode t)
   (add-hook 'lisp-mode #'turn-on-smartparens-strict-mode))
