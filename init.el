@@ -480,19 +480,22 @@ Start `ielm' if it's not already running."
 
 (use-package smartparens
   :ensure t
+  :diminish smartparens-mode
   :config
   (require 'smartparens-config)
   (setq sp-autoskip-closing-pair 'always)
   (setq sp-hybrid-kill-entire-symbol nil)
   ;; remove annoying highlighting of pair region after creation
   (setq sp-highlight-pair-overlay nil)
+  ;; skip closing pair even when backspace is pressed beforehand
+  (setq sp-cancel-autoskip-on-backward-movement nil)
   ;; borrow keybindings from paredit
-  (setq sp-base-key-bindings 'paredit)
   (sp-use-paredit-bindings)
   (show-smartparens-global-mode t)
   (smartparens-global-mode t)
   (add-hook 'lisp-mode #'turn-on-smartparens-strict-mode))
 
+;; TODO: investigate skewer-mode
 (use-package web-mode
   :ensure t
   :defer t
