@@ -249,6 +249,13 @@
   :ensure t
   :config (load-theme 'ample t))
 
+;; prettier modeline
+(use-package smart-mode-line
+  :ensure t
+  :config
+  (sml/setup)
+  (setq sml/theme 'dark))
+
 ;; highlight the current line
 (global-hl-line-mode +1)
 
@@ -481,6 +488,32 @@ Start `ielm' if it's not already running."
 (use-package smartparens
   :ensure t
   :diminish smartparens-mode
+  ;; sp-smartparens-bindings without the annoying rebinding of M-<delete> and M-<backspace>
+  :bind (:map smartparens-mode-map
+              ("C-M-f" . sp-forward-sexp)
+              ("C-M-b" . sp-backward-sexp)
+              ("C-M-d" . sp-down-sexp)
+              ("C-M-a" . sp-backward-down-sexp)
+              ("C-S-d" . sp-beginning-of-sexp)
+              ("C-S-a" . sp-end-of-sexp)
+              ("C-M-e" . sp-up-sexp)
+              ("C-M-u" . sp-backward-up-sexp)
+              ("C-M-n" . sp-next-sexp)
+              ("C-M-p" . sp-previous-sexp)
+              ("C-M-k" . sp-kill-sexp)
+              ("C-M-w" . sp-copy-sexp)
+              ("C-<right>" . sp-forward-slurp-sexp)
+              ("C-<left>" . sp-forward-barf-sexp)
+              ("C-M-<left>" . sp-backward-slurp-sexp)
+              ("C-M-<right>" . sp-backward-barf-sexp)
+              ("M-D" . sp-splice-sexp)
+              ("C-M-<delete>" . sp-splice-sexp-killing-forward)
+              ("C-M-<backspace>" . sp-splice-sexp-killing-backward)
+              ("C-S-<backspace>" . sp-splice-sexp-killing-around)
+              ("C-]" . sp-select-next-thing-exchange)
+              ("C-M-]" . sp-select-next-thing)
+              ("M-F" . sp-forward-symbol)
+              ("M-B" . sp-backward-symbol))
   :config
   (require 'smartparens-config)
   (setq sp-autoskip-closing-pair 'always)
@@ -489,7 +522,6 @@ Start `ielm' if it's not already running."
   (setq sp-highlight-pair-overlay nil)
   ;; skip closing pair even when backspace is pressed beforehand
   (setq sp-cancel-autoskip-on-backward-movement nil)
-  (sp-use-smartparens-bindings)
   (show-smartparens-global-mode t)
   (smartparens-global-mode t)
   (add-hook 'lisp-mode #'turn-on-smartparens-strict-mode))
@@ -572,7 +604,7 @@ Start `ielm' if it's not already running."
               ("s-r m" . projectile-rails-find-model)
               ("s-r c" . projectile-rails-find-controller)
               ("s-r v" . projectile-rails-find-view))
-  :config
+  :init
   (add-hook 'projectile-mode-hook 'projectile-rails-on))
 
 (use-package clojure-mode
@@ -723,7 +755,7 @@ Start `ielm' if it's not already running."
   :config
   (add-to-list 'aggressive-indent-excluded-modes 'jade-mode)
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate.
-  (add-to-list 'aggressive-indent-excluded-modes 'ruby-mode)
+  ;; (add-to-list 'aggressive-indent-excluded-modes 'ruby-mode)
   (global-aggressive-indent-mode +1))
 
 ;; highlight uncommitted changes on left side of buffer
@@ -792,3 +824,17 @@ Start `ielm' if it's not already running."
 
 
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
