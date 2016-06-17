@@ -86,7 +86,7 @@
 (defun server-visit-presets ()
   "Things to run when server is hit by new emacsclient instances."
   (message "Running server-visit-presets")
-  (menu-bar-mode -1))
+  (menu-bar-mode -1)) ;; force-hide menu-bar (both GUI and terminal emacs)
 (add-hook 'server-visit-hook 'server-visit-presets)
 
 ;; remove scroll bars
@@ -99,9 +99,13 @@
 (setq inhibit-startup-screen t)
 
 ;; nice scrolling
-(setq scroll-margin 0
-      scroll-conservatively 100000
-      scroll-preserve-screen-position 1)
+(use-package smooth-scrolling
+  :ensure t
+  :config (smooth-scrolling-mode +1))
+;; tweak mouse scrolling
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))) ;; slow scrolling
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scroll-ing
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 
 ;; mode line settings
 (line-number-mode t)
@@ -166,7 +170,18 @@
                                          try-complete-lisp-symbol-partially
                                          try-complete-lisp-symbol))
 
-;; More convenient key bindings cycling buffers (hands stay on home)
+;; make it harder to kill emacs
+(defun dont-kill-emacs()
+  "Disable C-x C-c binding execute kill-emacs."
+  (interactive)
+  (error (substitute-command-keys "To exit emacs: \\[save-buffers-kill-emacs]")))
+(global-set-key (kbd "C-x C-c") 'dont-kill-emacs)
+(global-set-key (kbd "C-x M-c") 'save-buffers-kill-emacs)
+
+;; make it harder to accidentally kill a frame with OSX bindings
+(global-set-key (kbd "s-w") 'dont-kill-emacs)
+
+;; more convenient key bindings cycling buffers (hands stay on home)
 (global-set-key (kbd "C-,") 'previous-buffer)
 (global-set-key (kbd "C-.") 'next-buffer)
 
@@ -517,7 +532,9 @@ Start `ielm' if it's not already running."
               ("C-]" . sp-select-next-thing-exchange)
               ("C-M-]" . sp-select-next-thing)
               ("M-F" . sp-forward-symbol)
-              ("M-B" . sp-backward-symbol))
+              ("M-B" . sp-backward-symbol)
+              :map emacs-lisp-mode-map
+              (")" . sp-up-sexp))
   :config
   (require 'smartparens-config)
   (setq sp-autoskip-closing-pair 'always)
@@ -667,7 +684,8 @@ Start `ielm' if it's not already running."
   :ensure t
   :defer 1
   :bind-keymap (("C-c h" . helm-command-prefix))
-  :chords (("yy" . helm-show-kill-ring))
+  :chords (("xx" . helm-M-x)
+           ("yy" . helm-show-kill-ring))
   :bind (("M-x" . helm-M-x)
          ("C-x C-m" . helm-M-x)
          ("M-y" . helm-show-kill-ring)
@@ -700,12 +718,13 @@ Start `ielm' if it's not already running."
   :defer t)
 
 ;; helm-swoop alternative using ivy as a backend
-;; TODO: work out how to modify the face of the highlighted swiper selection (gross green)
 (use-package swiper
   :ensure t
-  :bind (("M-i" . swiper)))
+  :bind (("M-i" . swiper)
+         ("M-I" . swiper-all))
+  :init (setq swiper-action-recenter t))
 
-;; swiper using helm alternative. consider using non-helm swiper (ivy backend).
+;; swiper using helm alternative
 (use-package swiper-helm 
   :ensure t
   :disabled t
@@ -776,11 +795,13 @@ Start `ielm' if it's not already running."
 ;; display key binding completion help for partially typed commands
 (use-package which-key
   :ensure t
+  :diminish 'which-key-mode
   :config
   (which-key-mode +1))
 
 (use-package undo-tree
   :ensure t
+  :chords (("uu" . undo-tree-visualize))
   :bind (("C-/" . undo-tree-undo)
          ("C-?" . undo-tree-redo)
          ("C-x u" . undo-tree-visualize))
