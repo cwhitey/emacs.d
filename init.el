@@ -247,14 +247,18 @@
 ;; themes
 (use-package ample-theme
   :ensure t
-  :config (load-theme 'ample t))
+  :config 
+  (eval-after-load 'swiper
+    '(progn
+       (set-face-background 'swiper-line-face "#404040"))))
 
 ;; prettier modeline
 (use-package smart-mode-line
   :ensure t
-  :config
-  (sml/setup)
-  (setq sml/theme 'dark))
+  :init
+  (setq sml/no-confirm-load-theme t)
+  (setq sml/theme 'dark)
+  :config (sml/setup))
 
 ;; highlight the current line
 (global-hl-line-mode +1)
@@ -487,7 +491,7 @@ Start `ielm' if it's not already running."
 
 (use-package smartparens
   :ensure t
-  :diminish smartparens-mode
+  :demand t
   ;; sp-smartparens-bindings without the annoying rebinding of M-<delete> and M-<backspace>
   :bind (:map smartparens-mode-map
               ("C-M-f" . sp-forward-sexp)
@@ -522,9 +526,13 @@ Start `ielm' if it's not already running."
   (setq sp-highlight-pair-overlay nil)
   ;; skip closing pair even when backspace is pressed beforehand
   (setq sp-cancel-autoskip-on-backward-movement nil)
+  
   (show-smartparens-global-mode t)
   (smartparens-global-mode t)
-  (add-hook 'lisp-mode #'turn-on-smartparens-strict-mode))
+  
+  (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
+  (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
+  (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode))
 
 ;; TODO: investigate skewer-mode
 (use-package web-mode
@@ -691,18 +699,16 @@ Start `ielm' if it's not already running."
   :ensure t
   :defer t)
 
-;; efficiently hopping squeezed lines powered by helm interface
-(use-package helm-swoop 
+;; helm-swoop alternative using ivy as a backend
+;; TODO: work out how to modify the face of the highlighted swiper selection (gross green)
+(use-package swiper
   :ensure t
-  :defer t
-  :disabled t
-  :bind (("M-i" . helm-swoop)
-         ("M-I" . helm-multi-swoop))
-  :init (setq helm-swoop-speed-or-color t))
+  :bind (("M-i" . swiper)))
 
-;; helm-swoop alternative. consider using non-helm swiper (ivy backend).
+;; swiper using helm alternative. consider using non-helm swiper (ivy backend).
 (use-package swiper-helm 
   :ensure t
+  :disabled t
   :defer t
   :bind (("M-i" . swiper-helm)))
 
@@ -831,7 +837,7 @@ Start `ielm' if it's not already running."
  ;; If there is more than one, they won't work right.
  '(custom-safe-themes
    (quote
-    ("3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default))))
+    ("c74e83f8aa4c78a121b52146eadb792c9facc5b1f02c917e3dbb454fca931223" "3c83b3676d796422704082049fc38b6966bcad960f896669dfc21a7a37a748fa" "a27c00821ccfd5a78b01e4f35dc056706dd9ede09a8b90c6955ae6a390eb1c1e" default))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
