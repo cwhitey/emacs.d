@@ -12,7 +12,7 @@ ede-projects.el
 .DS_Store
 custom.el
 places
-.smex-items
+*smex-items
 savefile/
 projectile-bookmarks.eld
 session*
@@ -20,3 +20,4 @@ session*
 tramp
 /var/pcache
 projectile.cache
+flycheck_init.el
