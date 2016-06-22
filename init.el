@@ -80,14 +80,14 @@
 ;; the blinking cursor is nothing, but an annoyance
 (blink-cursor-mode -1)
 
-;; never want the menu bar (at least on OSX anyway)
-(menu-bar-mode -1)
-
 (defun server-visit-presets ()
   "Things to run when server is hit by new emacsclient instances."
   (message "Running server-visit-presets")
   (menu-bar-mode -1)) ;; force-hide menu-bar (both GUI and terminal emacs)
 (add-hook 'server-visit-hook 'server-visit-presets)
+
+;; force hide for other cases
+(menu-bar-mode -1)
 
 ;; remove scroll bars
 (scroll-bar-mode -1)
@@ -106,6 +106,16 @@
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))) ;; slow scrolling
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scroll-ing
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+
+;; scroll buffer independent of where point is
+(defun scroll-buffer-down ()
+  (interactive)
+  (scroll-down 1))
+(defun scroll-buffer-up ()
+  (interactive)
+  (scroll-up 1))
+(bind-key (kbd "M-p") 'scroll-buffer-down)
+(bind-key (kbd "M-n") 'scroll-buffer-up)
 
 ;; mode line settings
 (line-number-mode t)
@@ -171,15 +181,29 @@
                                          try-complete-lisp-symbol))
 
 ;; make it harder to kill emacs
+(defun save-buffers-kill-server-or-client ()
+  "Run appropriate kill command.
+   Make sure we're not constantly killing the server when we just want to kill the frame."
+  (interactive)
+  (if (and (fboundp 'server-running-p)
+           (server-running-p))
+      (save-buffers-kill-terminal)
+    (save-buffers-kill-emacs)))
+
 (defun dont-kill-emacs()
   "Disable C-x C-c binding execute kill-emacs."
   (interactive)
-  (error (substitute-command-keys "To exit emacs: \\[save-buffers-kill-emacs]")))
-(global-set-key (kbd "C-x C-c") 'dont-kill-emacs)
-(global-set-key (kbd "C-x M-c") 'save-buffers-kill-emacs)
+  (error (substitute-command-keys "To exit emacs: \\[save-buffers-kill-server-or-client]")))
+;; only rebind default killing behaviour if running windowed emacsclient
+(when (eq window-system 'ns)
+  (global-set-key (kbd "C-x C-c") 'dont-kill-emacs))
 
-;; make it harder to accidentally kill a frame with OSX bindings
-(global-set-key (kbd "s-w") 'dont-kill-emacs)
+(global-set-key (kbd "C-x M-c") 'save-buffers-kill-server-or-client)
+(global-set-key (kbd "C-x s-c") 'save-buffers-kill-server-or-client)
+
+;; make it harder to accidentally kill a frame with OSX bindings (command-w)
+(when (eq system-type 'darwin)
+  (global-set-key (kbd "s-w") 'dont-kill-emacs))
 
 ;; more convenient key bindings cycling buffers (hands stay on home)
 (global-set-key (kbd "C-,") 'previous-buffer)
@@ -241,6 +265,8 @@
 
 ;; supply :chords keyword for use-package definitions
 ;; this also gives us the key-chord library
+;; usage:
+;;   :chords (("jj" . jump-to-definition))
 (use-package use-package-chords
   :ensure t
   :config
@@ -549,7 +575,8 @@ Start `ielm' if it's not already running."
   
   (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
-  (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode))
+  (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode)
+  (add-hook 'ruby-mode-hook #'turn-on-smartparens-strict-mode))
 
 ;; TODO: investigate skewer-mode
 (use-package web-mode
@@ -587,7 +614,7 @@ Start `ielm' if it's not already running."
   :ensure t
   :defer t)
 
-;; TODO: use enh-ruby-mode instead (may solve aggressive-indenting problems?)
+;; TODO: use enh-ruby-mode instead
 (use-package ruby-mode
   :defer t
   :mode ("\\.rake\\'"
@@ -599,7 +626,8 @@ Start `ielm' if it's not already running."
          "\\Capfile\\'"
          "\\.cap\\'"
          "\\.rabl\\'"
-         "\\Vagrantfile\\'")
+         "\\Vagrantfile\\'"
+         "\\Brewfile\\'")
   :init
   (add-hook 'ruby-mode-hook #'subword-mode)
   (add-hook 'ruby-mode-hook #'robe-mode)
@@ -722,7 +750,10 @@ Start `ielm' if it's not already running."
   :ensure t
   :bind (("M-i" . swiper)
          ("M-I" . swiper-all))
-  :init (setq swiper-action-recenter t))
+  :init
+  (setq swiper-action-recenter t)
+  :config
+  (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
 
 ;; swiper using helm alternative
 (use-package swiper-helm 
