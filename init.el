@@ -198,10 +198,7 @@
   "Disable C-x C-c binding execute kill-emacs."
   (interactive)
   (error (substitute-command-keys "To exit emacs: \\[save-buffers-kill-server-or-client]")))
-;; only rebind default killing behaviour if running windowed emacsclient
-(when (eq window-system 'ns)
-  (global-set-key (kbd "C-x C-c") 'dont-kill-emacs))
-
+(global-set-key (kbd "C-x C-c") 'dont-kill-emacs)
 (global-set-key (kbd "C-x M-c") 'save-buffers-kill-server-or-client)
 (global-set-key (kbd "C-x s-c") 'save-buffers-kill-server-or-client)
 
@@ -866,8 +863,8 @@ Start `ielm' if it's not already running."
   (other-window 1 nil)
   (switch-to-next-buffer))
 
-(bind-key "C-x 2" 'vsplit-last-buffer)
-(bind-key "C-x 3" 'hsplit-last-buffer)
+;; (bind-key "C-x 2" 'vsplit-last-buffer)
+;; (bind-key "C-x 3" 'hsplit-last-buffer)
 
 (use-package multiple-cursors
   :ensure t
