@@ -53,7 +53,7 @@
 (setq load-prefer-newer t)
 
 ;; load external file for customized settings
-(setq custom-file "custom.el")
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
 
 (setq user-full-name "Callum White"
@@ -286,10 +286,19 @@
          ("C-x C--" . text-scale-decrease)
          ("C-x C-0" . text-scale-adjust)))
 
-;; themes
+;; themes (more themes here: https://pawelbx.github.io/emacs-theme-gallery/)
 (use-package ample-theme
   :ensure t
+  :disabled t
   :config 
+  (eval-after-load 'swiper
+    '(progn
+       (set-face-background 'swiper-line-face "#404040"))))
+
+(use-package color-theme-sanityinc-tomorrow
+  :ensure t
+  :config
+  (color-theme-sanityinc-tomorrow-night)
   (eval-after-load 'swiper
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
@@ -561,7 +570,8 @@ Start `ielm' if it's not already running."
               ("M-F" . sp-forward-symbol)
               ("M-B" . sp-backward-symbol)
               :map emacs-lisp-mode-map
-              (")" . sp-up-sexp))
+              (")" . sp-up-sexp)
+              (";" . sp-comment))
   :config
   (require 'smartparens-config)
   (setq sp-autoskip-closing-pair 'always)
@@ -577,7 +587,13 @@ Start `ielm' if it's not already running."
   (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode)
-  (add-hook 'ruby-mode-hook #'turn-on-smartparens-strict-mode))
+  (add-hook 'cider-repl-mode-hook #'turn-on-smartparens-strict-mode)
+  ;; NOTE: Cannot use strict mode with ruby yet. :(
+  ;;       When you create a new method definition at the bottom of a class definition, the 'def' will
+  ;;       immediately steal the classes 'end', and auto-pair-creation won't work. The problem is that
+  ;;       smartparens waits for the  
+  ;; (add-hook 'ruby-mode-hook #'turn-on-smartparens-strict-mode)
+  )
 
 ;; TODO: investigate skewer-mode
 (use-package web-mode
@@ -664,7 +680,6 @@ Start `ielm' if it's not already running."
 (use-package clojure-mode
   :ensure t
   :config
-  (add-hook 'clojure-mode-hook #'paredit-mode)
   (add-hook 'clojure-mode-hook #'subword-mode)
   (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode))
 
@@ -684,7 +699,6 @@ Start `ielm' if it's not already running."
   :config
   (add-hook 'cider-mode-hook #'eldoc-mode)
   (add-hook 'cider-repl-mode-hook #'eldoc-mode)
-  (add-hook 'cider-repl-mode-hook #'paredit-mode)
   (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
 
 (use-package erlang
