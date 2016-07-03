@@ -631,6 +631,7 @@ Start `ielm' if it's not already running."
   :ensure t
   :defer t)
 
+;; Ruby
 ;; TODO: use enh-ruby-mode instead
 (use-package ruby-mode
   :defer t
@@ -662,12 +663,15 @@ Start `ielm' if it's not already running."
     :ensure t)
   (use-package chruby
     :ensure t
-    :config (chruby "ruby 2.2.3")))
+    :config (chruby "ruby 2.2.3"))
+  (use-package rspec-mode
+    :ensure t))
 
 (use-package bundler
   :ensure t
   :commands (bundle-open bundle-console bundle-install bundle-update bundle-check))
 
+;; Rails
 (use-package projectile-rails
   :ensure t
   :bind (:map projectile-rails-mode-map
@@ -677,6 +681,7 @@ Start `ielm' if it's not already running."
   :init
   (add-hook 'projectile-mode-hook 'projectile-rails-on))
 
+;; Clojure
 (use-package clojure-mode
   :ensure t
   :config
@@ -696,19 +701,40 @@ Start `ielm' if it's not already running."
 (use-package cider
   :ensure t
   :bind ("C-c r" . cider-repl-reset)
-  :config
+  :init
   (add-hook 'cider-mode-hook #'eldoc-mode)
   (add-hook 'cider-repl-mode-hook #'eldoc-mode)
   (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
 
+;; Scala
+(use-package ensime
+  :ensure t)
+
+(use-package scala-mode
+  :ensure t
+  :interpreter ("scala" . scala-mode))
+
+(use-package sbt-mode
+  :commands sbt-start sbt-command
+  :config
+  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+  ;; allows using SPACE when in the minibuffer
+  (substitute-key-definition
+   'minibuffer-complete-word
+   'self-insert-command
+   minibuffer-local-completion-map))
+
+;; Erlang
 (use-package erlang
   :ensure t
   :commands 'erlang-mode)
 
+;; Markdown
 (use-package markdown-mode
   :ensure t
   :defer t)
 
+;; Yaml
 (use-package yaml-mode
   :ensure t
   :defer t)
