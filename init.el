@@ -707,8 +707,9 @@ Start `ielm' if it's not already running."
   (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
 
 ;; Scala
-(use-package ensime
-  :ensure t)
+;; TODO: fix ensime installation
+;; (use-package ensime
+;;   :ensure t)
 
 (use-package scala-mode
   :ensure t
@@ -851,6 +852,9 @@ Start `ielm' if it's not already running."
   :ensure t
   :config
   (add-to-list 'aggressive-indent-excluded-modes 'jade-mode)
+  ;; TODO: to fix whitespace issues with scala mode and aggressive indent, see: 
+  ;; https://github.com/syl20bnr/spacemacs/blob/0283f6475b4207ff4f2f217322075eacd02030fc/layers/%2Blang/scala/packages.el#L212
+  (add-to-list 'aggressive-indent-excluded-modes 'scala-mode)
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate.
   ;; (add-to-list 'aggressive-indent-excluded-modes 'ruby-mode)
   (global-aggressive-indent-mode +1))
