@@ -35,6 +35,9 @@
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
+(add-to-list 'package-archives
+             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+
 ;; keep the installed packages in .emacs.d
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 (package-initialize)
@@ -707,9 +710,8 @@ Start `ielm' if it's not already running."
   (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
 
 ;; Scala
-;; TODO: fix ensime installation
 ;; (use-package ensime
-;;   :ensure t)
+;;   :pin melpa-stable)
 
 (use-package scala-mode
   :ensure t
@@ -749,6 +751,10 @@ Start `ielm' if it's not already running."
                       (setf indent-tabs-mode nil
                             tab-width 4))))
 
+(use-package dockerfile-mode
+  :ensure t
+  :mode ("\\Dockerfile\\'" . dockerfile-mode))
+
 ;; HELM HELM HELM
 (use-package helm
   :ensure t
@@ -775,6 +781,7 @@ Start `ielm' if it's not already running."
         helm-ff-file-name-history-use-recentf t)
   :config
   (require 'helm-config)
+  (require 'helm-themes)
   (require 'helm-eshell))
 
 (use-package helm-descbinds
