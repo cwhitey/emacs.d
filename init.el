@@ -728,6 +728,7 @@ Start `ielm' if it's not already running."
     :ensure t)
   (use-package robe
     :ensure t
+    ;; NOTE: `robe-start' requires pry and pry-doc gems
     :init (push 'company-robe company-backends))
   (use-package ruby-tools
     :ensure t)
