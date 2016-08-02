@@ -342,6 +342,76 @@
   :config
   (projectile-global-mode +1))
 
+;; HELM HELM HELM
+(use-package helm
+  :ensure t
+  :defer 1
+  :bind-keymap (("C-c h" . helm-command-prefix))
+  :chords (("xx" . helm-M-x)
+           ("yy" . helm-show-kill-ring))
+  :bind (("M-x" . helm-M-x)
+         ("C-x C-m" . helm-M-x)
+         ("M-y" . helm-show-kill-ring)
+         ("C-x b" . helm-mini)
+         ("C-x C-b". helm-buffers-list)
+         ("C-x C-f" . helm-find-files)
+         ("C-h r" . helm-info-emacs)
+         :map helm-command-map
+         ("o" . helm-occur)
+         ("g" . helm-do-grep)
+         ("SPC" . helm-all-mark-rings))
+  :init
+  (setq helm-split-window-in-side-p           t
+        helm-buffers-fuzzy-matching           t
+        helm-move-to-line-cycle-in-source     t
+        helm-ff-search-library-in-sexp        t
+        helm-ff-file-name-history-use-recentf t)
+  :config
+  (require 'helm-config)
+  (require 'helm-themes)
+  (require 'helm-eshell))
+
+(use-package helm-descbinds
+  :ensure t
+  :defer t
+  :bind (("C-h b" . helm-descbinds)
+         ("C-h w" . helm-descbinds)))
+
+(use-package helm-ag
+  :ensure t
+  :defer t)
+
+;; helm-swoop alternative using ivy as a backend
+(use-package swiper
+  :ensure t
+  :bind (("M-i" . swiper)
+         ("M-I" . swiper-all))
+  :init
+  (setq swiper-action-recenter t)
+  :config
+  (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
+
+;; swiper using helm alternative
+(use-package swiper-helm 
+  :ensure t
+  :disabled t
+  :defer t
+  :bind (("M-i" . swiper-helm)))
+
+(use-package helm-projectile
+  :ensure t
+  :defer 2
+  :init (setq projectile-completion-system 'helm)
+  :config (helm-projectile-on))
+
+(use-package helm-open-github
+  :ensure t
+  :defer t
+  :bind (("C-c g f" . helm-open-github-from-file)
+         ("C-c g c" . helm-open-github-from-commit)
+         ("C-c g i" . helm-open-github-from-issues)
+         ("C-c g p" . helm-open-github-from-pull-requests)))
+
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
@@ -655,13 +725,10 @@ Start `ielm' if it's not already running."
   (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
   :config
   (use-package inf-ruby
-    :ensure t
-    :init
-    (push 'company-inf-ruby company-backends))
+    :ensure t)
   (use-package robe
     :ensure t
-    :init
-    (push 'company-robe company-backends))
+    :init (push 'company-robe company-backends))
   (use-package ruby-tools
     :ensure t)
   (use-package chruby
@@ -710,14 +777,22 @@ Start `ielm' if it's not already running."
   (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
 
 ;; Scala
-;; (use-package ensime
-;;   :pin melpa-stable)
+;; If this doesn't work, install manually from melpa-stable
+(defun scala/init-ensime ()
+  (use-package ensime
+    :pin melpa-stable))
 
 (use-package scala-mode
   :ensure t
-  :interpreter ("scala" . scala-mode))
+  :interpreter ("scala" . scala-mode)
+  :config
+  ;; Compatibility with `aggressive-indent'
+  (setq scala-indent:align-forms t
+        scala-indent:align-parameters t
+        scala-indent:default-run-on-strategy scala-indent:operator-strategy))
 
 (use-package sbt-mode
+  :pin melpa-stable
   :commands sbt-start sbt-command
   :config
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
@@ -755,76 +830,6 @@ Start `ielm' if it's not already running."
   :ensure t
   :mode ("\\Dockerfile\\'" . dockerfile-mode))
 
-;; HELM HELM HELM
-(use-package helm
-  :ensure t
-  :defer 1
-  :bind-keymap (("C-c h" . helm-command-prefix))
-  :chords (("xx" . helm-M-x)
-           ("yy" . helm-show-kill-ring))
-  :bind (("M-x" . helm-M-x)
-         ("C-x C-m" . helm-M-x)
-         ("M-y" . helm-show-kill-ring)
-         ("C-x b" . helm-mini)
-         ("C-x C-b". helm-buffers-list)
-         ("C-x C-f" . helm-find-files)
-         ("C-h r" . helm-info-emacs)
-         :map helm-command-map
-         ("o" . helm-occur)
-         ("g" . helm-do-grep)
-         ("SPC" . helm-all-mark-rings))
-  :init
-  (setq helm-split-window-in-side-p           t
-        helm-buffers-fuzzy-matching           t
-        helm-move-to-line-cycle-in-source     t
-        helm-ff-search-library-in-sexp        t
-        helm-ff-file-name-history-use-recentf t)
-  :config
-  (require 'helm-config)
-  (require 'helm-themes)
-  (require 'helm-eshell))
-
-(use-package helm-descbinds
-  :ensure t
-  :defer t
-  :bind (("C-h b" . helm-descbinds)
-         ("C-h w" . helm-descbinds)))
-
-(use-package helm-ag
-  :ensure t
-  :defer t)
-
-;; helm-swoop alternative using ivy as a backend
-(use-package swiper
-  :ensure t
-  :bind (("M-i" . swiper)
-         ("M-I" . swiper-all))
-  :init
-  (setq swiper-action-recenter t)
-  :config
-  (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
-
-;; swiper using helm alternative
-(use-package swiper-helm 
-  :ensure t
-  :disabled t
-  :defer t
-  :bind (("M-i" . swiper-helm)))
-
-(use-package helm-projectile
-  :ensure t
-  :defer 2
-  :init (setq projectile-completion-system 'helm)
-  :config (helm-projectile-on))
-
-(use-package helm-open-github
-  :ensure t
-  :defer t
-  :bind (("C-c g f" . helm-open-github-from-file)
-         ("C-c g c" . helm-open-github-from-commit)
-         ("C-c g i" . helm-open-github-from-issues)
-         ("C-c g p" . helm-open-github-from-pull-requests)))
-
 (use-package zop-to-char
   :ensure t
   :bind (("M-z" . zop-up-to-char)
@@ -859,9 +864,6 @@ Start `ielm' if it's not already running."
   :ensure t
   :config
   (add-to-list 'aggressive-indent-excluded-modes 'jade-mode)
-  ;; TODO: to fix whitespace issues with scala mode and aggressive indent, see: 
-  ;; https://github.com/syl20bnr/spacemacs/blob/0283f6475b4207ff4f2f217322075eacd02030fc/layers/%2Blang/scala/packages.el#L212
-  (add-to-list 'aggressive-indent-excluded-modes 'scala-mode)
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate.
   ;; (add-to-list 'aggressive-indent-excluded-modes 'ruby-mode)
   (global-aggressive-indent-mode +1))
