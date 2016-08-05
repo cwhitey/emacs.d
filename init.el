@@ -132,7 +132,7 @@
 ;; Set default font (only verified in OSX)
 ;; For other solutions see https://www.emacswiki.org/emacs/SetFonts
 (when (eq system-type 'darwin)
-  (set-face-attribute 'default nil :family "Menlo")
+  (set-face-attribute 'default nil :family "Monaco")
   (set-face-attribute 'default nil :height 140))
 
 ;; enable y/n answers
