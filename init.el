@@ -292,14 +292,19 @@
 ;; themes (more themes here: https://pawelbx.github.io/emacs-theme-gallery/)
 (use-package ample-theme
   :ensure t
-  :disabled t
-  :config 
+  :init (progn (load-theme 'ample t t)
+               (load-theme 'ample-flat t t)
+               (load-theme 'ample-light t t)
+               (enable-theme 'ample-flat))
+  :config
+  ;; TODO: tweak helm-buffer-directory colors
   (eval-after-load 'swiper
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
 (use-package color-theme-sanityinc-tomorrow
   :ensure t
+  :disabled t
   :config
   (color-theme-sanityinc-tomorrow-night)
   (eval-after-load 'swiper
@@ -311,7 +316,7 @@
   :ensure t
   :init
   (setq sml/no-confirm-load-theme t)
-  (setq sml/theme 'dark)
+  (setq sml/theme 'light)
   :config (sml/setup))
 
 ;; highlight the current line
@@ -367,6 +372,7 @@
         helm-ff-search-library-in-sexp        t
         helm-ff-file-name-history-use-recentf t)
   :config
+  (helm-mode 1)
   (require 'helm-config)
   (require 'helm-themes)
   (require 'helm-eshell))
