@@ -298,6 +298,7 @@
                (enable-theme 'ample-flat))
   :config
   ;; TODO: tweak helm-buffer-directory colors
+  ;; Change face helm-grep-finish to match helm-candidate-number
   (eval-after-load 'swiper
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
