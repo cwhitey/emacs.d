@@ -290,15 +290,22 @@
          ("C-x C-0" . text-scale-adjust)))
 
 ;; themes (more themes here: https://pawelbx.github.io/emacs-theme-gallery/)
+(use-package flatland-theme
+  :ensure t
+  :config
+  (load-theme 'flatland t))
+
 (use-package ample-theme
   :ensure t
+  :disabled t
   :init (progn (load-theme 'ample t t)
                (load-theme 'ample-flat t t)
                (load-theme 'ample-light t t)
                (enable-theme 'ample-flat))
   :config
-  ;; TODO: tweak helm-buffer-directory colors
+  ;; TODO: Tweak helm-buffer-directory colors
   ;; Change face helm-grep-finish to match helm-candidate-number
+  ;; Fix ensime's popup suggestion faces (company-mode stuff?)
   (eval-after-load 'swiper
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
@@ -317,7 +324,7 @@
   :ensure t
   :init
   (setq sml/no-confirm-load-theme t)
-  (setq sml/theme 'light)
+  (setq sml/theme 'respectful)
   :config (sml/setup))
 
 ;; highlight the current line
@@ -352,6 +359,7 @@
 (use-package helm
   :ensure t
   :defer 1
+  :diminish 'helm-mode
   :bind-keymap (("C-c h" . helm-command-prefix))
   :chords (("xx" . helm-M-x)
            ("yy" . helm-show-kill-ring))
@@ -872,8 +880,8 @@ Start `ielm' if it's not already running."
   :ensure t
   :config
   (add-to-list 'aggressive-indent-excluded-modes 'jade-mode)
-  ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate.
-  ;; (add-to-list 'aggressive-indent-excluded-modes 'ruby-mode)
+  ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
+  (add-to-list 'aggressive-indent-excluded-modes 'ruby-mode)
   (global-aggressive-indent-mode +1))
 
 ;; highlight uncommitted changes on left side of buffer
