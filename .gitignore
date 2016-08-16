@@ -20,3 +20,4 @@ tramp
 /var/pcache
 projectile.cache
 flycheck_init.el
+ensime
