@@ -290,10 +290,17 @@
          ("C-x C-0" . text-scale-adjust)))
 
 ;; themes (more themes here: https://pawelbx.github.io/emacs-theme-gallery/)
-(use-package flatland-theme
+;; also use:
+;;; apropospriate-dark (fix avy, fix startup)
+;;; flatland
+;;; atom-dark (needs fixing)
+;;; atom-one-dark
+;;; flatui (light)
+;;; darcula
+(use-package zenburn-theme
   :ensure t
   :config
-  (load-theme 'flatland t))
+  (load-theme 'zenburn t))
 
 (use-package ample-theme
   :ensure t
@@ -310,14 +317,14 @@
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
-(use-package color-theme-sanityinc-tomorrow
-  :ensure t
-  :disabled t
-  :config
-  (color-theme-sanityinc-tomorrow-night)
-  (eval-after-load 'swiper
-    '(progn
-       (set-face-background 'swiper-line-face "#404040"))))
+;; (use-package color-theme-sanityinc-tomorrow
+;;   :ensure t
+;;   :disabled t
+;;   :config
+;;   (color-theme-sanityinc-tomorrow-night)
+;;   (eval-after-load 'swiper
+;;     '(progn
+;;        (set-face-background 'swiper-line-face "#404040"))))
 
 ;; prettier modeline
 (use-package smart-mode-line
@@ -358,8 +365,9 @@
 ;; HELM HELM HELM
 (use-package helm
   :ensure t
-  :defer 1
-  :diminish 'helm-mode
+  :defer 2
+  :commands helm-mode
+  :diminish helm-mode 
   :bind-keymap (("C-c h" . helm-command-prefix))
   :chords (("xx" . helm-M-x)
            ("yy" . helm-show-kill-ring))
@@ -381,7 +389,6 @@
         helm-ff-search-library-in-sexp        t
         helm-ff-file-name-history-use-recentf t)
   :config
-  (helm-mode 1)
   (require 'helm-config)
   (require 'helm-themes)
   (require 'helm-eshell))
@@ -404,14 +411,8 @@
   :init
   (setq swiper-action-recenter t)
   :config
+  (global-set-key "\C-s" 'swiper)
   (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
-
-;; swiper using helm alternative
-(use-package swiper-helm 
-  :ensure t
-  :disabled t
-  :defer t
-  :bind (("M-i" . swiper-helm)))
 
 (use-package helm-projectile
   :ensure t
@@ -431,7 +432,7 @@
   :bind ("C-=" . er/expand-region))
 
 (use-package abbrev
-  :diminish 'abbrev-mode
+  :diminish abbrev-mode
   :config 
   (setq save-abbrevs 'silently)
   (setq-default abbrev-mode t))
@@ -497,7 +498,7 @@
 
 (use-package anzu
   :ensure t
-  :diminish 'anzu-mode
+  :diminish anzu-mode
   :bind (("M-%" . anzu-query-replace)
          ("C-M-%" . anzu-query-replace-regexp))
   :config (global-anzu-mode))
@@ -528,7 +529,7 @@
 ;; colorise color names in programming buffers (e.g. #000000)
 (use-package rainbow-mode
   :ensure t
-  :diminish 'rainbow-mode
+  :diminish rainbow-mode
   :commands (rainbow-mode)
   :config
   (add-hook 'prog-mode-hook #'rainbow-mode))
@@ -801,11 +802,13 @@ Start `ielm' if it's not already running."
 (use-package scala-mode
   :ensure t
   :interpreter ("scala" . scala-mode)
-  :config
+  :config 
   ;; Compatibility with `aggressive-indent'
   (setq scala-indent:align-forms t
         scala-indent:align-parameters t
-        scala-indent:default-run-on-strategy scala-indent:operator-strategy))
+        scala-indent:default-run-on-strategy scala-indent:operator-strategy)
+  ;; TODO: map C-right to `sp-slurp-hybrid-sexp'
+  )
 
 (use-package sbt-mode
   :pin melpa-stable
@@ -872,7 +875,7 @@ Start `ielm' if it's not already running."
 ;; save emacs buffers when they lose focus
 (use-package super-save
   :ensure t
-  :diminish 'super-save-mode
+  :diminish super-save-mode
   :config
   (super-save-mode +1))
 
@@ -896,7 +899,7 @@ Start `ielm' if it's not already running."
 ;; display key binding completion help for partially typed commands
 (use-package which-key
   :ensure t
-  :diminish 'which-key-mode
+  :diminish which-key-mode
   :config
   (which-key-mode +1))
 
