@@ -300,7 +300,11 @@
 (use-package zenburn-theme
   :ensure t
   :config
-  (load-theme 'zenburn t))
+  (load-theme 'zenburn t)
+  ;; Change color for directory in buffers list
+  (eval-after-load 'helm
+    '(progn
+       (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
 
 (use-package ample-theme
   :ensure t
