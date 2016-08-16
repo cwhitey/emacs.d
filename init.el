@@ -383,15 +383,19 @@
          ("g" . helm-do-grep)
          ("SPC" . helm-all-mark-rings))
   :init
-  (setq helm-split-window-in-side-p           t
-        helm-buffers-fuzzy-matching           t
-        helm-move-to-line-cycle-in-source     t
-        helm-ff-search-library-in-sexp        t
-        helm-ff-file-name-history-use-recentf t)
+  (progn
+    (setq helm-split-window-in-side-p           t
+          helm-buffers-fuzzy-matching           t
+          helm-move-to-line-cycle-in-source     t
+          helm-ff-search-library-in-sexp        t
+          helm-ff-file-name-history-use-recentf t
+          helm-display-header-line              nil)
+    (set-face-attribute 'helm-source-header nil :height 0.1))
   :config
   (require 'helm-config)
   (require 'helm-themes)
-  (require 'helm-eshell))
+  (require 'helm-eshell)
+  (helm-autoresize-mode 1))
 
 (use-package helm-descbinds
   :ensure t
@@ -664,6 +668,7 @@ Start `ielm' if it's not already running."
   :config
   (require 'smartparens-config)
   (setq sp-autoskip-closing-pair 'always)
+  ;; TODO: Justify this
   (setq sp-hybrid-kill-entire-symbol nil)
   ;; remove annoying highlighting of pair region after creation
   (setq sp-highlight-pair-overlay nil)
@@ -680,7 +685,7 @@ Start `ielm' if it's not already running."
   ;; NOTE: Cannot use strict mode with ruby yet. :(
   ;;       When you create a new method definition at the bottom of a class definition, the 'def' will
   ;;       immediately steal the classes 'end', and auto-pair-creation won't work. The problem is that
-  ;;       smartparens waits for the  
+  ;;       smartparens waits for the method name
   ;; (add-hook 'ruby-mode-hook #'turn-on-smartparens-strict-mode)
   )
 
