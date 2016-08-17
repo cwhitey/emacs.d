@@ -393,12 +393,34 @@
           helm-move-to-line-cycle-in-source     t
           helm-ff-search-library-in-sexp        t
           helm-ff-file-name-history-use-recentf t
-          helm-display-header-line              nil)
-    (set-face-attribute 'helm-source-header nil :height 0.1))
+          helm-display-header-line              nil
+          helm-split-window-in-side-p           t
+          helm-autoresize-max-height            40
+          helm-autoresize-min-height            40))  
   :config
   (require 'helm-config)
   (require 'helm-themes)
   (require 'helm-eshell)
+  
+  (defvar helm-source-header-default-background (face-attribute 'helm-source-header :background))
+  (defvar helm-source-header-default-foreground (face-attribute 'helm-source-header :foreground))
+  (defvar helm-source-header-default-box (face-attribute 'helm-source-header :box))
+
+  (defun helm-toggle-header-line ()
+    (if (> (length helm-sources) 1)
+        (set-face-attribute 'helm-source-header
+                            nil
+                            :foreground helm-source-header-default-foreground
+                            :background helm-source-header-default-background
+                            :box helm-source-header-default-box
+                            :height 1.0)
+      (set-face-attribute 'helm-source-header
+                          nil
+                          :foreground (face-attribute 'helm-selection :background)
+                          :background (face-attribute 'helm-selection :background)
+                          :box nil
+                          :height 0.1)))
+  (add-hook 'helm-before-initialize-hook 'helm-toggle-header-line)
   (helm-autoresize-mode 1))
 
 (use-package helm-descbinds
