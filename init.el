@@ -105,10 +105,10 @@
 ;; disable startup screen
 (setq inhibit-startup-screen t)
 
-;; nice scrolling
-(use-package smooth-scrolling
-  :ensure t
-  :config (smooth-scrolling-mode +1))
+;; nice scrolling - replace `smooth-scrolling' package with these small tweaks
+(setq scroll-conservatively 2)
+(setq scroll-margin 20)
+(setq scroll-preserve-screen-position t)
 ;; tweak mouse scrolling
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))) ;; slow scrolling
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scroll-ing
@@ -302,7 +302,7 @@
   :config
   (load-theme 'zenburn t)
   ;; Change color for directory in buffers list
-  (eval-after-load 'helm
+  (eval-after-load 'helm-mode
     '(progn
        (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
 
@@ -331,12 +331,12 @@
 ;;        (set-face-background 'swiper-line-face "#404040"))))
 
 ;; prettier modeline
-(use-package smart-mode-line
-  :ensure t
-  :init
-  (setq sml/no-confirm-load-theme t)
-  (setq sml/theme 'respectful)
-  :config (sml/setup))
+;; (use-package smart-mode-line
+;;   :ensure t
+;;   :init
+;;   (setq sml/no-confirm-load-theme t)
+;;   (setq sml/theme 'respectful)
+;;   :config (sml/setup))
 
 ;; highlight the current line
 (global-hl-line-mode +1)
@@ -370,8 +370,8 @@
 (use-package helm
   :ensure t
   :defer 2
-  :commands helm-mode
-  :diminish helm-mode 
+  :diminish helm-mode
+  :commands (helm-mode)
   :bind-keymap (("C-c h" . helm-command-prefix))
   :chords (("xx" . helm-M-x)
            ("yy" . helm-show-kill-ring))
@@ -396,11 +396,12 @@
           helm-display-header-line              nil
           helm-split-window-in-side-p           t
           helm-autoresize-max-height            40
-          helm-autoresize-min-height            40))  
+          helm-autoresize-min-height            40))
   :config
   (require 'helm-config)
   (require 'helm-themes)
   (require 'helm-eshell)
+  (helm-mode +1)
   
   (defvar helm-source-header-default-background (face-attribute 'helm-source-header :background))
   (defvar helm-source-header-default-foreground (face-attribute 'helm-source-header :foreground))
@@ -421,42 +422,42 @@
                           :box nil
                           :height 0.1)))
   (add-hook 'helm-before-initialize-hook 'helm-toggle-header-line)
-  (helm-autoresize-mode 1))
+  (helm-autoresize-mode 1)
 
+  (use-package helm-ag
+    :ensure t
+    :defer t)
+
+  ;; helm-swoop alternative using ivy as a backend
+  (use-package swiper
+    :ensure t
+    :bind (("M-i" . swiper)
+           ("M-I" . swiper-all))
+    :init
+    (setq swiper-action-recenter t)
+    (global-set-key "\C-s" 'swiper)
+    :config 
+    (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
+
+  (use-package helm-projectile
+    :ensure t
+    :init (setq projectile-completion-system 'helm)
+    :config (helm-projectile-on))
+
+  (use-package helm-open-github
+    :ensure t
+    :defer t
+    :bind (("C-c g f" . helm-open-github-from-file)
+           ("C-c g c" . helm-open-github-from-commit)
+           ("C-c g i" . helm-open-github-from-issues)
+           ("C-c g p" . helm-open-github-from-pull-requests))))
+
+;; TODO: This defer timeout forces helm to load? Figure out why helm doesn't load on its own
 (use-package helm-descbinds
   :ensure t
-  :defer t
+  :defer 2
   :bind (("C-h b" . helm-descbinds)
          ("C-h w" . helm-descbinds)))
-
-(use-package helm-ag
-  :ensure t
-  :defer t)
-
-;; helm-swoop alternative using ivy as a backend
-(use-package swiper
-  :ensure t
-  :bind (("M-i" . swiper)
-         ("M-I" . swiper-all))
-  :init
-  (setq swiper-action-recenter t)
-  :config
-  (global-set-key "\C-s" 'swiper)
-  (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
-
-(use-package helm-projectile
-  :ensure t
-  :defer 2
-  :init (setq projectile-completion-system 'helm)
-  :config (helm-projectile-on))
-
-(use-package helm-open-github
-  :ensure t
-  :defer t
-  :bind (("C-c g f" . helm-open-github-from-file)
-         ("C-c g c" . helm-open-github-from-commit)
-         ("C-c g i" . helm-open-github-from-issues)
-         ("C-c g p" . helm-open-github-from-pull-requests)))
 
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
@@ -828,11 +829,17 @@ Start `ielm' if it's not already running."
 ;; If this doesn't work, install manually from melpa-stable
 (defun scala/init-ensime ()
   (use-package ensime
-    :pin melpa-stable))
+    :pin melpa-stable
+    :defer t
+    :init (setq ensime-use-helm t)
+    ))
+
+(scala/init-ensime)
 
 (use-package scala-mode
   :ensure t
   :interpreter ("scala" . scala-mode)
+  :commands (scala-mode)
   :config 
   ;; Compatibility with `aggressive-indent'
   (setq scala-indent:align-forms t
@@ -843,7 +850,7 @@ Start `ielm' if it's not already running."
 
 (use-package sbt-mode
   :pin melpa-stable
-  :commands sbt-start sbt-command
+  :commands (sbt-start sbt-command)
   :config
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
   ;; allows using SPACE when in the minibuffer
@@ -855,17 +862,17 @@ Start `ielm' if it's not already running."
 ;; Erlang
 (use-package erlang
   :ensure t
-  :commands 'erlang-mode)
+  :commands (erlang-mode))
 
 ;; Markdown
 (use-package markdown-mode
   :ensure t
-  :defer t)
+  :commands (markdown-mode))
 
 ;; Yaml
 (use-package yaml-mode
   :ensure t
-  :defer t)
+  :commands (yaml-mode))
 
 (use-package gitconfig-mode
   :ensure t
@@ -878,30 +885,23 @@ Start `ielm' if it's not already running."
 
 (use-package dockerfile-mode
   :ensure t
+  :commands (dockerfile-mode)
   :mode ("\\Dockerfile\\'" . dockerfile-mode))
 
 (use-package zop-to-char
   :ensure t
+  :defer t
   :bind (("M-z" . zop-up-to-char)
          ("M-Z" . zop-to-char)))
-
-;; (use-package flyspell
-;;   :ensure t
-;;   :defer 2
-;;   :config
-;;   (setq ispell-program-name "aspell" ; use aspell instead of ispell
-;;         ispell-extra-args '("--sug-mode=ultra"))
-;;   (add-hook 'text-mode-hook #'flyspell-mode)
-;;   (add-hook 'prog-mode-hook #'flyspell-prog-mode))
 
 (use-package flycheck
   :ensure t
   :defer 2
   :init
   (setq-default flycheck-emacs-lisp-load-path 'inherit)
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
   :config
-  (global-flycheck-mode +1)
-  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc)))
+  (global-flycheck-mode +1))
 
 ;; save emacs buffers when they lose focus
 (use-package super-save
@@ -916,6 +916,7 @@ Start `ielm' if it's not already running."
   (add-to-list 'aggressive-indent-excluded-modes 'jade-mode)
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
   (add-to-list 'aggressive-indent-excluded-modes 'ruby-mode)
+  (add-to-list 'aggressive-indent-excluded-modes 'scala-mode)
   (global-aggressive-indent-mode +1))
 
 ;; highlight uncommitted changes on left side of buffer
@@ -959,13 +960,11 @@ Start `ielm' if it's not already running."
   (split-window-vertically)
   (other-window 1 nil)
   (switch-to-next-buffer))
-
 (defun hsplit-last-buffer ()
   (interactive)
   (split-window-horizontally)
   (other-window 1 nil)
   (switch-to-next-buffer))
-
 ;; (bind-key "C-x 2" 'vsplit-last-buffer)
 ;; (bind-key "C-x 3" 'hsplit-last-buffer)
 
