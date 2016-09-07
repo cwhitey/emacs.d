@@ -262,6 +262,7 @@
            ("C-S-b" . super-backward-char)
            ("C-S-f" . super-forward-char))
 
+(diminish 'yas-global-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
@@ -362,7 +363,8 @@
 
 (use-package projectile
   :ensure t
-  :bind ("s-p" . projectile-command-map)
+  :diminish projectile-mode
+  :bind ("s-p" . projectile-command-map) 
   :config
   (projectile-global-mode +1))
 
@@ -805,25 +807,40 @@ Start `ielm' if it's not already running."
   :ensure t
   :config
   (add-hook 'clojure-mode-hook #'subword-mode)
-  (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode))
+  (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
+  (add-hook ))
 
-;; Shortcut for calling user/reset when using the reloaded workflow
-;; https://github.com/stuartsierra/reloaded
-(defun cider-repl-reset ()
-  (interactive)
-  (save-some-buffers)
-  (with-current-buffer (cider-current-repl-buffer)
-    (goto-char (point-max))
-    (insert "(user/reset)")
-    (cider-repl-return)))
-
+;; TODO add in `clj-refactor': https://github.com/clojure-emacs/clj-refactor.el
+;; install from `melpa-stable'
 (use-package cider
   :ensure t
   :bind ("C-c r" . cider-repl-reset)
   :init
   (add-hook 'cider-mode-hook #'eldoc-mode)
   (add-hook 'cider-repl-mode-hook #'eldoc-mode)
-  (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode))
+  (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode)
+  :config 
+  (defun cider-figwheel-repl ()
+    "Start Figwheel and a Clojurescript REPL in a project 
+which has the `figwheel-sidecar' dependency"
+    (interactive)
+    (save-some-buffers)
+    (with-current-buffer (cider-current-repl-buffer)
+      (goto-char (point-max))
+      (insert "(require 'figwheel-sidecar.repl-api)
+             (figwheel-sidecar.repl-api/start-figwheel!) ; idempotent
+             (figwheel-sidecar.repl-api/cljs-repl)")
+      (cider-repl-return)))
+  
+  (defun cider-repl-reset ()
+    "Shortcut for calling `user/reset' when using the reloaded workflow:
+  `https://github.com/stuartsierra/reloaded'"
+    (interactive)
+    (save-some-buffers)
+    (with-current-buffer (cider-current-repl-buffer)
+      (goto-char (point-max))
+      (insert "(user/reset)")
+      (cider-repl-return))))
 
 ;; Scala
 ;; If this doesn't work, install manually from melpa-stable
@@ -982,6 +999,5 @@ Start `ielm' if it's not already running."
    ("C-c m s" . mc/mark-sgml-tag-pair)
    ("C-c m d" . mc/mark-all-like-this-in-defun)
    ("M-<mouse-1>" . mc/add-cursor-on-click)))
-
 
 ;;; init.el ends here
