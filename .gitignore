@@ -21,3 +21,4 @@ tramp
 projectile.cache
 flycheck_init.el
 ensime
+.mc-lists.el
