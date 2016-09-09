@@ -612,8 +612,17 @@
 
 (use-package company
   :ensure t
-  :init (setq company-idle-delay 0.3)
-  :config (add-hook 'prog-mode-hook #'company-mode))
+  :init (setq
+         company-dabbrev-ignore-case nil
+         company-dabbrev-code-ignore-case nil
+         company-dabbrev-downcase nil
+         company-idle-delay 0
+         company-minimum-prefix-length 3)
+  :config 
+  ;; disables TAB in company-mode, freeing it for yasnippet
+  (define-key company-active-map [tab] nil)
+  (define-key company-active-map (kbd "TAB") nil)
+  (add-hook 'prog-mode-hook #'company-mode))
 
 (use-package dumb-jump
   :ensure t
@@ -807,8 +816,7 @@ Start `ielm' if it's not already running."
   :ensure t
   :config
   (add-hook 'clojure-mode-hook #'subword-mode)
-  (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
-  (add-hook ))
+  (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode))
 
 ;; TODO add in `clj-refactor': https://github.com/clojure-emacs/clj-refactor.el
 ;; install from `melpa-stable'
@@ -843,16 +851,6 @@ which has the `figwheel-sidecar' dependency"
       (cider-repl-return))))
 
 ;; Scala
-;; If this doesn't work, install manually from melpa-stable
-(defun scala/init-ensime ()
-  (use-package ensime
-    :pin melpa-stable
-    :defer t
-    :init (setq ensime-use-helm t)
-    ))
-
-(scala/init-ensime)
-
 (use-package scala-mode
   :ensure t
   :interpreter ("scala" . scala-mode)
@@ -865,6 +863,24 @@ which has the `figwheel-sidecar' dependency"
   ;; TODO: map C-right to `sp-slurp-hybrid-sexp'
   )
 
+;; If this doesn't work, install manually from melpa-stable
+(defun scala/init-ensime ()
+  (defun scala/enable-eldoc ()
+    (setq-local eldoc-documentation-function
+                (lambda ()
+                  (when (ensime-connected-p)
+                    (ensime-print-type-at-point))))
+    (eldoc-mode +1))
+  
+  (use-package ensime
+    :pin melpa-stable
+    :defer t
+    :init
+    (setq ensime-use-helm t)
+    (add-hook 'ensime-mode-hook 'scala/enable-eldoc)))
+(scala/init-ensime)
+
+;; Scala Built Tool
 (use-package sbt-mode
   :pin melpa-stable
   :commands (sbt-start sbt-command)
