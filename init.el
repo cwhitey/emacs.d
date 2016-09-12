@@ -359,10 +359,6 @@
   :ensure t
   :defer t)
 
-(use-package pt
-  :ensure t
-  :defer t)
-
 (use-package projectile
   :ensure t
   :diminish projectile-mode
@@ -375,7 +371,6 @@
   :ensure t
   :defer 2
   :diminish helm-mode
-  :commands (helm-mode)
   :bind-keymap (("C-c h" . helm-command-prefix))
   :chords (("xx" . helm-M-x)
            ("yy" . helm-show-kill-ring))
@@ -638,16 +633,16 @@
 (use-package lisp-mode
   :defer t
   :config
-  (defun cal-visit-ielm ()
+  (defun my-visit-ielm ()
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
     (interactive)
     (crux-start-or-switch-to 'ielm "*ielm*"))
-
   (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
-  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode) 
-  (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'cal-visit-ielm)
+  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
+  (define-key emacs-lisp-mode-map (kbd "M-.") #'find-function)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'my-visit-ielm)
   (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
   (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer)
   (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode))
