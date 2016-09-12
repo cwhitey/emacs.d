@@ -105,12 +105,13 @@
 ;; disable startup screen
 (setq inhibit-startup-screen t)
 
-;; nice scrolling - replace `smooth-scrolling' package with these small tweaks
-(setq scroll-conservatively 2)
-(setq scroll-margin 20)
-(setq scroll-preserve-screen-position t)
+;; nice scrolling - replace `smooth-scrolling' package (SLOW) with these small tweaks
+(setq scroll-conservatively 101)
+(setq scroll-margin 2)
+(setq scroll-preserve-screen-position 't)
 ;; tweak mouse scrolling
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))) ;; slow scrolling
+;; (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))) ;; slow scrolling
+(setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scroll-ing
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 
@@ -290,14 +291,14 @@
          ("C-x C--" . text-scale-decrease)
          ("C-x C-0" . text-scale-adjust)))
 
-;; themes (more themes here: https://pawelbx.github.io/emacs-theme-gallery/)
-;; also use:
-;;; apropospriate-dark (fix avy, fix startup)
-;;; flatland
-;;; atom-dark (needs fixing)
-;;; atom-one-dark
-;;; flatui (light)
-;;; darcula
+;; THEMES (more themes here: https://pawelbx.github.io/emacs-theme-gallery/)
+;; these are also promising:
+;; - apropospriate-dark (fix avy, fix startup)
+;; - flatland
+;; - atom-dark (needs fixing)
+;; - atom-one-dark
+;; - flatui (light)
+;; - darcula
 (use-package zenburn-theme
   :ensure t
   :config
@@ -322,22 +323,23 @@
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
-;; (use-package color-theme-sanityinc-tomorrow
-;;   :ensure t
-;;   :disabled t
-;;   :config
-;;   (color-theme-sanityinc-tomorrow-night)
-;;   (eval-after-load 'swiper
-;;     '(progn
-;;        (set-face-background 'swiper-line-face "#404040"))))
+(use-package color-theme-sanityinc-tomorrow
+  :ensure t
+  :disabled t
+  :config
+  (color-theme-sanityinc-tomorrow-night)
+  (eval-after-load 'swiper
+    '(progn
+       (set-face-background 'swiper-line-face "#404040"))))
 
-;; prettier modeline
-;; (use-package smart-mode-line
-;;   :ensure t
-;;   :init
-;;   (setq sml/no-confirm-load-theme t)
-;;   (setq sml/theme 'respectful)
-;;   :config (sml/setup))
+;; prettier modeline (SLOW)
+(use-package smart-mode-line
+  :ensure t
+  :disabled t
+  :init
+  (setq sml/no-confirm-load-theme t)
+  (setq sml/theme 'respectful)
+  :config (sml/setup))
 
 ;; highlight the current line
 (global-hl-line-mode +1)
@@ -705,6 +707,11 @@ Start `ielm' if it's not already running."
               (";" . sp-comment))
   :config
   (require 'smartparens-config)
+
+  (sp-pair "(" ")" :wrap "C-(") ;; how do people live without this?
+  (sp-pair "[" "]" :wrap "s-[") ;; C-[ sends ESC
+  (sp-pair "{" "}" :wrap "C-{")
+  
   (setq sp-autoskip-closing-pair 'always)
   ;; TODO: Justify this
   (setq sp-hybrid-kill-entire-symbol nil)
@@ -861,7 +868,18 @@ which has the `figwheel-sidecar' dependency"
         scala-indent:align-parameters t
         scala-indent:default-run-on-strategy scala-indent:operator-strategy)
   ;; TODO: map C-right to `sp-slurp-hybrid-sexp'
-  )
+
+  ;; Make `smartparens' work with `scala-mode'
+  (sp-local-pair 'scala-mode "(" nil :post-handlers '(("||\n[i]" "RET")))
+  (sp-local-pair 'scala-mode "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
+  (defun sp-restrict-c (sym)
+    "Smartparens restriction on `SYM' for C-derived parenthesis."
+    (sp-restrict-to-pairs-interactive "{([" sym))
+  ;; TODO: modify these keybindings
+  (bind-key "s-<delete>" (sp-restrict-c 'sp-kill-sexp) scala-mode-map)
+  (bind-key "s-<backspace>" (sp-restrict-c 'sp-backward-kill-sexp) scala-mode-map)
+  (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
+  (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map))
 
 ;; If this doesn't work, install manually from melpa-stable
 (defun scala/init-ensime ()
