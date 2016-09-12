@@ -768,7 +768,8 @@ Start `ielm' if it's not already running."
 ;; Ruby
 ;; TODO: use enh-ruby-mode instead
 (use-package ruby-mode
-  :defer t
+  :ensure t
+  :commands (ruby-mode)
   :mode ("\\.rake\\'"
          "\\Rakefile\\'"
          "\\.gemspec\\'"
@@ -816,6 +817,7 @@ Start `ielm' if it's not already running."
 ;; Clojure
 (use-package clojure-mode
   :ensure t
+  :commands (clojure-mode)
   :config
   (add-hook 'clojure-mode-hook #'subword-mode)
   (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode))
@@ -824,6 +826,8 @@ Start `ielm' if it's not already running."
 ;; install from `melpa-stable'
 (use-package cider
   :ensure t
+  :commands (cider-jack-in
+             cider-jack-in-clojurescript)
   :bind ("C-c r" . cider-repl-reset)
   :init
   (add-hook 'cider-mode-hook #'eldoc-mode)
