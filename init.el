@@ -704,12 +704,11 @@ Start `ielm' if it's not already running."
   (require 'smartparens-config)
 
   (sp-pair "(" ")" :wrap "C-(") ;; how do people live without this?
-  (sp-pair "[" "]" :wrap "s-[") ;; C-[ sends ESC
+  (sp-pair "[" "]" :wrap "s-[") ;; C-[ sends ESC :(
   (sp-pair "{" "}" :wrap "C-{")
   
-  (setq sp-autoskip-closing-pair 'always)
-  ;; TODO: Justify this
   (setq sp-hybrid-kill-entire-symbol nil)
+  (setq sp-autoskip-closing-pair 'always)
   ;; remove annoying highlighting of pair region after creation
   (setq sp-highlight-pair-overlay nil)
   ;; skip closing pair even when backspace is pressed beforehand
@@ -753,6 +752,7 @@ Start `ielm' if it's not already running."
 
 (use-package js2-mode
   :ensure t
+  :commands (js2-mode)
   :mode (("\\.js\\'" . js2-mode)
          ("\\.pac\\'" . js2-mode))
   :interpreter "node"
