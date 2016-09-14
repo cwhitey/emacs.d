@@ -104,11 +104,16 @@
 
 ;; disable startup screen
 (setq inhibit-startup-screen t)
+(setq initial-major-mode 'emacs-lisp-mode)
+(setq initial-scratch-message nil)
+
+;; start emacs with maximized frame
+(toggle-frame-maximized)
 
 ;; nice scrolling - replace `smooth-scrolling' package (SLOW) with these small tweaks
-(setq scroll-conservatively 101)
-(setq scroll-margin 2)
-(setq scroll-preserve-screen-position 't)
+(setq scroll-conservatively 10000
+      scroll-margin 2
+      scroll-preserve-screen-position 1)
 ;; tweak mouse scrolling
 ;; (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))) ;; slow scrolling
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
@@ -839,7 +844,8 @@ Start `ielm' if it's not already running."
   (add-hook 'cider-mode-hook #'eldoc-mode)
   (add-hook 'cider-repl-mode-hook #'eldoc-mode)
   (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode)
-  :config 
+  :config
+  (delight 'cider-mode nil 'cider)
   (defun cider-figwheel-repl ()
     "Start Figwheel and a Clojurescript REPL in a project 
 which has the `figwheel-sidecar' dependency"
@@ -923,7 +929,9 @@ which has the `figwheel-sidecar' dependency"
 ;; Markdown
 (use-package markdown-mode
   :ensure t
-  :commands (markdown-mode))
+  :commands (markdown-mode)
+  :config
+  (delight 'markdown-mode "MD" 'markdown-mode))
 
 ;; Yaml
 (use-package yaml-mode
