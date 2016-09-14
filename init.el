@@ -264,10 +264,14 @@
            ("C-S-f" . super-forward-char))
 
 (diminish 'yas-global-mode)
+(diminish 'server-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package delight
+  :ensure t)
 
 ;; supply :chords keyword for use-package definitions
 ;; this also gives us the key-chord library
@@ -629,10 +633,10 @@
                ("C-M-," . dumb-jump-back))
   :config (dumb-jump-mode))
 
-;; neaten this up (use-package emacs-lisp-mode)?
 (use-package lisp-mode
   :defer t
-  :config
+  :init
+  (delight 'emacs-lisp-mode "EL" 'emacs-lisp)
   (defun my-visit-ielm ()
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
@@ -747,7 +751,7 @@ Start `ielm' if it's not already running."
   :defer t)
 
 (use-package tern
-  :disabled t ;; must install tern-server
+  :disabled t ;; must install tern-server on local machine
   :defer t)
 
 (use-package js2-mode
@@ -818,7 +822,9 @@ Start `ielm' if it's not already running."
 (use-package clojure-mode
   :ensure t
   :commands (clojure-mode)
-  :config
+  :init
+  (delight 'clojure-mode "clj" 'clojure-mode)
+  (delight 'clojurescript-mode "cljs" 'clojure-mode)
   (add-hook 'clojure-mode-hook #'subword-mode)
   (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode))
 
