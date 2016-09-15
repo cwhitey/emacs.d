@@ -152,11 +152,13 @@
                  "%b"))))
 
 ;; minimal mode line format
-(setq-default mode-line-format '("  " 
+(setq-default mode-line-position '(line-number-mode
+                                   ("(" "%l" (column-number-mode ":%c") ")")))
+(setq-default mode-line-format '("  "
                                  mode-line-buffer-identification
                                  "  "
                                  mode-line-position
-                                 " "
+                                 "  "
                                  (vc-mode vc-mode)
                                  "   "
                                  mode-line-modes
