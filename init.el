@@ -151,6 +151,18 @@
                    (abbreviate-file-name (buffer-file-name))
                  "%b"))))
 
+;; minimal mode line format
+(setq-default mode-line-format '("  " 
+                                 mode-line-buffer-identification
+                                 "  "
+                                 mode-line-position
+                                 " "
+                                 (vc-mode vc-mode)
+                                 "   "
+                                 mode-line-modes
+                                 '(global-mode-string '("--" global-mode-string))
+                                 "-%-"))
+
 ;; Emacs modes typically provide a standard means to change the
 ;; indentation width -- eg. c-basic-offset: use that to adjust your
 ;; personal indentation width, while maintaining the style (and
