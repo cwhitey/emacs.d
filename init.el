@@ -90,7 +90,8 @@
 (defun server-visit-presets ()
   "Things to run when server is hit by new emacsclient instances."
   (message "Running server-visit-presets")
-  (menu-bar-mode -1)) ;; force-hide menu-bar (both GUI and terminal emacs)
+  (menu-bar-mode -1) ;; force-hide menu-bar (both GUI and terminal emacs)
+  ) 
 (add-hook 'server-visit-hook 'server-visit-presets)
 
 ;; force hide for other cases
@@ -115,25 +116,9 @@
       scroll-margin 2
       scroll-preserve-screen-position 1)
 ;; tweak mouse scrolling
-;; (setq mouse-wheel-scroll-amount '(1 ((shift) . 1) ((control) . nil))) ;; slow scrolling
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scroll-ing
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-
-;; scroll buffer independent of where point is
-(defun scroll-buffer-down ()
-  (interactive)
-  (scroll-down 1))
-(defun scroll-buffer-up ()
-  (interactive)
-  (scroll-up 1))
-(bind-key (kbd "M-p") 'scroll-buffer-down)
-(bind-key (kbd "M-n") 'scroll-buffer-up)
-
-;; mode line settings
-(line-number-mode t)
-(column-number-mode t)
-(size-indication-mode t)
 
 ;; Set default font (only verified in OSX)
 ;; For other solutions see https://www.emacswiki.org/emacs/SetFonts
@@ -150,6 +135,10 @@
       '((:eval (if (buffer-file-name)
                    (abbreviate-file-name (buffer-file-name))
                  "%b"))))
+
+;; mode line settings
+(line-number-mode t)
+(column-number-mode t)
 
 ;; minimal mode line format
 (setq-default mode-line-position '(line-number-mode
@@ -260,6 +249,16 @@
 ;; smart tab behavior - indent or complete
 (setq tab-always-indent 'complete)
 
+;; scroll buffer independent of where point is
+(defun scroll-buffer-down ()
+  (interactive)
+  (scroll-down 1))
+(defun scroll-buffer-up ()
+  (interactive)
+  (scroll-up 1))
+(bind-key (kbd "M-p") 'scroll-buffer-down)
+(bind-key (kbd "M-n") 'scroll-buffer-up)
+
 ;; quicker movement when needed
 (defun super-next-line ()
   (interactive)
@@ -284,6 +283,7 @@
 
 (diminish 'yas-global-mode)
 (diminish 'server-mode)
+(diminish 'auto-revert-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
