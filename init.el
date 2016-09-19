@@ -79,8 +79,6 @@
 (setq ad-redefinition-action 'accept)
 
 ;; the toolbar is just a waste of valuable screen estate
-;; in a tty tool-bar-mode does not properly auto-load, and is
-;; already disabled anyway
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
 
@@ -90,8 +88,8 @@
 (defun server-visit-presets ()
   "Things to run when server is hit by new emacsclient instances."
   (message "Running server-visit-presets")
-  (menu-bar-mode -1) ;; force-hide menu-bar (both GUI and terminal emacs)
-  ) 
+  ;; force-hide menu-bar (both GUI and terminal emacs)
+  (menu-bar-mode -1))
 (add-hook 'server-visit-hook 'server-visit-presets)
 
 ;; force hide for other cases
@@ -120,8 +118,7 @@
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scroll-ing
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 
-;; Set default font (only verified in OSX)
-;; For other solutions see https://www.emacswiki.org/emacs/SetFonts
+;; Set default font (only verified in OSX) https://www.emacswiki.org/emacs/SetFonts
 (when (eq system-type 'darwin)
   (set-face-attribute 'default nil :family "Monaco")
   (set-face-attribute 'default nil :height 140))
@@ -161,7 +158,7 @@
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
 (setq-default tab-width 8)            ;; but maintain correct appearance
 
-;; Newline at end of file
+;; newline at end of file
 (setq require-final-newline t)
 
 ;; delete the selection with a keypress
@@ -662,13 +659,15 @@ Start `ielm' if it's not already running."
     (interactive)
     (crux-start-or-switch-to 'ielm "*ielm*"))
   (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
+  (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
+  (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
   (define-key emacs-lisp-mode-map (kbd "M-.") #'find-function)
   (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'my-visit-ielm)
   (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer)
-  (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode))
+  (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer))
 
 (use-package ielm
   :defer t
@@ -740,10 +739,6 @@ Start `ielm' if it's not already running."
   (show-smartparens-global-mode t)
   (smartparens-global-mode t)
   
-  (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
-  (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
-  (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode)
-  (add-hook 'cider-repl-mode-hook #'turn-on-smartparens-strict-mode)
   ;; NOTE: Cannot use strict mode with ruby yet. :(
   ;;       When you create a new method definition at the bottom of a class definition, the 'def' will
   ;;       immediately steal the classes 'end', and auto-pair-creation won't work. The problem is that
@@ -816,7 +811,9 @@ Start `ielm' if it's not already running."
     ;; NOTE: `robe-start' requires pry and pry-doc gems
     :init (push 'company-robe company-backends))
   (use-package ruby-tools
-    :ensure t)
+    :ensure t
+    :init
+    (delight 'ruby-tools-mode nil 'ruby-tools))
   (use-package chruby
     :ensure t
     :config (chruby "ruby 2.2.3"))
@@ -838,6 +835,13 @@ Start `ielm' if it's not already running."
   (add-hook 'projectile-mode-hook 'projectile-rails-on))
 
 ;; Clojure
+
+(use-package clj-refactor
+  :ensure t
+  :commands (clj-refactor-mode)
+  :config
+  (cljr-add-keybindings-with-prefix "C-c C-m"))
+
 (use-package clojure-mode
   :ensure t
   :commands (clojure-mode)
@@ -845,10 +849,11 @@ Start `ielm' if it's not already running."
   (delight 'clojure-mode "clj" 'clojure-mode)
   (delight 'clojurescript-mode "cljs" 'clojure-mode)
   (add-hook 'clojure-mode-hook #'subword-mode)
-  (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode))
+  (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode)
+  (add-hook 'clojure-mode-hook #'clj-refactor-mode))
 
-;; TODO add in `clj-refactor': https://github.com/clojure-emacs/clj-refactor.el
-;; install from `melpa-stable'
+;; TODO: install from `melpa-stable'
 (use-package cider
   :ensure t
   :commands (cider-jack-in
@@ -858,6 +863,9 @@ Start `ielm' if it's not already running."
   (add-hook 'cider-mode-hook #'eldoc-mode)
   (add-hook 'cider-repl-mode-hook #'eldoc-mode)
   (add-hook 'cider-repl-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'cider-repl-mode-hook #'turn-on-smartparens-strict-mode)
+  (add-hook 'cider-mode-hook #'company-mode)
+  (add-hook 'cider-repl-mode-hook #'company-mode)
   :config
   (delight 'cider-mode nil 'cider)
   (defun cider-figwheel-repl ()
