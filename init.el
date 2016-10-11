@@ -114,6 +114,7 @@
       scroll-margin 2
       scroll-preserve-screen-position 1)
 ;; tweak mouse scrolling
+;; super smooth: (setq mouse-wheel-scroll-amount '(0.01))
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scroll-ing
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
@@ -543,7 +544,7 @@
   ;; current subdir, instead of the current subdir of this dired buffer
   (setq dired-dwim-target t)
 
-  ;; enable some really cool extensions like C-x C-j(dired-jump)
+  ;; enable some really cool extensions like C-x C-j (dired-jump)
   (require 'dired-x))
 
 (use-package anzu
@@ -626,7 +627,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Programming modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (use-package company
   :ensure t
   :init (setq
@@ -778,7 +778,7 @@ Start `ielm' if it's not already running."
   (add-hook 'js2-mode-hook (lambda ()
                              ;; (tern-mode t)
                              (setq mode-name "JS2"))))
-
+;; Jade mode (js html templates)
 (use-package jade-mode
   :ensure t
   :defer t)
@@ -835,7 +835,6 @@ Start `ielm' if it's not already running."
   (add-hook 'projectile-mode-hook 'projectile-rails-on))
 
 ;; Clojure
-
 (use-package clj-refactor
   :ensure t
   :commands (clj-refactor-mode)
@@ -926,6 +925,7 @@ which has the `figwheel-sidecar' dependency"
   (use-package ensime
     :pin melpa-stable
     :defer t
+    :commands (ensime ensime-mode)
     :init
     (setq ensime-use-helm t)
     (add-hook 'ensime-mode-hook 'scala/enable-eldoc)))
@@ -963,6 +963,7 @@ which has the `figwheel-sidecar' dependency"
 (use-package gitconfig-mode
   :ensure t
   :defer t
+  :commands (gitconfig-mode)
   :mode ("\\gitconfig\\'" . gitconfig-mode)
   :config (add-hook 'gitconfig-mode-hook
                     (lambda ()
@@ -974,6 +975,10 @@ which has the `figwheel-sidecar' dependency"
   :commands (dockerfile-mode)
   :mode ("\\Dockerfile\\'" . dockerfile-mode))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Other
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package zop-to-char
   :ensure t
   :defer t
@@ -1038,21 +1043,6 @@ which has the `figwheel-sidecar' dependency"
   :ensure t
   :bind (("C-c ," . goto-last-change)
          ("C-c ." . goto-last-change-reverse)))
-
-;; split using last buffer instead of current
-;; TODO: if in projectile project, use last project buffer if exists
-(defun vsplit-last-buffer ()
-  (interactive)
-  (split-window-vertically)
-  (other-window 1 nil)
-  (switch-to-next-buffer))
-(defun hsplit-last-buffer ()
-  (interactive)
-  (split-window-horizontally)
-  (other-window 1 nil)
-  (switch-to-next-buffer))
-;; (bind-key "C-x 2" 'vsplit-last-buffer)
-;; (bind-key "C-x 3" 'hsplit-last-buffer)
 
 (use-package multiple-cursors
   :ensure t
