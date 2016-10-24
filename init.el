@@ -416,7 +416,8 @@
           helm-display-header-line              nil
           helm-split-window-in-side-p           t
           helm-autoresize-max-height            40
-          helm-autoresize-min-height            40))
+          helm-autoresize-min-height            40
+          helm-candidate-number-limit           200))
   :config
   (require 'helm-config)
   (require 'helm-themes)
@@ -594,6 +595,12 @@
   :config
   (setq whitespace-line-column 80) ;; limit line length
   (setq whitespace-style '(face tabs empty trailing lines-tail)))
+
+(use-package vim-empty-lines-mode
+  :ensure t  
+  :init
+  (delight 'vim-empty-lines-mode nil 'vim-empty-lines-mode)
+  (add-hook 'prog-mode-hook 'vim-empty-lines-mode))
 
 (use-package crux
   :ensure t
@@ -921,6 +928,14 @@ which has the `figwheel-sidecar' dependency"
                   (when (ensime-connected-p)
                     (ensime-print-type-at-point))))
     (eldoc-mode +1))
+
+  (defun scala/ensime-gen-and-restart()
+    "Regenerate `.ensime' file and restart the ensime server."
+    (interactive)
+    (progn
+      (sbt-command ";ensimeConfig;ensimeConfigProject")
+      (ensime-shutdown)
+      (ensime)))
   
   (use-package ensime
     :pin melpa-stable
