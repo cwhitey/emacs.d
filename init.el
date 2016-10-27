@@ -111,7 +111,7 @@
 
 ;; nice scrolling - replace `smooth-scrolling' package (SLOW) with these small tweaks
 (setq scroll-conservatively 10000
-      scroll-margin 2
+      scroll-margin 1
       scroll-preserve-screen-position 1)
 ;; tweak mouse scrolling
 ;; super smooth: (setq mouse-wheel-scroll-amount '(0.01))
