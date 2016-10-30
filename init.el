@@ -289,6 +289,11 @@
 
 (use-package delight)
 
+(use-package paradox
+  :ensure t
+  :config
+  (paradox-enable))
+
 ;; supply :chords keyword for use-package definitions
 ;; this also gives us the key-chord library
 ;; usage:
@@ -436,12 +441,18 @@
 
   ;; helm-swoop alternative using ivy as a backend
   (use-package swiper
+    :ensure t
     :bind (("M-i" . swiper)
            ("M-I" . swiper-all))
     :init
+    (ivy-mode 1)
+    (counsel-mode 1)
+    (delight 'counsel-mode nil 'swiper)
+    (delight 'ivy-mode nil 'swiper)
     (setq swiper-action-recenter t)
+    (setq ivy-use-virtual-buffers t)
     (global-set-key "\C-s" 'swiper)
-    :config 
+    :config
     (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
 
   (use-package helm-projectile
