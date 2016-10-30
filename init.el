@@ -407,7 +407,6 @@
           helm-candidate-number-limit           200))
   :config
   (require 'helm-config)
-  (require 'helm-themes)
   (require 'helm-eshell)
   (helm-mode +1)
   
