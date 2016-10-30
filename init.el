@@ -287,24 +287,20 @@
 ;; Packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(use-package delight
-  :ensure t)
+(use-package delight)
 
 ;; supply :chords keyword for use-package definitions
 ;; this also gives us the key-chord library
 ;; usage:
 ;;   :chords (("jj" . jump-to-definition))
 (use-package use-package-chords
-  :ensure t
   :config
   (key-chord-mode 1))
 
 (use-package fasd
-  :ensure t
   :config (global-fasd-mode 1))
 
 (use-package zoom-frm
-  :ensure t
   :bind (("C-+" . zoom-frm-in)
          ("C--" . zoom-frm-out)
          ("C-0" . zoom-frm-unzoom)
@@ -321,7 +317,6 @@
 ;; - flatui (light)
 ;; - darcula
 (use-package zenburn-theme
-  :ensure t
   :config
   (load-theme 'zenburn t)
   ;; Change color for directory in buffers list
@@ -330,7 +325,6 @@
        (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
 
 (use-package ample-theme
-  :ensure t
   :disabled t
   :init (progn (load-theme 'ample t t)
                (load-theme 'ample-flat t t)
@@ -345,7 +339,6 @@
        (set-face-background 'swiper-line-face "#404040"))))
 
 (use-package color-theme-sanityinc-tomorrow
-  :ensure t
   :disabled t
   :config
   (color-theme-sanityinc-tomorrow-night)
@@ -355,7 +348,6 @@
 
 ;; prettier modeline (SLOW)
 (use-package smart-mode-line
-  :ensure t
   :disabled t
   :init
   (setq sml/no-confirm-load-theme t)
@@ -366,22 +358,18 @@
 (global-hl-line-mode +1)
 
 (use-package avy
-  :ensure t
   :bind (("s-." . avy-goto-word-or-subword-1)
          ("s-," . avy-goto-char))
   :config
   (setq avy-background t))
 
 (use-package magit
-  :ensure t
   :bind (("C-x g" . magit-status)))
 
 (use-package ag
-  :ensure t
   :defer t)
 
 (use-package projectile
-  :ensure t
   :diminish projectile-mode
   :bind ("s-p" . projectile-command-map) 
   :config
@@ -389,7 +377,6 @@
 
 ;; HELM HELM HELM
 (use-package helm
-  :ensure t
   :defer 2
   :diminish helm-mode
   :bind-keymap (("C-c h" . helm-command-prefix))
@@ -446,12 +433,10 @@
   (helm-autoresize-mode 1)
 
   (use-package helm-ag
-    :ensure t
     :defer t)
 
   ;; helm-swoop alternative using ivy as a backend
   (use-package swiper
-    :ensure t
     :bind (("M-i" . swiper)
            ("M-I" . swiper-all))
     :init
@@ -461,12 +446,10 @@
     (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
 
   (use-package helm-projectile
-    :ensure t
     :init (setq projectile-completion-system 'helm)
     :config (helm-projectile-on))
 
   (use-package helm-open-github
-    :ensure t
     :defer t
     :bind (("C-c g f" . helm-open-github-from-file)
            ("C-c g c" . helm-open-github-from-commit)
@@ -475,7 +458,6 @@
 
 ;; TODO: This defer timeout forces helm to load? Figure out why helm doesn't load on its own
 (use-package helm-descbinds
-  :ensure t
   :defer 2
   :bind (("C-h b" . helm-descbinds)
          ("C-h w" . helm-descbinds)))
@@ -549,7 +531,6 @@
   (require 'dired-x))
 
 (use-package anzu
-  :ensure t
   :diminish anzu-mode
   :bind (("M-%" . anzu-query-replace)
          ("C-M-%" . anzu-query-replace-regexp))
@@ -557,30 +538,25 @@
 
 ;; TODO: investigate easy-kill's easy-mark
 (use-package easy-kill
-  :ensure t
   :defer t 
   :config
   (global-set-key [remap kill-ring-save] 'easy-kill))
 
 (use-package exec-path-from-shell
-  :ensure t
   :config
   (when (memq window-system '(mac ns))
     (exec-path-from-shell-initialize)))
 
 (use-package move-text
-  :ensure t
   :bind (([(meta shift up)] . move-text-up)
          ([(meta shift down)] . move-text-down)))
 
 ;; rainbow parens based on depth
 (use-package rainbow-delimiters
-  :ensure t
   :defer t)
 
 ;; colorise color names in programming buffers (e.g. #000000)
 (use-package rainbow-mode
-  :ensure t
   :diminish rainbow-mode
   :commands (rainbow-mode)
   :config
@@ -596,14 +572,12 @@
   (setq whitespace-line-column 80) ;; limit line length
   (setq whitespace-style '(face tabs empty trailing lines-tail)))
 
-(use-package vim-empty-lines-mode
-  :ensure t  
+(use-package vim-empty-lines-mode  
   :init
   (delight 'vim-empty-lines-mode nil 'vim-empty-lines-mode)
   (add-hook 'prog-mode-hook 'vim-empty-lines-mode))
 
 (use-package crux
-  :ensure t
   :commands (crux-start-or-switch-to)
   :bind (("C-c o" . crux-open-with)
          ("M-o" . crux-smart-open-line)
@@ -635,7 +609,6 @@
 ;; Programming modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company
-  :ensure t
   :init (setq
          company-dabbrev-ignore-case nil
          company-dabbrev-code-ignore-case nil
@@ -649,7 +622,6 @@
   (add-hook 'prog-mode-hook #'company-mode))
 
 (use-package dumb-jump
-  :ensure t
   ;; bind keys (have to override globals by using *)
   :bind* (:map dumb-jump-mode-map
                ("C-M-." . dumb-jump-go)
@@ -683,7 +655,6 @@ Start `ielm' if it's not already running."
   (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode))
 
 (use-package elisp-slime-nav
-  :ensure t
   :defer t
   :config
   (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode)
@@ -698,7 +669,6 @@ Start `ielm' if it's not already running."
          ("\\zlogout\\'" . shell-script-mode)))
 
 (use-package smartparens
-  :ensure t
   :demand t
   ;; sp-smartparens-bindings without the annoying rebinding of M-<delete> and M-<backspace>
   :bind (:map smartparens-mode-map
@@ -755,20 +725,17 @@ Start `ielm' if it's not already running."
 
 ;; TODO: investigate skewer-mode
 (use-package web-mode
-  :ensure t
   :defer t
   :mode (("\\.hbs\\'" . web-mode)))
 
 ;; TODO: add CSS mode
 ;; Required in PATH: `scss` and `scss_lint`
 (use-package scss-mode
-  :ensure t
   :defer t
   :mode (("\\.scss\\'" . scss-mode)
          ("\\.sass\\'" . scss-mode)))
 
 (use-package json-mode
-  :ensure t
   :defer t)
 
 (use-package tern
@@ -776,7 +743,6 @@ Start `ielm' if it's not already running."
   :defer t)
 
 (use-package js2-mode
-  :ensure t
   :commands (js2-mode)
   :mode (("\\.js\\'" . js2-mode)
          ("\\.pac\\'" . js2-mode))
@@ -787,13 +753,11 @@ Start `ielm' if it's not already running."
                              (setq mode-name "JS2"))))
 ;; Jade mode (js html templates)
 (use-package jade-mode
-  :ensure t
   :defer t)
 
 ;; Ruby
 ;; TODO: use enh-ruby-mode instead
 (use-package ruby-mode
-  :ensure t
   :commands (ruby-mode)
   :mode ("\\.rake\\'"
          "\\Rakefile\\'"
@@ -811,29 +775,22 @@ Start `ielm' if it's not already running."
   (add-hook 'ruby-mode-hook #'robe-mode)
   (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
   :config
-  (use-package inf-ruby
-    :ensure t)
+  (use-package inf-ruby)
   (use-package robe
-    :ensure t
     ;; NOTE: `robe-start' requires pry and pry-doc gems
     :init (push 'company-robe company-backends))
   (use-package ruby-tools
-    :ensure t
     :init
     (delight 'ruby-tools-mode nil 'ruby-tools))
   (use-package chruby
-    :ensure t
     :config (chruby "ruby 2.2.3"))
-  (use-package rspec-mode
-    :ensure t))
+  (use-package rspec-mode))
 
 (use-package bundler
-  :ensure t
   :commands (bundle-open bundle-console bundle-install bundle-update bundle-check))
 
 ;; Rails
 (use-package projectile-rails
-  :ensure t
   :bind (:map projectile-rails-mode-map
               ("s-r m" . projectile-rails-find-model)
               ("s-r c" . projectile-rails-find-controller)
@@ -843,13 +800,11 @@ Start `ielm' if it's not already running."
 
 ;; Clojure
 (use-package clj-refactor
-  :ensure t
   :commands (clj-refactor-mode)
   :config
   (cljr-add-keybindings-with-prefix "C-c C-m"))
 
 (use-package clojure-mode
-  :ensure t
   :commands (clojure-mode)
   :init
   (delight 'clojure-mode "clj" 'clojure-mode)
@@ -861,7 +816,6 @@ Start `ielm' if it's not already running."
 
 ;; TODO: install from `melpa-stable'
 (use-package cider
-  :ensure t
   :commands (cider-jack-in
              cider-jack-in-clojurescript)
   :bind ("C-c r" . cider-repl-reset)
@@ -898,7 +852,6 @@ which has the `figwheel-sidecar' dependency"
 
 ;; Scala
 (use-package scala-mode
-  :ensure t
   :interpreter ("scala" . scala-mode)
   :commands (scala-mode)
   :config 
@@ -960,23 +913,19 @@ which has the `figwheel-sidecar' dependency"
 
 ;; Erlang
 (use-package erlang
-  :ensure t
   :commands (erlang-mode))
 
 ;; Markdown
 (use-package markdown-mode
-  :ensure t
   :commands (markdown-mode)
   :config
   (delight 'markdown-mode "MD" 'markdown-mode))
 
 ;; Yaml
 (use-package yaml-mode
-  :ensure t
   :commands (yaml-mode))
 
 (use-package gitconfig-mode
-  :ensure t
   :defer t
   :commands (gitconfig-mode)
   :mode ("\\gitconfig\\'" . gitconfig-mode)
@@ -986,7 +935,6 @@ which has the `figwheel-sidecar' dependency"
                             tab-width 4))))
 
 (use-package dockerfile-mode
-  :ensure t
   :commands (dockerfile-mode)
   :mode ("\\Dockerfile\\'" . dockerfile-mode))
 
@@ -995,13 +943,11 @@ which has the `figwheel-sidecar' dependency"
 ;; Other
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package zop-to-char
-  :ensure t
   :defer t
   :bind (("M-z" . zop-up-to-char)
          ("M-Z" . zop-to-char)))
 
 (use-package flycheck
-  :ensure t
   :defer 2
   :init
   (setq-default flycheck-emacs-lisp-load-path 'inherit)
@@ -1011,13 +957,11 @@ which has the `figwheel-sidecar' dependency"
 
 ;; save emacs buffers when they lose focus
 (use-package super-save
-  :ensure t
   :diminish super-save-mode
   :config
   (super-save-mode +1))
 
 (use-package aggressive-indent
-  :ensure t
   :config
   (add-to-list 'aggressive-indent-excluded-modes 'jade-mode)
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
@@ -1027,7 +971,6 @@ which has the `figwheel-sidecar' dependency"
 
 ;; highlight uncommitted changes on left side of buffer
 (use-package diff-hl
-  :ensure t
   :defer 2
   :config
   (global-diff-hl-mode +1)
@@ -1036,13 +979,11 @@ which has the `figwheel-sidecar' dependency"
 
 ;; display key binding completion help for partially typed commands
 (use-package which-key
-  :ensure t
   :diminish which-key-mode
   :config
   (which-key-mode +1))
 
 (use-package undo-tree
-  :ensure t
   :chords (("uu" . undo-tree-visualize))
   :bind (("C-/" . undo-tree-undo)
          ("C-?" . undo-tree-redo)
@@ -1055,12 +996,10 @@ which has the `figwheel-sidecar' dependency"
 
 ;; goto edit history locations without changing anything
 (use-package goto-chg
-  :ensure t
   :bind (("C-c ," . goto-last-change)
          ("C-c ." . goto-last-change-reverse)))
 
 (use-package multiple-cursors
-  :ensure t
   :init (global-unset-key (kbd "M-<down-mouse-1>"))
   :bind
   (("C-c m t" . mc/mark-all-like-this)
