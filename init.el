@@ -33,18 +33,83 @@
 
 (require 'package)
 
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-
+(setq package-archives
+      '(("melpa-stable" . "http://stable.melpa.org/packages/")
+        ("melpa" . "http://melpa.org/packages/")
+        ("gnu" . "http://elpa.gnu.org/packages/")))
 ;; keep the installed packages in .emacs.d
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 (package-initialize)
-
 ;; update the package metadata if the local cache is missing
 (unless package-archive-contents
   (package-refresh-contents))
+
+;; Pinned packages require Emacs 24.4+ to work.
+(setq package-pinned-packages '((cider        . "melpa-stable")
+                                (clj-refactor . "melpa-stable")
+                                (ensime       . "melpa-stable")
+                                (sbt-mode     . "melpa-stable")))
+
+(defvar my-packages '(use-package
+                       use-package-chords
+                       delight
+                       smartparens
+                       aggressive-indent
+                       company ;; Completion framework
+                       projectile
+                       ag
+                       anzu
+                       crux
+                       super-save
+                       move-text
+                       undo-tree
+                       magit
+                       helm
+                       helm-ag
+                       helm-descbinds
+                       helm-open-github
+                       helm-projectile
+                       swiper
+                       ivy
+                       counsel
+                       counsel-projectile
+                       ample-theme
+                       zenburn-theme
+                       color-theme-sanityinc-tomorrow
+                       markdown-mode
+                       dockerfile-mode
+                       gitconfig-mode
+                       yaml-mode
+                       scss-mode
+                       json-mode
+                       json-reformat
+                       js2-mode
+                       rainbow-delimiters
+                       rainbow-mode ;; Render RGB strings with color
+                       web-mode
+                       cider
+                       clj-refactor
+                       ruby-mode
+                       inf-ruby
+                       robe
+                       rspec-mode
+                       ruby-tools
+                       projectile-rails
+                       chruby
+                       scala-mode
+                       dumb-jump
+                       goto-chg
+                       restclient
+                       exec-path-from-shell
+                       zoom-frm
+                       easy-kill
+                       diff-hl
+                       vim-empty-lines-mode
+                       multiple-cursors)
+  "A list of packages to ensure are installed at launch.")
+(dolist (p my-packages)
+  (when (not (package-installed-p p))
+    (package-install p)))
 
 (eval-when-compile (require 'use-package))
 (require 'diminish)
