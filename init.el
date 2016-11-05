@@ -36,19 +36,28 @@
 (setq package-archives
       '(("melpa-stable" . "http://stable.melpa.org/packages/")
         ("melpa" . "http://melpa.org/packages/")
-        ("gnu" . "http://elpa.gnu.org/packages/")))
-;; keep the installed packages in .emacs.d
-(setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
+        ("gnu" . "http://elpa.gnu.org/packages/"))
+      ;; Prefer MELPA Stable over GNU over MELPA.  IOW prefer MELPA's stable
+      ;; packages over everything and only fall back to GNU or MELPA if
+      ;; necessary.
+      package-archive-priorities
+      '(("melpa-stable" . 10)
+        ("gnu"          . 5)
+        ("melpa"        . 0))
+      ;; Pinned packages require Emacs 24.4+ to work.
+      package-pinned-packages
+      '((cider        . "melpa-stable")
+        (clj-refactor . "melpa-stable")
+        (ensime       . "melpa-stable")
+        (sbt-mode     . "melpa-stable"))
+      ;; keep the installed packages in .emacs.d
+      package-user-dir
+      (expand-file-name "elpa" user-emacs-directory))
+
 (package-initialize)
 ;; update the package metadata if the local cache is missing
 (unless package-archive-contents
   (package-refresh-contents))
-
-;; Pinned packages require Emacs 24.4+ to work.
-(setq package-pinned-packages '((cider        . "melpa-stable")
-                                (clj-refactor . "melpa-stable")
-                                (ensime       . "melpa-stable")
-                                (sbt-mode     . "melpa-stable")))
 
 (defvar my-packages '(use-package
                        use-package-chords
@@ -111,10 +120,10 @@
   (when (not (package-installed-p p))
     (package-install p)))
 
+;; use-package setup
 (eval-when-compile (require 'use-package))
 (require 'diminish)
 (require 'bind-key)
-
 (setq use-package-verbose t)
 
 ;; always load newest byte code
@@ -143,36 +152,25 @@
 ;; suppress warnings for redefinitions
 (setq ad-redefinition-action 'accept)
 
-;; the toolbar is just a waste of valuable screen estate
+;; disable some stuff
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
-
-;; the blinking cursor is nothing, but an annoyance
 (blink-cursor-mode -1)
-
-(defun server-visit-presets ()
-  "Things to run when server is hit by new emacsclient instances."
-  (message "Running server-visit-presets")
-  ;; force-hide menu-bar (both GUI and terminal emacs)
-  (menu-bar-mode -1))
-(add-hook 'server-visit-hook 'server-visit-presets)
-
-;; force hide for other cases
-(menu-bar-mode -1)
-
-;; remove scroll bars
-(scroll-bar-mode -1)
-
-;; disable the annoying bell ring
 (setq ring-bell-function 'ignore)
-
-;; disable startup screen
 (setq inhibit-startup-screen t)
 (setq initial-major-mode 'emacs-lisp-mode)
 (setq initial-scratch-message nil)
+(toggle-frame-maximized) ;; start emacs with maximized frame
 
-;; start emacs with maximized frame
-(toggle-frame-maximized)
+(defun server-visit-presets ()
+  "Things to run when server is hit by new emacsclient instances."
+  (message "Running server-visit-presets") 
+  (menu-bar-mode -1) ;; force-hide menu-bar (both GUI and terminal emacs) 
+  (toggle-frame-maximized) ;; start emacs with maximized frame
+  )
+(add-hook 'server-visit-hook 'server-visit-presets)
 
 ;; nice scrolling - replace `smooth-scrolling' package (SLOW) with these small tweaks
 (setq scroll-conservatively 10000
@@ -202,7 +200,6 @@
 ;; mode line settings
 (line-number-mode t)
 (column-number-mode t)
-
 ;; minimal mode line format
 (setq-default mode-line-position '(line-number-mode
                                    ("(" "%l" (column-number-mode ":%c") ")")))
@@ -223,29 +220,28 @@
 ;; meaning) of any files you load.
 (setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
 (setq-default tab-width 8)            ;; but maintain correct appearance
-
+;; smart tab behavior - indent or complete
+(setq tab-always-indent 'complete)
 ;; newline at end of file
 (setq require-final-newline t)
-
 ;; delete the selection with a keypress
 (delete-selection-mode t)
+;; revert buffers automatically when underlying files are changed externally
+(global-auto-revert-mode t)
+;; undo and redo window configuration with <C-left> and <C-right>
+(winner-mode 1)
+(global-hl-line-mode +1)
+
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
 
 ;; store all backup and autosave files in the tmp dir
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
-
-;; revert buffers automatically when underlying files are changed externally
-(global-auto-revert-mode t)
-
-;; undo and redo window configuration with <C-left> and <C-right>
-(winner-mode 1)
-
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
 
 ;; hippie expand is dabbrev expand on steroids
 (setq hippie-expand-try-functions-list '(try-expand-dabbrev
@@ -276,7 +272,6 @@
 (global-set-key (kbd "C-x C-c") 'dont-kill-emacs)
 (global-set-key (kbd "C-x M-c") 'save-buffers-kill-server-or-client)
 (global-set-key (kbd "C-x s-c") 'save-buffers-kill-server-or-client)
-
 ;; make it harder to accidentally kill a frame with OSX bindings (command-w)
 (when (eq system-type 'darwin)
   (global-set-key (kbd "s-w") 'dont-kill-emacs))
@@ -292,9 +287,6 @@
 ;; replace buffer-menu with ibuffer
 (global-set-key (kbd "C-x C-b") #'ibuffer)
 
-;; align code in a pretty way
-(global-set-key (kbd "C-x \\") #'align-regexp)
-
 ;; extend the help commands
 (define-key 'help-command (kbd "C-f") #'find-function)
 (define-key 'help-command (kbd "C-k") #'find-function-on-key)
@@ -308,9 +300,6 @@
 (global-set-key (kbd "s->") #'end-of-buffer)
 (global-set-key (kbd "s-q") #'fill-paragraph)
 (global-set-key (kbd "s-x") #'execute-extended-command)
-
-;; smart tab behavior - indent or complete
-(setq tab-always-indent 'complete)
 
 ;; scroll buffer independent of where point is
 (defun scroll-buffer-down ()
@@ -424,9 +413,6 @@
   (setq sml/theme 'respectful)
   :config (sml/setup))
 
-;; highlight the current line
-(global-hl-line-mode +1)
-
 (use-package avy
   :bind (("s-." . avy-goto-word-or-subword-1)
          ("s-," . avy-goto-char))
@@ -464,17 +450,16 @@
          ("g" . helm-do-grep)
          ("SPC" . helm-all-mark-rings))
   :init
-  (progn
-    (setq helm-split-window-in-side-p           t
-          helm-buffers-fuzzy-matching           t
-          helm-move-to-line-cycle-in-source     t
-          helm-ff-search-library-in-sexp        t
-          helm-ff-file-name-history-use-recentf t
-          helm-display-header-line              nil
-          helm-split-window-in-side-p           t
-          helm-autoresize-max-height            40
-          helm-autoresize-min-height            40
-          helm-candidate-number-limit           200))
+  (setq helm-split-window-in-side-p           t
+        helm-buffers-fuzzy-matching           t
+        helm-move-to-line-cycle-in-source     t
+        helm-ff-search-library-in-sexp        t
+        helm-ff-file-name-history-use-recentf t
+        helm-display-header-line              nil
+        helm-split-window-in-side-p           t
+        helm-autoresize-max-height            40
+        helm-autoresize-min-height            40
+        helm-candidate-number-limit           200)
   :config
   (require 'helm-config)
   (require 'helm-eshell)
@@ -483,7 +468,6 @@
   (defvar helm-source-header-default-background (face-attribute 'helm-source-header :background))
   (defvar helm-source-header-default-foreground (face-attribute 'helm-source-header :foreground))
   (defvar helm-source-header-default-box (face-attribute 'helm-source-header :box))
-
   (defun helm-toggle-header-line ()
     (if (> (length helm-sources) 1)
         (set-face-attribute 'helm-source-header
@@ -503,23 +487,7 @@
 
   (use-package helm-ag
     :defer t)
-
-  ;; helm-swoop alternative using ivy as a backend
-  (use-package swiper
-    :ensure t
-    :bind (("M-i" . swiper)
-           ("M-I" . swiper-all))
-    :init
-    (ivy-mode 1)
-    (counsel-mode 1)
-    (delight 'counsel-mode nil 'swiper)
-    (delight 'ivy-mode nil 'swiper)
-    (setq swiper-action-recenter t)
-    (setq ivy-use-virtual-buffers t)
-    (global-set-key "\C-s" 'swiper)
-    :config
-    (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
-
+  
   (use-package helm-projectile
     :init (setq projectile-completion-system 'helm)
     :config (helm-projectile-on))
@@ -536,6 +504,22 @@
   :defer 2
   :bind (("C-h b" . helm-descbinds)
          ("C-h w" . helm-descbinds)))
+
+(use-package swiper
+  :ensure t
+  :bind (("M-i" . swiper)
+         ("M-I" . swiper-all))
+  :init 
+  (ivy-mode 1)
+  (counsel-mode 1)
+  (delight 'counsel-mode nil 'swiper)
+  (delight 'ivy-mode nil 'swiper)
+  (setq ivy-use-virtual-buffers t
+        ivy-display-style 'fancy
+        swiper-action-recenter t)
+  (global-set-key "\C-s" 'swiper)
+  (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch)
+  :config)
 
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
@@ -683,6 +667,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Programming modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package flycheck
+  :defer 2
+  :init
+  (setq-default flycheck-emacs-lisp-load-path 'inherit)
+  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
+  :config
+  (global-flycheck-mode +1))
+
 (use-package company
   :init (setq
          company-dabbrev-ignore-case nil
@@ -1021,14 +1013,6 @@ which has the `figwheel-sidecar' dependency"
   :defer t
   :bind (("M-z" . zop-up-to-char)
          ("M-Z" . zop-to-char)))
-
-(use-package flycheck
-  :defer 2
-  :init
-  (setq-default flycheck-emacs-lisp-load-path 'inherit)
-  (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
-  :config
-  (global-flycheck-mode +1))
 
 ;; save emacs buffers when they lose focus
 (use-package super-save
