@@ -120,12 +120,6 @@
   (when (not (package-installed-p p))
     (package-install p)))
 
-;; use-package setup
-(eval-when-compile (require 'use-package))
-(require 'diminish)
-(require 'bind-key)
-(setq use-package-verbose t)
-
 ;; always load newest byte code
 (setq load-prefer-newer t)
 
@@ -139,7 +133,6 @@
 ;; reduce the frequency of garbage collection by making it happen on
 ;; each 50MB of allocated data (the default is on every 0.76MB)
 (setq gc-cons-threshold 50000000)
-
 ;; warn when opening files bigger than 100MB
 (setq large-file-warning-threshold 100000000)
 
@@ -340,21 +333,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;; use-package setup
+(require 'use-package)
+(setq use-package-verbose t)
+(require 'diminish)
+(require 'bind-key)
 (use-package delight)
 
 (use-package paradox
-  :ensure t
-  :config
-  (paradox-enable))
+  :config (paradox-enable))
 
 ;; supply :chords keyword for use-package definitions
 ;; this also gives us the key-chord library
 ;; usage:
 ;;   :chords (("jj" . jump-to-definition))
 (use-package use-package-chords
-  :config
-  (key-chord-mode 1))
+  :config (key-chord-mode 1))
 
 (use-package fasd
   :config (global-fasd-mode 1))
@@ -506,7 +500,6 @@
          ("C-h w" . helm-descbinds)))
 
 (use-package swiper
-  :ensure t
   :bind (("M-i" . swiper)
          ("M-I" . swiper-all))
   :init 
@@ -676,16 +669,32 @@
   (global-flycheck-mode +1))
 
 (use-package company
-  :init (setq
-         company-dabbrev-ignore-case nil
-         company-dabbrev-code-ignore-case nil
-         company-dabbrev-downcase nil
-         company-idle-delay 0
-         company-minimum-prefix-length 3)
-  :config 
+  :init
+  (setq
+   company-dabbrev-ignore-case nil
+   company-dabbrev-code-ignore-case nil
+   company-dabbrev-downcase nil
+   company-idle-delay 0
+   company-show-numbers t
+   company-minimum-prefix-length 3
+   company-frontends '(company-pseudo-tooltip-unless-just-one-frontend
+                       company-preview-if-just-one-frontend)
+   company-backends '(company-elisp
+                      company-semantic
+                      company-capf
+                      (company-dabbrev-code
+                       company-gtags
+                       company-etags
+                       company-keywords)
+                      company-files
+                      company-dabbrev))  
+  :config
+  (require 'company-dabbrev)
+  (require 'company-dabbrev-code)
   ;; disables TAB in company-mode, freeing it for yasnippet
   (define-key company-active-map [tab] nil)
   (define-key company-active-map (kbd "TAB") nil)
+  (push 'company-robe company-backends)
   (add-hook 'prog-mode-hook #'company-mode))
 
 (use-package dumb-jump
@@ -717,13 +726,13 @@ Start `ielm' if it's not already running."
 
 (use-package ielm
   :defer t
-  :config
+  :init
   (add-hook 'ielm-mode-hook #'eldoc-mode)
   (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode))
 
 (use-package elisp-slime-nav
   :defer t
-  :config
+  :init
   (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode)
   (add-hook 'ielm-mode-hook #'elisp-slime-nav-mode))
 
@@ -843,9 +852,7 @@ Start `ielm' if it's not already running."
   (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
   :config
   (use-package inf-ruby)
-  (use-package robe
-    ;; NOTE: `robe-start' requires pry and pry-doc gems
-    :init (push 'company-robe company-backends))
+  (use-package robe)
   (use-package ruby-tools
     :init
     (delight 'ruby-tools-mode nil 'ruby-tools))
@@ -1021,11 +1028,11 @@ which has the `figwheel-sidecar' dependency"
   (super-save-mode +1))
 
 (use-package aggressive-indent
-  :config
-  (add-to-list 'aggressive-indent-excluded-modes 'jade-mode)
+  :init
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
-  (add-to-list 'aggressive-indent-excluded-modes 'ruby-mode)
-  (add-to-list 'aggressive-indent-excluded-modes 'scala-mode)
+  (dolist (source '(diary-mode css-mode less-css-mode jade-mode ruby-mode scala-mode))
+    (add-to-list 'aggressive-indent-excluded-modes source t))
+  :config
   (global-aggressive-indent-mode +1))
 
 ;; highlight uncommitted changes on left side of buffer
