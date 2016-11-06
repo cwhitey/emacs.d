@@ -341,7 +341,9 @@
 (use-package delight)
 
 (use-package paradox
-  :config (paradox-enable))
+  :config
+  ;; Override `package' commands
+  (paradox-enable))
 
 ;; supply :chords keyword for use-package definitions
 ;; this also gives us the key-chord library
@@ -746,6 +748,11 @@ Start `ielm' if it's not already running."
 
 (use-package smartparens
   :demand t
+  :commands
+  smartparens-strict-mode
+  smartparens-mode
+  sp-restrict-to-pairs-interactive
+  sp-local-pair
   ;; sp-smartparens-bindings without the annoying rebinding of M-<delete> and M-<backspace>
   :bind (:map smartparens-mode-map
               ("C-M-f" . sp-forward-sexp)
@@ -909,9 +916,10 @@ which has the `figwheel-sidecar' dependency"
     (save-some-buffers)
     (with-current-buffer (cider-current-repl-buffer)
       (goto-char (point-max))
-      (insert "(require 'figwheel-sidecar.repl-api)
-             (figwheel-sidecar.repl-api/start-figwheel!) ; idempotent
-             (figwheel-sidecar.repl-api/cljs-repl)")
+      (insert
+       "(require 'figwheel-sidecar.repl-api)
+        (figwheel-sidecar.repl-api/start-figwheel!) ; idempotent
+        (figwheel-sidecar.repl-api/cljs-repl)")
       (cider-repl-return)))
   
   (defun cider-repl-reset ()
@@ -932,23 +940,26 @@ which has the `figwheel-sidecar' dependency"
   ;; Compatibility with `aggressive-indent'
   (setq scala-indent:align-forms t
         scala-indent:align-parameters t
-        scala-indent:default-run-on-strategy scala-indent:operator-strategy)
-  ;; TODO: map C-right to `sp-slurp-hybrid-sexp'
-
-  ;; Make `smartparens' work with `scala-mode'
+        scala-indent:default-run-on-strategy scala-indent:operator-strategy) 
+  ;; `smartparens' tweaks
   (sp-local-pair 'scala-mode "(" nil :post-handlers '(("||\n[i]" "RET")))
   (sp-local-pair 'scala-mode "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
   (defun sp-restrict-c (sym)
     "Smartparens restriction on `SYM' for C-derived parenthesis."
     (sp-restrict-to-pairs-interactive "{([" sym))
   ;; TODO: modify these keybindings
+  ;; TODO: map C-right to `sp-slurp-hybrid-sexp'
   (bind-key "s-<delete>" (sp-restrict-c 'sp-kill-sexp) scala-mode-map)
   (bind-key "s-<backspace>" (sp-restrict-c 'sp-backward-kill-sexp) scala-mode-map)
   (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
   (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map))
 
-;; If this doesn't work, install manually from melpa-stable
-(defun scala/init-ensime ()
+(use-package ensime
+  :after scala-mode
+  :commands (ensime ensime-mode)
+  :init
+  (setq ensime-use-helm t)
+  
   (defun scala/enable-eldoc ()
     (setq-local eldoc-documentation-function
                 (lambda ()
@@ -964,18 +975,11 @@ which has the `figwheel-sidecar' dependency"
       (ensime-shutdown)
       (ensime)))
   
-  (use-package ensime
-    :pin melpa-stable
-    :defer t
-    :commands (ensime ensime-mode)
-    :init
-    (setq ensime-use-helm t)
-    (add-hook 'ensime-mode-hook 'scala/enable-eldoc)))
-(scala/init-ensime)
+  (add-hook 'ensime-mode-hook 'scala/enable-eldoc))
 
 ;; Scala Built Tool
 (use-package sbt-mode
-  :pin melpa-stable
+  :defer t
   :commands (sbt-start sbt-command)
   :config
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
@@ -1053,12 +1057,14 @@ which has the `figwheel-sidecar' dependency"
   :chords (("uu" . undo-tree-visualize))
   :bind (("C-/" . undo-tree-undo)
          ("C-?" . undo-tree-redo)
-         ("C-x u" . undo-tree-visualize))
-  :config
+         ("C-x u" . undo-tree-visualize)
+         ("s-/" . undo-tree-visualize))
+  :init
   ;; autosave the undo-tree history
   (setq undo-tree-history-directory-alist
         `((".*" . ,temporary-file-directory)))
-  (setq undo-tree-auto-save-history t))
+  (setq undo-tree-auto-save-history t)
+  (global-undo-tree-mode))
 
 ;; goto edit history locations without changing anything
 (use-package goto-chg
