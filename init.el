@@ -327,6 +327,7 @@
            ("C-S-f" . super-forward-char))
 
 (diminish 'yas-global-mode)
+(diminish 'yas-minor-mode)
 (diminish 'server-mode)
 (diminish 'auto-revert-mode)
 
@@ -341,6 +342,7 @@
 (use-package delight)
 
 (use-package paradox
+  :defer 5
   :config
   ;; Override `package' commands
   (paradox-enable))
@@ -485,6 +487,7 @@
     :defer t)
   
   (use-package helm-projectile
+    :disabled t
     :init (setq projectile-completion-system 'helm)
     :config (helm-projectile-on))
 
@@ -501,20 +504,33 @@
   :bind (("C-h b" . helm-descbinds)
          ("C-h w" . helm-descbinds)))
 
+(use-package ivy
+  :init
+  (delight 'ivy-mode nil 'ivy)
+  (setq ivy-use-virtual-buffers t
+        ivy-display-style 'fancy)
+  :config
+  (ivy-mode 1))
+
+(use-package counsel
+  :init
+  (delight 'counsel-mode nil 'counsel)
+  :config
+  (counsel-mode 1))
+
+(use-package counsel-projectile
+  :init
+  (setq projectile-completion-system 'ivy)
+  :config
+  (counsel-projectile-on))
+
 (use-package swiper
   :bind (("M-i" . swiper)
          ("M-I" . swiper-all))
-  :init 
-  (ivy-mode 1)
-  (counsel-mode 1)
-  (delight 'counsel-mode nil 'swiper)
-  (delight 'ivy-mode nil 'swiper)
-  (setq ivy-use-virtual-buffers t
-        ivy-display-style 'fancy
-        swiper-action-recenter t)
+  :init
+  (setq swiper-action-recenter t)
   (global-set-key "\C-s" 'swiper)
-  (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch)
-  :config)
+  (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
 
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
@@ -735,6 +751,7 @@ Start `ielm' if it's not already running."
 (use-package elisp-slime-nav
   :defer t
   :init
+  (delight 'elisp-slime-nav-mode nil 'elisp-slime-nav)
   (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode)
   (add-hook 'ielm-mode-hook #'elisp-slime-nav-mode))
 
@@ -1032,11 +1049,15 @@ which has the `figwheel-sidecar' dependency"
   (super-save-mode +1))
 
 (use-package aggressive-indent
-  :init
-  ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
-  (dolist (source '(diary-mode css-mode less-css-mode jade-mode ruby-mode scala-mode))
-    (add-to-list 'aggressive-indent-excluded-modes source t))
   :config
+  ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
+  (dolist (source '(diary-mode
+                    css-mode
+                    less-css-mode
+                    jade-mode
+                    ruby-mode
+                    scala-mode))
+    (add-to-list 'aggressive-indent-excluded-modes source t))  
   (global-aggressive-indent-mode +1))
 
 ;; highlight uncommitted changes on left side of buffer
@@ -1062,8 +1083,9 @@ which has the `figwheel-sidecar' dependency"
   :init
   ;; autosave the undo-tree history
   (setq undo-tree-history-directory-alist
-        `((".*" . ,temporary-file-directory)))
+        `((".*" . ,temporary-file-directory))) 
   (setq undo-tree-auto-save-history t)
+  (delight 'undo-tree-mode nil 'undo-tree)
   (global-undo-tree-mode))
 
 ;; goto edit history locations without changing anything
