@@ -505,16 +505,25 @@
          ("C-h w" . helm-descbinds)))
 
 (use-package ivy
+  :bind (:map ivy-mode-map
+              ("C-x b" . ivy-switch-buffer)
+              ("C-c r" . ivy-resume))
   :init
   (delight 'ivy-mode nil 'ivy)
   (setq ivy-use-virtual-buffers t
+        ivy-virtual-abbreviate 'full ; show the full virtual file paths
+        ivy-extra-directories nil    ; no ./ or ../ listings
         ivy-display-style 'fancy)
   :config
   (ivy-mode 1))
 
 (use-package counsel
+  :bind (:map counsel-mode-map
+              ("M-x" . counsel-M-x)
+              ("C-x C-f" . counsel-find-file))
   :init
-  (delight 'counsel-mode nil 'counsel)
+  (delight 'counsel-mode nil 'counsel) 
+  (require 'smex) ; keep M-x history
   :config
   (counsel-mode 1))
 
