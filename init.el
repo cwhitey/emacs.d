@@ -490,7 +490,9 @@
     :init (setq projectile-completion-system 'helm)
     :config (helm-projectile-on))
 
-  (use-package helm-open-github 
+  (use-package helm-open-github
+    ;; This package doesn't support enterprise github repositories
+    ;; e.g. https://git.realestate.com.au/[org]/[repo] vs. https://github.com/[org]/[repo]
     :bind (("C-c g f" . helm-open-github-from-file)
            ("C-c g c" . helm-open-github-from-commit)
            ("C-c g i" . helm-open-github-from-issues)
@@ -539,8 +541,10 @@
     :commands (counsel-projectile-on)
     :bind (:map projectile-mode-map
                 ("C-c f" . counsel-projectile-find-file)
+                ("C-c d" . counsel-projectile-find-dir)
                 ("C-c s" . counsel-projectile-ag)
                 ("s-f" . counsel-projectile-find-file)
+                ("s-d" . counsel-projectile-find-dir)
                 ("s-s" . counsel-projectile-ag))
     :init
     (setq projectile-completion-system 'ivy))
@@ -553,8 +557,7 @@
 (use-package abbrev
   :diminish abbrev-mode
   :config 
-  (setq save-abbrevs 'silently)
-  (setq-default abbrev-mode t))
+  (setq save-abbrevs 'silently))
 
 (use-package uniquify
   :config
@@ -811,9 +814,11 @@ Start `ielm' if it's not already running."
               ("C-M-]" . sp-select-next-thing)
               ("M-F" . sp-forward-symbol)
               ("M-B" . sp-backward-symbol)
+              :map smartparens-strict-mode-map
+              ("<backspace>" . backward-delete-char) ;; Try to fix a weird issue with strict mode
               :map emacs-lisp-mode-map
               (")" . sp-up-sexp)
-              (";" . sp-comment))
+              )
   :config
   (require 'smartparens-config)
 
