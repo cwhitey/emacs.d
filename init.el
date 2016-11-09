@@ -103,7 +103,6 @@
                        robe
                        rspec-mode
                        ruby-tools
-                       projectile-rails
                        chruby
                        scala-mode
                        dumb-jump
@@ -165,7 +164,7 @@
   )
 (add-hook 'server-visit-hook 'server-visit-presets)
 
-;; nice scrolling - replace `smooth-scrolling' package (SLOW) with these small tweaks
+;; nice scrolling - `smooth-scrolling' package (SLOW) replaced with these small tweaks
 (setq scroll-conservatively 10000
       scroll-margin 1
       scroll-preserve-screen-position 1)
@@ -431,7 +430,7 @@
 
 ;; HELM HELM HELM
 (use-package helm
-  :defer 2
+  :defer 1
   :diminish helm-mode
   :bind-keymap (("C-c h" . helm-command-prefix))
   :chords (("xx" . helm-M-x)
@@ -905,6 +904,7 @@ Start `ielm' if it's not already running."
 
 ;; Rails
 (use-package projectile-rails
+  :disabled t
   :after ruby-mode
   :bind (:map projectile-rails-mode-map
               ("s-r m" . projectile-rails-find-model)
@@ -1078,7 +1078,6 @@ which has the `figwheel-sidecar' dependency"
 
 ;; highlight uncommitted changes on left side of buffer
 (use-package diff-hl
-  :defer 2
   :config
   (global-diff-hl-mode +1)
   (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
