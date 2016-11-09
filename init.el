@@ -436,16 +436,16 @@
   :bind-keymap (("C-c h" . helm-command-prefix))
   :chords (("xx" . helm-M-x)
            ("yy" . helm-show-kill-ring))
-  :bind (("M-x" . helm-M-x)
+  :bind (;; ("M-x" . helm-M-x)
          ("C-x C-m" . helm-M-x)
          ("M-y" . helm-show-kill-ring)
-         ("C-x b" . helm-mini)
+         ;; ("C-x b" . helm-mini)
          ("C-x C-b". helm-buffers-list)
-         ("C-x C-f" . helm-find-files)
+         ;; ("C-x C-f" . helm-find-files)
          ("C-h r" . helm-info-emacs)
          :map helm-command-map
          ("o" . helm-occur)
-         ("g" . helm-do-grep)
+         ;; ("g" . helm-do-grep)
          ("SPC" . helm-all-mark-rings))
   :init
   (setq helm-split-window-in-side-p           t
@@ -461,7 +461,6 @@
   :config
   (require 'helm-config)
   (require 'helm-eshell)
-  (helm-mode +1)
   
   (defvar helm-source-header-default-background (face-attribute 'helm-source-header :background))
   (defvar helm-source-header-default-foreground (face-attribute 'helm-source-header :foreground))
@@ -484,6 +483,7 @@
   (helm-autoresize-mode 1)
 
   (use-package helm-ag
+    :disabled t
     :defer t)
   
   (use-package helm-projectile
@@ -491,8 +491,7 @@
     :init (setq projectile-completion-system 'helm)
     :config (helm-projectile-on))
 
-  (use-package helm-open-github
-    :defer t
+  (use-package helm-open-github 
     :bind (("C-c g f" . helm-open-github-from-file)
            ("C-c g c" . helm-open-github-from-commit)
            ("C-c g i" . helm-open-github-from-issues)
@@ -504,42 +503,50 @@
   :bind (("C-h b" . helm-descbinds)
          ("C-h w" . helm-descbinds)))
 
-(use-package ivy
-  :bind (:map ivy-mode-map
-              ("C-x b" . ivy-switch-buffer)
-              ("C-c r" . ivy-resume))
-  :init
-  (delight 'ivy-mode nil 'ivy)
-  (setq ivy-use-virtual-buffers t
-        ivy-virtual-abbreviate 'full ; show the full virtual file paths
-        ivy-extra-directories nil    ; no ./ or ../ listings
-        ivy-display-style 'fancy)
-  :config
-  (ivy-mode 1))
-
-(use-package counsel
-  :bind (:map counsel-mode-map
-              ("M-x" . counsel-M-x)
-              ("C-x C-f" . counsel-find-file))
-  :init
-  (delight 'counsel-mode nil 'counsel) 
-  (require 'smex) ; keep M-x history
-  :config
-  (counsel-mode 1))
-
-(use-package counsel-projectile
-  :init
-  (setq projectile-completion-system 'ivy)
-  :config
-  (counsel-projectile-on))
-
 (use-package swiper
+  :defer 1
   :bind (("M-i" . swiper)
          ("M-I" . swiper-all))
   :init
   (setq swiper-action-recenter t)
   (global-set-key "\C-s" 'swiper)
   (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
+
+(use-package ivy
+  :defer 1
+  :bind (:map ivy-mode-map
+              ("C-x b" . ivy-switch-buffer)
+              ("C-c r" . ivy-resume))
+  :diminish ivy-mode
+  :init 
+  (setq ivy-height 13
+        ivy-use-virtual-buffers t
+        ivy-virtual-abbreviate 'full ; show the full virtual file paths
+        ivy-extra-directories nil    ; no ./ or ../ entries        
+        ivy-display-style 'fancy)
+  :config
+  (ivy-mode 1))
+
+(use-package counsel
+  :defer 1
+  :bind (:map counsel-mode-map
+              ("M-x" . counsel-M-x)
+              ("C-x C-f" . counsel-find-file))
+  :diminish counsel-mode
+  :init 
+  (require 'smex) ; keep M-x history
+  :config
+  (use-package counsel-projectile 
+    :commands (counsel-projectile-on)
+    :bind (:map projectile-mode-map
+                ("C-c f" . counsel-projectile-find-file)
+                ("C-c s" . counsel-projectile-ag)
+                ("s-f" . counsel-projectile-find-file)
+                ("s-s" . counsel-projectile-ag))
+    :init
+    (setq projectile-completion-system 'ivy))
+  (counsel-projectile-on)
+  (counsel-mode 1))
 
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
@@ -579,13 +586,14 @@
   (savehist-mode +1))
 
 (use-package recentf
-  :config
+  :init
   (setq recentf-save-file (expand-file-name "recentf" cwhitey-savefile-dir)
         recentf-max-saved-items 500
         recentf-max-menu-items 15
         ;; disable recentf-cleanup on Emacs start, because it can cause
         ;; problems with remote files
         recentf-auto-cleanup 'never)
+  :config
   (recentf-mode +1))
 
 (use-package windmove
@@ -597,7 +605,6 @@
   :config
   ;; dired - reuse current buffer by pressing 'a'
   (put 'dired-find-alternate-file 'disabled nil)
-
   ;; always delete and copy recursively
   (setq dired-recursive-deletes 'always)
   (setq dired-recursive-copies 'always)
@@ -773,7 +780,7 @@ Start `ielm' if it's not already running."
          ("\\zlogout\\'" . shell-script-mode)))
 
 (use-package smartparens
-  :demand t
+  :defer 1
   :commands
   smartparens-strict-mode
   smartparens-mode
@@ -865,7 +872,7 @@ Start `ielm' if it's not already running."
   :defer t)
 
 ;; Ruby
-;; TODO: use enh-ruby-mode instead
+;; TODO: try enh-ruby-mode instead
 (use-package ruby-mode
   :commands (ruby-mode)
   :mode ("\\.rake\\'"
@@ -898,11 +905,12 @@ Start `ielm' if it's not already running."
 
 ;; Rails
 (use-package projectile-rails
+  :after ruby-mode
   :bind (:map projectile-rails-mode-map
               ("s-r m" . projectile-rails-find-model)
               ("s-r c" . projectile-rails-find-controller)
               ("s-r v" . projectile-rails-find-view))
-  :init
+  :init 
   (add-hook 'projectile-mode-hook 'projectile-rails-on))
 
 ;; Clojure
@@ -980,8 +988,7 @@ which has the `figwheel-sidecar' dependency"
   (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
   (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map))
 
-(use-package ensime
-  :after scala-mode
+(use-package ensime 
   :commands (ensime ensime-mode)
   :init
   (setq ensime-use-helm t)
