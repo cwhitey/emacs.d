@@ -815,7 +815,7 @@ Start `ielm' if it's not already running."
               ("M-F" . sp-forward-symbol)
               ("M-B" . sp-backward-symbol)
               :map smartparens-strict-mode-map
-              ("<backspace>" . backward-delete-char) ;; Try to fix a weird issue with strict mode
+              ("DEL" . backward-delete-char) ;; Try to fix a weird issue with strict mode
               :map emacs-lisp-mode-map
               (")" . sp-up-sexp)
               )
@@ -993,6 +993,8 @@ which has the `figwheel-sidecar' dependency"
   (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
   (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map))
 
+;; TODO: Fix the current bug when opening a new scala file (ensime not running):
+;;    `File mode specification error: (void-variable ensime-mode-key-prefix)'
 (use-package ensime 
   :commands (ensime ensime-mode)
   :init
@@ -1069,7 +1071,9 @@ which has the `figwheel-sidecar' dependency"
   :config
   (super-save-mode +1))
 
+;; disabled for now to figure out some small indentationg bugs
 (use-package aggressive-indent
+  :disabled t
   :config
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
   (dolist (source '(diary-mode
