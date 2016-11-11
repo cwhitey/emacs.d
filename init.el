@@ -64,6 +64,7 @@
                        delight
                        smartparens
                        aggressive-indent
+                       hungry-delete
                        company ;; Completion framework
                        projectile
                        ag
@@ -814,8 +815,6 @@ Start `ielm' if it's not already running."
               ("C-M-]" . sp-select-next-thing)
               ("M-F" . sp-forward-symbol)
               ("M-B" . sp-backward-symbol)
-              :map smartparens-strict-mode-map
-              ("DEL" . backward-delete-char) ;; Try to fix a weird issue with strict mode
               :map emacs-lisp-mode-map
               (")" . sp-up-sexp)
               )
@@ -1072,9 +1071,22 @@ which has the `figwheel-sidecar' dependency"
   (super-save-mode +1))
 
 ;; disabled for now to figure out some small indentationg bugs
-(use-package aggressive-indent
-  :disabled t
-  :config
+(use-package aggressive-indent 
+  :config 
+  (use-package hungry-delete
+    ;; Borrowed from `kaushalmodi'
+    :config
+    (progn
+      (setq hungry-delete-chars-to-skip " \t\r\f\v")
+      (defun turn-off-hungry-delete-mode ()
+        "Turn off hungry delete mode."
+        (hungry-delete-mode -1))
+      (global-hungry-delete-mode) ;; Enable `hungry-delete-mode' everywhere ..
+      ;; Except ..
+      ;; `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
+      ;; i.e. when editing file names in the *Dired* buffer.
+      (add-hook 'wdired-mode-hook #'modi/turn-off-hungry-delete-mode)))
+  
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
   (dolist (source '(diary-mode
                     css-mode
