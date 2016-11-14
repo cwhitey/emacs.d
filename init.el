@@ -71,7 +71,7 @@
                        anzu
                        crux
                        super-save
-                       move-text
+                       drag-stuff
                        undo-tree
                        magit
                        helm
@@ -636,9 +636,12 @@
   (when (memq window-system '(mac ns))
     (exec-path-from-shell-initialize)))
 
-(use-package move-text
-  :bind (([(meta shift up)] . move-text-up)
-         ([(meta shift down)] . move-text-down)))
+(use-package drag-stuff
+  :bind (:map drag-stuff-mode-map
+              ("M-<up>" . drag-stuff-up)
+              ("M-<down>" . drag-stuff-down))
+  :config
+  (drag-stuff-global-mode 1))
 
 ;; rainbow parens based on depth
 (use-package rainbow-delimiters
@@ -816,8 +819,7 @@ Start `ielm' if it's not already running."
               ("M-F" . sp-forward-symbol)
               ("M-B" . sp-backward-symbol)
               :map emacs-lisp-mode-map
-              (")" . sp-up-sexp)
-              )
+              (")" . sp-up-sexp))
   :config
   (require 'smartparens-config)
 
@@ -933,7 +935,6 @@ Start `ielm' if it's not already running."
   (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'clojure-mode-hook #'clj-refactor-mode))
 
-;; TODO: install from `melpa-stable'
 (use-package cider
   :commands (cider-jack-in
              cider-jack-in-clojurescript)
