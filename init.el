@@ -97,8 +97,10 @@
                        rainbow-delimiters
                        rainbow-mode ;; Render RGB strings with color
                        web-mode
+                       clojure-mode
                        cider
                        clj-refactor
+                       align-cljlet
                        ruby-mode
                        inf-ruby
                        robe
@@ -920,19 +922,21 @@ Start `ielm' if it's not already running."
   (add-hook 'projectile-mode-hook 'projectile-rails-on))
 
 ;; Clojure
-(use-package clj-refactor
-  :commands (clj-refactor-mode)
-  :config
-  (cljr-add-keybindings-with-prefix "C-c C-m"))
-
 (use-package clojure-mode
   :commands (clojure-mode)
   :init
   (delight 'clojure-mode "clj" 'clojure-mode)
-  (delight 'clojurescript-mode "cljs" 'clojure-mode)
+  (delight 'clojurescript-mode "cljs" 'clojure-mode) 
+  :config
+  (use-package clj-refactor
+    :commands (clj-refactor-mode)
+    :config
+    (cljr-add-keybindings-with-prefix "C-c C-m"))
+  (use-package align-cljlet
+    :commands (align-cljlet))
   (add-hook 'clojure-mode-hook #'subword-mode)
   (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode)
+  (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode) 
   (add-hook 'clojure-mode-hook #'clj-refactor-mode))
 
 (use-package cider
@@ -993,7 +997,7 @@ which has the `figwheel-sidecar' dependency"
   (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
   (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map))
 
-;; TODO: Fix the current bug when opening a new scala file (ensime not running):
+;; TODO: Fix the current bug when opening a new scala file (without ensime running):
 ;;    `File mode specification error: (void-variable ensime-mode-key-prefix)'
 (use-package ensime 
   :commands (ensime ensime-mode)
@@ -1015,7 +1019,8 @@ which has the `figwheel-sidecar' dependency"
       (ensime-shutdown)
       (ensime)))
   
-  (add-hook 'ensime-mode-hook 'scala/enable-eldoc))
+  ;;(add-hook 'ensime-mode-hook 'scala/enable-eldoc)
+  )
 
 ;; Scala Built Tool
 (use-package sbt-mode
