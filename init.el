@@ -59,68 +59,71 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(defvar my-packages '(use-package
-                       use-package-chords
-                       delight
-                       smartparens
-                       aggressive-indent
-                       hungry-delete
-                       company ;; Completion framework
-                       projectile
-                       ag
-                       anzu
-                       crux
-                       super-save
-                       drag-stuff
-                       undo-tree
-                       magit
-                       helm
-                       helm-ag
-                       helm-descbinds
-                       helm-open-github
-                       helm-projectile
-                       swiper
-                       ivy
-                       counsel
-                       counsel-projectile
-                       ample-theme
-                       zenburn-theme
-                       color-theme-sanityinc-tomorrow
-                       markdown-mode
-                       dockerfile-mode
-                       gitconfig-mode
-                       yaml-mode
-                       scss-mode
-                       json-mode
-                       json-reformat
-                       js2-mode
-                       rainbow-delimiters
-                       rainbow-mode ;; Render RGB strings with color
-                       web-mode
-                       clojure-mode
-                       cider
-                       clj-refactor
-                       align-cljlet
-                       ruby-mode
-                       inf-ruby
-                       robe
-                       rspec-mode
-                       ruby-tools
-                       chruby
-                       scala-mode
-                       dumb-jump
-                       goto-chg
-                       restclient
-                       exec-path-from-shell
-                       zoom-frm
-                       easy-kill
-                       diff-hl
-                       vim-empty-lines-mode
-                       multiple-cursors)
+(defvar my-install-packages '(use-package
+                               use-package-chords
+                               delight
+                               smartparens
+                               aggressive-indent
+                               hungry-delete
+                               company ;; Completion framework
+                               projectile
+                               ag
+                               anzu
+                               crux
+                               super-save
+                               drag-stuff
+                               undo-tree
+                               magit
+                               helm helm-ag helm-descbinds helm-open-github helm-projectile
+                               swiper ivy counsel counsel-projectile
+                               ample-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow
+                               markdown-mode
+                               dockerfile-mode
+                               gitconfig-mode
+                               yaml-mode
+                               scss-mode
+                               json-mode
+                               json-reformat
+                               js2-mode
+                               rainbow-delimiters
+                               rainbow-mode ;; Render RGB strings with color
+                               web-mode
+                               clojure-mode
+                               cider
+                               clj-refactor
+                               align-cljlet
+                               ruby-mode
+                               inf-ruby
+                               robe
+                               rspec-mode
+                               ruby-tools
+                               chruby
+                               scala-mode
+                               dumb-jump
+                               goto-chg
+                               restclient
+                               exec-path-from-shell
+                               zoom-frm
+                               easy-kill
+                               diff-hl
+                               vim-empty-lines-mode
+                               multiple-cursors
+                               persistent-scratch)
   "A list of packages to ensure are installed at launch.")
-(dolist (p my-packages)
-  (when (not (package-installed-p p))
-    (package-install p)))
+
+;; `https://github.com/dakrone/dakrone-dotfiles'
+(defvar packages-refreshed? nil)
+(dolist (pack my-install-packages)
+  (unless (package-installed-p pack)
+    (unless packages-refreshed?
+      (package-refresh-contents)
+      (setq packages-refreshed? t))
+    (unwind-protect
+        (condition-case ex
+            (package-install pack)
+          ('error (message "Failed to install package [%s], caught exception: [%s]"
+                           pack ex)))
+      (message "Installed %s" pack))))
 
 ;; always load newest byte code
 (setq load-prefer-newer t)
@@ -178,9 +181,12 @@
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 
 ;; Set default font (only verified in OSX) https://www.emacswiki.org/emacs/SetFonts
-(when (eq system-type 'darwin)
-  (set-face-attribute 'default nil :family "Monaco")
-  (set-face-attribute 'default nil :height 140))
+;; (when (eq system-type 'darwin)
+;;   (set-face-attribute 'default nil :family "Monaco")
+;;   (set-face-attribute 'default nil :height 140))
+
+(when (window-system)
+  (set-default-font "Source Code Pro"))
 
 ;; enable y/n answers
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -376,12 +382,17 @@
 ;; - flatui (light)
 ;; - darcula
 (use-package zenburn-theme
+  :disabled t
   :config
   (load-theme 'zenburn t)
   ;; Change color for directory in buffers list
   (eval-after-load 'helm-mode
     '(progn
        (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
+
+(use-package solarized-theme
+  :config
+  (load-theme 'solarized-light t))
 
 (use-package ample-theme
   :disabled t
@@ -1148,5 +1159,21 @@ which has the `figwheel-sidecar' dependency"
    ("C-c m s" . mc/mark-sgml-tag-pair)
    ("C-c m d" . mc/mark-all-like-this-in-defun)
    ("M-<mouse-1>" . mc/add-cursor-on-click)))
+
+(defun contextual-backspace ()
+  "Hungry whitespace or delete word depending on context.
+   https://github.com/fommil/dotfiles"
+  (interactive)
+  (if (looking-back "[[:space:]\n]\\{2,\\}" (- (point) 2))
+      (while (looking-back "[[:space:]\n]" (- (point) 1))
+        (delete-char -1))
+    (cond
+     ((and (boundp 'smartparens-strict-mode)
+           smartparens-strict-mode)
+      (sp-backward-kill-word 1))
+     (subword-mode
+      (subword-backward-kill 1))
+     (t
+      (backward-kill-word 1)))))
 
 ;;; init.el ends here
