@@ -187,10 +187,10 @@
 (cond
  ((find-font (font-spec :name "Mensch"))
   (set-frame-font "Mensch-15"))
- ((find-font (font-spec :name "Menlo"))
-  (set-frame-font "Menlo-14"))
  ((find-font (font-spec :name "Source Code Pro"))
-  (set-frame-font "Source Code Pro-14"))
+  (set-frame-font "Source Code Pro-15"))
+ ((find-font (font-spec :name "Menlo"))
+  (set-frame-font "Menlo-14")) 
  ((find-font (font-spec :name "DejaVu Sans Mono"))
   (set-frame-font "DejaVu Sans Mono-14"))
  ((find-font (font-spec :name "inconsolata"))
