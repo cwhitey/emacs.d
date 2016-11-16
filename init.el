@@ -180,13 +180,23 @@
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scroll-ing
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
 
-;; Set default font (only verified in OSX) https://www.emacswiki.org/emacs/SetFonts
+;; Test char and monospace:
+;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
+;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
+(cond
+ ((find-font (font-spec :name "Source Code Pro"))
+  (set-frame-font "Source Code Pro"))
+ ((find-font (font-spec :name "DejaVu Sans Mono"))
+  (set-frame-font "DejaVu Sans Mono-12"))
+ ((find-font (font-spec :name "inconsolata"))
+  (set-frame-font "inconsolata-12"))
+ ((find-font (font-spec :name "Lucida Console"))
+  (set-frame-font "Lucida Console-12"))
+ ((find-font (font-spec :name "courier"))
+  (set-frame-font "courier-12")))
 ;; (when (eq system-type 'darwin)
 ;;   (set-face-attribute 'default nil :family "Monaco")
 ;;   (set-face-attribute 'default nil :height 140))
-
-(when (window-system)
-  (set-default-font "Source Code Pro"))
 
 ;; enable y/n answers
 (fset 'yes-or-no-p 'y-or-n-p)
