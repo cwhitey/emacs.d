@@ -183,20 +183,22 @@
 ;; Test char and monospace:
 ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
 ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
+;; Set font with fall-backs
 (cond
+ ((find-font (font-spec :name "Mensch"))
+  (set-frame-font "Mensch-15"))
+ ((find-font (font-spec :name "Menlo"))
+  (set-frame-font "Menlo-14"))
  ((find-font (font-spec :name "Source Code Pro"))
-  (set-frame-font "Source Code Pro"))
+  (set-frame-font "Source Code Pro-14"))
  ((find-font (font-spec :name "DejaVu Sans Mono"))
-  (set-frame-font "DejaVu Sans Mono-12"))
+  (set-frame-font "DejaVu Sans Mono-14"))
  ((find-font (font-spec :name "inconsolata"))
   (set-frame-font "inconsolata-12"))
  ((find-font (font-spec :name "Lucida Console"))
-  (set-frame-font "Lucida Console-12"))
+  (set-frame-font "Lucida Console-14"))
  ((find-font (font-spec :name "courier"))
-  (set-frame-font "courier-12")))
-;; (when (eq system-type 'darwin)
-;;   (set-face-attribute 'default nil :family "Monaco")
-;;   (set-face-attribute 'default nil :height 140))
+  (set-frame-font "courier-14")))
 
 ;; enable y/n answers
 (fset 'yes-or-no-p 'y-or-n-p)
