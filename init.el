@@ -55,8 +55,8 @@
       (expand-file-name "elpa" user-emacs-directory))
 
 (package-initialize)
-;; update the package metadata if the local cache is missing
-(unless package-archive-contents
+;; Update package archive if required.
+(when (not package-archive-contents)
   (package-refresh-contents))
 
 (defvar my-install-packages '(use-package
@@ -111,19 +111,9 @@
                                persistent-scratch)
   "A list of packages to ensure are installed at launch.")
 
-;; `https://github.com/dakrone/dakrone-dotfiles'
-(defvar packages-refreshed? nil)
-(dolist (pack my-install-packages)
-  (unless (package-installed-p pack)
-    (unless packages-refreshed?
-      (package-refresh-contents)
-      (setq packages-refreshed? t))
-    (unwind-protect
-        (condition-case ex
-            (package-install pack)
-          ('error (message "Failed to install package [%s], caught exception: [%s]"
-                           pack ex)))
-      (message "Installed %s" pack))))
+(dolist (p my-install-packages)
+  (when (not (package-installed-p p))
+    (package-install p)))
 
 ;; always load newest byte code
 (setq load-prefer-newer t)
@@ -185,10 +175,10 @@
 ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
 ;; Set font with fall-backs
 (cond
- ((find-font (font-spec :name "Mensch"))
-  (set-frame-font "Mensch-15"))
  ((find-font (font-spec :name "Source Code Pro"))
   (set-frame-font "Source Code Pro-15"))
+ ((find-font (font-spec :name "Mensch"))
+  (set-frame-font "Mensch-14")) 
  ((find-font (font-spec :name "Menlo"))
   (set-frame-font "Menlo-14")) 
  ((find-font (font-spec :name "DejaVu Sans Mono"))
@@ -793,7 +783,8 @@ Start `ielm' if it's not already running."
   :defer t
   :init
   (add-hook 'ielm-mode-hook #'eldoc-mode)
-  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode))
+  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'ielm-mode-hook #'turn-on-smartparens-strict-mode))
 
 (use-package elisp-slime-nav
   :defer t
