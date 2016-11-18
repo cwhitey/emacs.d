@@ -140,6 +140,33 @@
 ;; suppress warnings for redefinitions
 (setq ad-redefinition-action 'accept)
 
+;; Test char and monospace:
+;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
+;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
+;; Set font with fall-backs
+(add-to-list 'default-frame-alist '(font . "Source Code Pro-14"))
+;; (custom-set-faces
+;;  '(default ((t (:height 140 :family "Source Code Pro")))))
+;; (custom-set-faces
+;;  '(default ((t (:height 150 :family "Inconsolata")))))
+;; (cond
+;;  ((find-font (font-spec :name "Source Code Pro")) 
+;;   (set-frame-font "Source Code Pro-14" nil t))
+;;  ((find-font (font-spec :name "Mensch"))
+;;   (set-frame-font "Mensch-14" nil t)) 
+;;  ((find-font (font-spec :name "Menlo"))
+;;   (set-frame-font "Menlo-14" nil t))
+;;  ((find-font (font-spec :name "Anonymous Pro")) 
+;;   (set-frame-font "Source Code Pro-15" nil t))
+;;  ((find-font (font-spec :name "DejaVu Sans Mono"))
+;;   (set-frame-font "DejaVu Sans Mono-14" nil t))
+;;  ((find-font (font-spec :name "inconsolata"))
+;;   (set-frame-font "inconsolata-12" nil t)) 
+;;  ((find-font (font-spec :name "Lucida Console"))
+;;   (set-frame-font "Lucida Console-14" nil t)) 
+;;  ((find-font (font-spec :name "courier"))
+;;   (set-frame-font "courier-14" nil t)))
+
 ;; disable some stuff
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
@@ -150,45 +177,27 @@
 (setq inhibit-startup-screen t)
 (setq initial-major-mode 'emacs-lisp-mode)
 (setq initial-scratch-message nil)
-(toggle-frame-maximized) ;; start emacs with maximized frame
 
 (defun server-visit-presets ()
   "Things to run when server is hit by new emacsclient instances."
-  (message "Running server-visit-presets") 
-  (menu-bar-mode -1) ;; force-hide menu-bar (both GUI and terminal emacs) 
-  (toggle-frame-maximized) ;; start emacs with maximized frame
-  )
+  (message "Running server-visit-presets")
+  ;; force-hide menu-bar (both GUI and terminal emacs)
+  (menu-bar-mode -1))
 (add-hook 'server-visit-hook 'server-visit-presets)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; nice scrolling - `smooth-scrolling' package (SLOW) replaced with these small tweaks
 (setq scroll-conservatively 10000
       scroll-margin 1
-      scroll-preserve-screen-position 1)
+      scroll-preserve-screen-position 1
+      scroll-up-aggressively 0.01
+      scroll-down-aggressively 0.01)
+
 ;; tweak mouse scrolling
 ;; super smooth: (setq mouse-wheel-scroll-amount '(0.01))
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scroll-ing
 (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-
-;; Test char and monospace:
-;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
-;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
-;; Set font with fall-backs
-(cond
- ((find-font (font-spec :name "Source Code Pro"))
-  (set-frame-font "Source Code Pro-15"))
- ((find-font (font-spec :name "Mensch"))
-  (set-frame-font "Mensch-14")) 
- ((find-font (font-spec :name "Menlo"))
-  (set-frame-font "Menlo-14")) 
- ((find-font (font-spec :name "DejaVu Sans Mono"))
-  (set-frame-font "DejaVu Sans Mono-14"))
- ((find-font (font-spec :name "inconsolata"))
-  (set-frame-font "inconsolata-12"))
- ((find-font (font-spec :name "Lucida Console"))
-  (set-frame-font "Lucida Console-14"))
- ((find-font (font-spec :name "courier"))
-  (set-frame-font "courier-14")))
 
 ;; enable y/n answers
 (fset 'yes-or-no-p 'y-or-n-p)
