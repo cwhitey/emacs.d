@@ -49,7 +49,9 @@
       '((cider        . "melpa-stable")
         (clj-refactor . "melpa-stable")
         (ensime       . "melpa-stable")
-        (sbt-mode     . "melpa-stable"))
+        (sbt-mode     . "melpa-stable")
+        (counsel      . "melpa")
+        (ivy          . "melpa"))
       ;; keep the installed packages in .emacs.d
       package-user-dir
       (expand-file-name "elpa" user-emacs-directory))
