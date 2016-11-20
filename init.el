@@ -71,6 +71,7 @@
                                projectile
                                ag
                                anzu
+                               goto-chg
                                crux
                                super-save
                                drag-stuff
@@ -78,31 +79,21 @@
                                magit
                                helm helm-ag helm-descbinds helm-open-github helm-projectile
                                swiper ivy counsel counsel-projectile
-                               ample-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow
+                               ample-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme
+                               dumb-jump
                                markdown-mode
                                dockerfile-mode
                                gitconfig-mode
                                yaml-mode
                                scss-mode
-                               json-mode
-                               json-reformat
+                               json-mode json-reformat
                                js2-mode
                                rainbow-delimiters
                                rainbow-mode ;; Render RGB strings with color
                                web-mode
-                               clojure-mode
-                               cider
-                               clj-refactor
-                               align-cljlet
-                               ruby-mode
-                               inf-ruby
-                               robe
-                               rspec-mode
-                               ruby-tools
-                               chruby
-                               scala-mode
-                               dumb-jump
-                               goto-chg
+                               clojure-mode cider clj-refactor align-cljlet
+                               ruby-mode inf-ruby robe rspec-mode ruby-tools chruby
+                               scala-mode ensime
                                restclient
                                exec-path-from-shell
                                zoom-frm
@@ -548,6 +539,7 @@
   :diminish ivy-mode
   :init 
   (setq ivy-height 13
+        ivy-count-format "(%d/%d) "
         ivy-use-virtual-buffers t
         ivy-virtual-abbreviate 'full ; show the full virtual file paths
         ivy-extra-directories nil    ; no ./ or ../ entries        
@@ -975,21 +967,12 @@ Start `ielm' if it's not already running."
   (add-hook 'cider-repl-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'cider-mode-hook #'company-mode)
   (add-hook 'cider-repl-mode-hook #'company-mode)
+  (setq cider-cljs-lein-repl
+        "(do (require 'figwheel-sidecar.repl-api)
+           (figwheel-sidecar.repl-api/start-figwheel!)
+           (figwheel-sidecar.repl-api/cljs-repl))")
   :config
-  (delight 'cider-mode nil 'cider)
-  (defun cider-figwheel-repl ()
-    "Start Figwheel and a Clojurescript REPL in a project 
-which has the `figwheel-sidecar' dependency"
-    (interactive)
-    (save-some-buffers)
-    (with-current-buffer (cider-current-repl-buffer)
-      (goto-char (point-max))
-      (insert
-       "(require 'figwheel-sidecar.repl-api)
-        (figwheel-sidecar.repl-api/start-figwheel!) ; idempotent
-        (figwheel-sidecar.repl-api/cljs-repl)")
-      (cider-repl-return)))
-  
+  (delight 'cider-mode nil 'cider)  
   (defun cider-repl-reset ()
     "Shortcut for calling `user/reset' when using the reloaded workflow:
   `https://github.com/stuartsierra/reloaded'"
@@ -1101,7 +1084,6 @@ which has the `figwheel-sidecar' dependency"
   :config
   (super-save-mode +1))
 
-;; disabled for now to figure out some small indentationg bugs
 (use-package aggressive-indent 
   :config 
   (use-package hungry-delete
