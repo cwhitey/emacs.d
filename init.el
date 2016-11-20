@@ -133,11 +133,11 @@
 ;; warn when opening files bigger than 100MB
 (setq large-file-warning-threshold 100000000)
 
-(defconst cwhitey-savefile-dir (expand-file-name "savefile" user-emacs-directory))
+(defconst user-savefile-dir (expand-file-name "savefile" user-emacs-directory))
 
 ;; create the savefile dir if it doesn't exist
-(unless (file-exists-p cwhitey-savefile-dir)
-  (make-directory cwhitey-savefile-dir))
+(unless (file-exists-p user-savefile-dir)
+  (make-directory user-savefile-dir))
 
 ;; suppress warnings for redefinitions
 (setq ad-redefinition-action 'accept)
@@ -598,7 +598,7 @@
 ;; saveplace remembers your location in a file when saving files
 (use-package saveplace
   :config
-  (setq save-place-file (expand-file-name "saveplace" cwhitey-savefile-dir))
+  (setq save-place-file (expand-file-name "saveplace" user-savefile-dir))
   ;; activate it for all buffers
   (setq-default save-place t))
 
@@ -611,12 +611,12 @@
         ;; save every minute
         savehist-autosave-interval 60
         ;; keep the home clean
-        savehist-file (expand-file-name "savehist" cwhitey-savefile-dir))
+        savehist-file (expand-file-name "savehist" user-savefile-dir))
   (savehist-mode +1))
 
 (use-package recentf
   :init
-  (setq recentf-save-file (expand-file-name "recentf" cwhitey-savefile-dir)
+  (setq recentf-save-file (expand-file-name "recentf" user-savefile-dir)
         recentf-max-saved-items 500
         recentf-max-menu-items 15
         ;; disable recentf-cleanup on Emacs start, because it can cause
