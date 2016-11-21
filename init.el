@@ -655,6 +655,7 @@
     (exec-path-from-shell-initialize)))
 
 (use-package drag-stuff
+  :diminish drag-stuff-mode
   :bind (:map drag-stuff-mode-map
               ("M-<up>" . drag-stuff-up)
               ("M-<down>" . drag-stuff-down))
@@ -669,7 +670,7 @@
 (use-package rainbow-mode
   :diminish rainbow-mode
   :commands (rainbow-mode)
-  :config
+  :init
   (add-hook 'prog-mode-hook #'rainbow-mode))
 
 (use-package whitespace
