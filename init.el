@@ -79,7 +79,7 @@
                                magit
                                helm helm-ag helm-descbinds helm-open-github helm-projectile
                                swiper ivy counsel counsel-projectile
-                               ample-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme
+                               ample-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme
                                dumb-jump
                                markdown-mode
                                dockerfile-mode
@@ -107,31 +107,31 @@
 (dolist (p my-install-packages)
   (when (not (package-installed-p p))
     (package-install p)))
+(require 'use-package)
+(require 'bind-key)
 
-;; always load newest byte code
-(setq load-prefer-newer t)
-
-;; load external file for customized settings
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(load custom-file)
-
-(setq user-full-name "Callum White"
+(setq ring-bell-function 'ignore
+      load-prefer-newer t ;; always load newest byte code
+      ad-redefinition-action 'accept ;; suppress warnings for redefinitions
+      inhibit-startup-screen t
+      initial-major-mode 'emacs-lisp-mode
+      initial-scratch-message nil
+      custom-file (expand-file-name "custom.el" user-emacs-directory) ;; load external file for customized settings
+      ;; reduce the frequency of garbage collection by making it happen on
+      ;; each 50MB of allocated data (the default is on every 0.76MB)
+      gc-cons-threshold 50000000
+      ;; warn when opening files bigger than 100MB
+      large-file-warning-threshold 100000000
+      user-full-name "Callum White"
       user-mail-address "callumw1991@gmail.com")
 
-;; reduce the frequency of garbage collection by making it happen on
-;; each 50MB of allocated data (the default is on every 0.76MB)
-(setq gc-cons-threshold 50000000)
-;; warn when opening files bigger than 100MB
-(setq large-file-warning-threshold 100000000)
+(load custom-file)
 
 (defconst user-savefile-dir (expand-file-name "savefile" user-emacs-directory))
 
 ;; create the savefile dir if it doesn't exist
 (unless (file-exists-p user-savefile-dir)
   (make-directory user-savefile-dir))
-
-;; suppress warnings for redefinitions
-(setq ad-redefinition-action 'accept)
 
 ;; Test char and monospace:
 ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
@@ -166,10 +166,6 @@
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
 (blink-cursor-mode -1)
-(setq ring-bell-function 'ignore)
-(setq inhibit-startup-screen t)
-(setq initial-major-mode 'emacs-lisp-mode)
-(setq initial-scratch-message nil)
 
 (defun server-visit-presets ()
   "Things to run when server is hit by new emacsclient instances."
@@ -179,7 +175,7 @@
 (add-hook 'server-visit-hook 'server-visit-presets)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-;; nice scrolling - `smooth-scrolling' package (SLOW) replaced with these small tweaks
+;; nice window scrolling - `smooth-scrolling' package (SLOW) replaced with these small tweaks
 (setq scroll-conservatively 10000
       scroll-margin 1
       scroll-preserve-screen-position 1
@@ -187,10 +183,11 @@
       scroll-down-aggressively 0.01)
 
 ;; tweak mouse scrolling
-;; super smooth: (setq mouse-wheel-scroll-amount '(0.01))
-(setq mouse-wheel-scroll-amount '(2 ((shift) . 1))) ;; two lines at a time
-(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scroll-ing
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq mouse-wheel-scroll-amount '(2 ((shift) . 1)) ;; two lines at a time
+      ;; mouse-wheel-scroll-amount '(0.01) ;; super smooth
+      mouse-wheel-progressive-speed nil ;; don't accelerate scroll-ing
+      mouse-wheel-follow-mouse 't ;; scroll window under mouse
+      )
 
 ;; enable y/n answers
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -223,10 +220,15 @@
 ;; indentation width -- eg. c-basic-offset: use that to adjust your
 ;; personal indentation width, while maintaining the style (and
 ;; meaning) of any files you load.
-(setq-default indent-tabs-mode nil)   ;; don't use tabs to indent
-(setq-default tab-width 8)            ;; but maintain correct appearance
+(setq-default indent-tabs-mode nil  ;; don't use tabs to indent
+              tab-width        4    ;; but maintain correct appearance
+              standard-indent  2)
 ;; smart tab behavior - indent or complete
 (setq tab-always-indent 'complete)
+;; disable electric indent
+(electric-indent-mode 0)
+(remove-hook 'post-self-insert-hook
+             'electric-indent-post-self-insert-function)
 ;; newline at end of file
 (setq require-final-newline t)
 ;; delete the selection with a keypress
@@ -289,9 +291,6 @@
 (global-set-key (kbd "M-/") #'hippie-expand)
 (global-set-key (kbd "s-/") #'hippie-expand)
 
-;; replace buffer-menu with ibuffer
-(global-set-key (kbd "C-x C-b") #'ibuffer)
-
 ;; extend the help commands
 (define-key 'help-command (kbd "C-f") #'find-function)
 (define-key 'help-command (kbd "C-k") #'find-function-on-key)
@@ -346,11 +345,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; use-package setup
-(require 'use-package)
 (setq use-package-verbose t)
 (require 'diminish)
-(require 'bind-key)
 (use-package delight)
 
 (use-package paradox
@@ -385,11 +381,25 @@
 ;; - atom-one-dark
 ;; - flatui (light)
 ;; - darcula
+
+(defun disable-themes (themes)
+  (dolist (theme themes)
+    (disable-theme theme)))
+
+(defun load-only-theme ()
+  "load theme after disabling all current themes"
+  (interactive)
+  (let ((themes custom-enabled-themes))
+    (if (call-interactively 'load-theme)
+        (disable-themes themes))))
+
+(bind-key "C-x t" 'load-only-theme)
+
 (use-package zenburn-theme
   :disabled t
   :config
   (load-theme 'zenburn t)
-  ;; Change color for directory in buffers list
+  ;; Change color for directory in helm buffers list
   (eval-after-load 'helm-mode
     '(progn
        (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
@@ -397,6 +407,8 @@
 (use-package solarized-theme
   :config
   (load-theme 'solarized-light t))
+
+(use-package plan9-theme)
 
 (use-package ample-theme
   :disabled t
@@ -526,8 +538,7 @@
   :defer 1
   :bind (("M-i" . swiper)
          ("M-I" . swiper-all))
-  :init
-  (setq swiper-action-recenter t)
+  :init 
   (global-set-key "\C-s" 'swiper)
   (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
 
@@ -565,8 +576,7 @@
                 ("s-f" . counsel-projectile-find-file)
                 ("s-d" . counsel-projectile-find-dir)
                 ("s-s" . counsel-projectile-ag))
-    :init
-    (setq projectile-completion-system 'ivy))
+    :init (setq projectile-completion-system 'ivy))
   (counsel-projectile-on)
   (counsel-mode 1))
 
@@ -842,21 +852,25 @@ Start `ielm' if it's not already running."
               (")" . sp-up-sexp))
   :config
   (require 'smartparens-config)
-
+  
+  (setq sp-hybrid-kill-entire-symbol nil
+        sp-autoskip-closing-pair 'always
+        sp-highlight-pair-overlay nil ;; don't highlight pair after creation 
+        sp-cancel-autoskip-on-backward-movement nil ;; skip closing pair when backspace
+        )
+  
   (sp-pair "(" ")" :wrap "C-(") ;; how do people live without this?
   (sp-pair "[" "]" :wrap "s-[") ;; C-[ sends ESC :(
   (sp-pair "{" "}" :wrap "C-{")
-  
-  (setq sp-hybrid-kill-entire-symbol nil)
-  (setq sp-autoskip-closing-pair 'always)
-  ;; remove annoying highlighting of pair region after creation
-  (setq sp-highlight-pair-overlay nil)
-  ;; skip closing pair even when backspace is pressed beforehand
-  (setq sp-cancel-autoskip-on-backward-movement nil)
+  (defun sp-web-mode-is-code-context (id action context)
+    (and (eq action 'insert)
+         (not (or (get-text-property (point) 'part-side)
+                  (get-text-property (point) 'block-side)))))
+  (sp-local-pair 'web-mode "<" nil :when '(sp-web-mode-is-code-context))
+
   
   (show-smartparens-global-mode t)
-  (smartparens-global-mode t)
-  
+  (smartparens-global-mode t) 
   ;; NOTE: Cannot use strict mode with ruby yet. :(
   ;;       When you create a new method definition at the bottom of a class definition, the 'def' will
   ;;       immediately steal the classes 'end', and auto-pair-creation won't work. The problem is that
@@ -867,7 +881,22 @@ Start `ielm' if it's not already running."
 ;; TODO: investigate skewer-mode
 (use-package web-mode
   :defer t
-  :mode (("\\.hbs\\'" . web-mode)))
+  :mode (("\\.css\\'" . web-mode)
+         ("\\.jsx\\'" . web-mode)
+         ("\\.js\\'"  . web-mode)
+         ("\\.hbs\\'" . web-mode))
+  :config
+  (add-hook 'web-mode-hook
+            (lambda ()
+              ;; short circuit js mode and just do everything in jsx-mode
+              (if (equal web-mode-content-type "javascript")
+                  (web-mode-set-content-type "jsx")
+                (message "now set to: %s" web-mode-content-type))
+              (setq web-mode-code-indent-offset   2
+                    web-mode-markup-indent-offset 2
+                    web-mode-css-indent-offset    2
+                    web-mode-attr-indent-offset   2
+                    web-mode-enable-auto-pairing  nil))))
 
 ;; TODO: add CSS mode
 ;; Required in PATH: `scss` and `scss_lint`
@@ -877,7 +906,9 @@ Start `ielm' if it's not already running."
          ("\\.sass\\'" . scss-mode)))
 
 (use-package json-mode
-  :defer t)
+  :mode (("\\.json\\'" . json-mode))
+  :config
+  (setq-default js-indent-level 2))
 
 (use-package tern
   :disabled t ;; must install tern-server on local machine
@@ -885,10 +916,10 @@ Start `ielm' if it's not already running."
 
 (use-package js2-mode
   :commands (js2-mode)
-  :mode (("\\.js\\'" . js2-mode)
-         ("\\.pac\\'" . js2-mode))
+  :mode (("\\.pac\\'" . js2-mode))
   :interpreter "node"
   :config
+  (setq-default js-indent-level 2)
   (add-hook 'js2-mode-hook (lambda ()
                              ;; (tern-mode t)
                              (setq mode-name "JS2"))))
