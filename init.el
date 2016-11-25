@@ -223,16 +223,13 @@
 (setq-default indent-tabs-mode nil  ;; don't use tabs to indent
               tab-width        4    ;; but maintain correct appearance
               standard-indent  2)
-;; smart tab behavior - indent or complete
-(setq tab-always-indent 'complete)
-;; disable electric indent
-(electric-indent-mode 0)
+(setq tab-always-indent 'complete) ;; smart tab behavior - indent or complete
+(electric-pair-mode -1) ;; disable electric pair
+(electric-indent-mode -1) ;; disable electric indent
 (remove-hook 'post-self-insert-hook
              'electric-indent-post-self-insert-function)
-;; newline at end of file
-(setq require-final-newline t)
-;; delete the selection with a keypress
-(delete-selection-mode t)
+(setq require-final-newline t) ;; newline at end of file
+(delete-selection-mode t) ;; delete the selection with a keypress
 ;; revert buffers automatically when underlying files are changed externally
 (global-auto-revert-mode t)
 ;; undo and redo window configuration with <C-left> and <C-right>
@@ -408,7 +405,9 @@
   :config
   (load-theme 'solarized-light t))
 
-(use-package plan9-theme)
+(use-package apropospriate-theme
+  :init
+  (setq apropospriate-mode-line-height 4.0))
 
 (use-package ample-theme
   :disabled t
@@ -1130,7 +1129,7 @@ Start `ielm' if it's not already running."
       ;; Except ..
       ;; `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
       ;; i.e. when editing file names in the *Dired* buffer.
-      (add-hook 'wdired-mode-hook #'modi/turn-off-hungry-delete-mode)))
+      (add-hook 'wdired-mode-hook 'turn-off-hungry-delete-mode)))
   
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
   (dolist (source '(diary-mode
