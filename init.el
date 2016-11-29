@@ -137,7 +137,7 @@
 ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
 ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
 ;; Set font with fall-backs
-(add-to-list 'default-frame-alist '(font . "Source Code Pro-14"))
+(add-to-list 'default-frame-alist '(font . "Courier-15"))
 ;; (custom-set-faces
 ;;  '(default ((t (:height 140 :family "Source Code Pro")))))
 ;; (custom-set-faces
@@ -158,7 +158,7 @@
 ;;  ((find-font (font-spec :name "Lucida Console"))
 ;;   (set-frame-font "Lucida Console-14" nil t)) 
 ;;  ((find-font (font-spec :name "courier"))
-;;   (set-frame-font "courier-14" nil t)))
+;;   (set-frame-font "courier-15" nil t)))
 
 ;; disable some stuff
 (menu-bar-mode -1)
@@ -403,6 +403,11 @@
 
 (use-package solarized-theme
   :config
+  (setq solarized-use-more-italic t
+        solarized-high-contrast-mode-line t
+        solarized-distinct-doc-face t
+        solarized-distinct-fringe-background t
+        solarized-emphasize-indicators t)
   (load-theme 'solarized-light t))
 
 (use-package apropospriate-theme
@@ -853,10 +858,8 @@ Start `ielm' if it's not already running."
   (require 'smartparens-config)
   
   (setq sp-hybrid-kill-entire-symbol nil
-        sp-autoskip-closing-pair 'always
-        sp-highlight-pair-overlay nil ;; don't highlight pair after creation 
-        sp-cancel-autoskip-on-backward-movement nil ;; skip closing pair when backspace
-        )
+        ;; don't highlight pair after creation 
+        sp-highlight-pair-overlay nil)
   
   (sp-pair "(" ")" :wrap "C-(") ;; how do people live without this?
   (sp-pair "[" "]" :wrap "s-[") ;; C-[ sends ESC :(
