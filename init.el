@@ -392,6 +392,9 @@
 
 (bind-key "C-x t" 'load-only-theme)
 
+(setq light-theme 'leuven)
+(setq dark-theme 'ample-flat)
+
 (use-package zenburn-theme
   :disabled t
   :config
