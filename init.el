@@ -872,13 +872,7 @@ Start `ielm' if it's not already running."
 
   
   (show-smartparens-global-mode t)
-  (smartparens-global-mode t) 
-  ;; NOTE: Cannot use strict mode with ruby yet. :(
-  ;;       When you create a new method definition at the bottom of a class definition, the 'def' will
-  ;;       immediately steal the classes 'end', and auto-pair-creation won't work. The problem is that
-  ;;       smartparens waits for the method name
-  ;; (add-hook 'ruby-mode-hook #'turn-on-smartparens-strict-mode)
-  )
+  (smartparens-global-mode t))
 
 ;; TODO: investigate skewer-mode
 (use-package web-mode
