@@ -79,7 +79,7 @@
                                magit
                                helm helm-ag helm-descbinds helm-open-github helm-projectile
                                swiper ivy counsel counsel-projectile
-                               ample-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme
+                               ample-theme leuven-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme
                                dumb-jump
                                markdown-mode
                                dockerfile-mode
@@ -401,6 +401,10 @@
     '(progn
        (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
 
+(use-package leuven-theme
+  :config
+  (load-theme 'leuven t))
+
 (use-package solarized-theme
   :config
   (setq solarized-use-more-italic t
@@ -408,7 +412,8 @@
         solarized-distinct-doc-face t
         solarized-distinct-fringe-background t
         solarized-emphasize-indicators t)
-  (load-theme 'solarized-light t))
+  ;;(load-theme 'solarized-light t)
+  )
 
 (use-package apropospriate-theme
   :init
