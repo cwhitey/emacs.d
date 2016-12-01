@@ -817,7 +817,7 @@ Start `ielm' if it's not already running."
   (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode)
   (add-hook 'ielm-mode-hook #'elisp-slime-nav-mode))
 
-(use-package shell-script-mode
+(use-package sh-script
   :mode (("\\zshrc\\'" . shell-script-mode)
          ("\\zshenv\\'" . shell-script-mode)
          ("\\zpreztorc\\'" . shell-script-mode)
