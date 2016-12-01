@@ -215,6 +215,8 @@
                                  mode-line-modes
                                  '(global-mode-string '("--" global-mode-string))
                                  "-%-"))
+;; set left/right fringe widths
+(fringe-mode '(6 . 4))
 
 ;; Emacs modes typically provide a standard means to change the
 ;; indentation width -- eg. c-basic-offset: use that to adjust your
