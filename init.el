@@ -397,16 +397,14 @@
 
 (use-package zenburn-theme
   :disabled t
-  :config
-  (load-theme 'zenburn t)
+  :config 
   ;; Change color for directory in helm buffers list
   (eval-after-load 'helm-mode
     '(progn
        (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
 
-(use-package leuven-theme
-  :config
-  (load-theme 'leuven t))
+(use-package leuven-theme)
+(load-theme 'leuven t)
 
 (use-package solarized-theme
   :config
@@ -414,9 +412,7 @@
         solarized-high-contrast-mode-line t
         solarized-distinct-doc-face t
         solarized-distinct-fringe-background t
-        solarized-emphasize-indicators t)
-  ;;(load-theme 'solarized-light t)
-  )
+        solarized-emphasize-indicators t))
 
 (use-package apropospriate-theme
   :init
@@ -424,11 +420,11 @@
 
 (use-package ample-theme
   :disabled t
-  :init (progn (load-theme 'ample t t)
-               (load-theme 'ample-flat t t)
-               (load-theme 'ample-light t t)
-               (enable-theme 'ample-flat))
   :config
+  (progn (load-theme 'ample t t)
+         (load-theme 'ample-flat t t)
+         (load-theme 'ample-light t t)
+         (enable-theme 'ample-flat))
   ;; TODO: Tweak helm-buffer-directory colors
   ;; Change face helm-grep-finish to match helm-candidate-number
   ;; Fix ensime's popup suggestion faces (company-mode stuff?)
