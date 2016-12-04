@@ -865,7 +865,8 @@ Start `ielm' if it's not already running."
   
   (setq sp-hybrid-kill-entire-symbol nil
         ;; don't highlight pair after creation 
-        sp-highlight-pair-overlay nil)
+        sp-highlight-pair-overlay nil
+        sp-show-pair-delay 0.05)
   
   (sp-pair "(" ")" :wrap "C-(") ;; how do people live without this?
   (sp-pair "[" "]" :wrap "s-[") ;; C-[ sends ESC :(
