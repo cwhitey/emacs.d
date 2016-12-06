@@ -69,6 +69,7 @@
                                hungry-delete
                                company ;; Completion framework
                                projectile
+                               clipmon
                                ag
                                anzu
                                goto-chg
@@ -80,17 +81,17 @@
                                helm helm-ag helm-descbinds helm-open-github helm-projectile
                                swiper ivy counsel counsel-projectile
                                ample-theme leuven-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme
+                               rainbow-delimiters
+                               rainbow-mode ;; Render RGB strings with color
                                dumb-jump
                                markdown-mode
                                dockerfile-mode
                                gitconfig-mode
                                yaml-mode
                                scss-mode
-                               json-mode json-reformat
-                               js2-mode
-                               rainbow-delimiters
-                               rainbow-mode ;; Render RGB strings with color
                                web-mode
+                               json-mode json-reformat
+                               js2-mode 
                                clojure-mode cider clj-refactor align-cljlet
                                ruby-mode inf-ruby robe rspec-mode ruby-tools chruby
                                scala-mode ensime
@@ -442,13 +443,18 @@
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
-;; prettier modeline (SLOW)
+;; prettier modeline (disabled because SLOW)
 (use-package smart-mode-line
   :disabled t
   :init
   (setq sml/no-confirm-load-theme t)
   (setq sml/theme 'respectful)
   :config (sml/setup))
+
+;; mirror clipboard in kill ring
+(use-package clipmon
+  :init
+  (add-to-list 'after-init-hook 'clipmon-mode-start))
 
 (use-package avy
   :bind (("s-." . avy-goto-word-or-subword-1)
@@ -887,7 +893,8 @@ Start `ielm' if it's not already running."
   :mode (("\\.css\\'" . web-mode)
          ("\\.jsx\\'" . web-mode)
          ("\\.js\\'"  . web-mode)
-         ("\\.hbs\\'" . web-mode))
+         ("\\.hbs\\'" . web-mode)
+         ("\\.json\\'" . web-mode))
   :config
   (add-hook 'web-mode-hook
             (lambda ()
@@ -901,17 +908,24 @@ Start `ielm' if it's not already running."
                     web-mode-attr-indent-offset   2
                     web-mode-enable-auto-pairing  nil))))
 
+;; wrong number of arguments error
+(defun json-mode-on ()
+  "Use web-mode for JSON content"
+  (interactive)
+  (web-mode)
+  (message "Setting web-mode content-type to json")
+  (web-mode-set-content-type "json"))
+
+;; just use json-mode package for beautification
+(use-package json-mode
+  :commands (json-mode-beautify))
+
 ;; TODO: add CSS mode
 ;; Required in PATH: `scss` and `scss_lint`
 (use-package scss-mode
   :defer t
   :mode (("\\.scss\\'" . scss-mode)
          ("\\.sass\\'" . scss-mode)))
-
-(use-package json-mode
-  :mode (("\\.json\\'" . json-mode))
-  :config
-  (setq-default js-indent-level 2))
 
 (use-package tern
   :disabled t ;; must install tern-server on local machine
@@ -926,6 +940,7 @@ Start `ielm' if it's not already running."
   (add-hook 'js2-mode-hook (lambda ()
                              ;; (tern-mode t)
                              (setq mode-name "JS2"))))
+
 ;; Jade mode (js html templates)
 (use-package jade-mode
   :defer t)
