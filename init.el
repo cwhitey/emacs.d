@@ -69,6 +69,7 @@
                                hungry-delete
                                company ;; Completion framework
                                projectile
+                               mode-icons
                                clipmon
                                ag
                                anzu
@@ -91,7 +92,7 @@
                                scss-mode
                                web-mode
                                json-mode json-reformat
-                               js2-mode 
+                               js2-mode
                                clojure-mode cider clj-refactor align-cljlet
                                ruby-mode inf-ruby robe rspec-mode ruby-tools chruby
                                scala-mode ensime
@@ -144,25 +145,27 @@
 ;; (custom-set-faces
 ;;  '(default ((t (:height 150 :family "Inconsolata")))))
 ;; (cond
-;;  ((find-font (font-spec :name "Source Code Pro")) 
+;;  ((find-font (font-spec :name "Source Code Pro"))
 ;;   (set-frame-font "Source Code Pro-14" nil t))
 ;;  ((find-font (font-spec :name "Mensch"))
-;;   (set-frame-font "Mensch-14" nil t)) 
+;;   (set-frame-font "Mensch-14" nil t))
 ;;  ((find-font (font-spec :name "Menlo"))
 ;;   (set-frame-font "Menlo-14" nil t))
-;;  ((find-font (font-spec :name "Anonymous Pro")) 
+;;  ((find-font (font-spec :name "Anonymous Pro"))
 ;;   (set-frame-font "Source Code Pro-15" nil t))
 ;;  ((find-font (font-spec :name "DejaVu Sans Mono"))
 ;;   (set-frame-font "DejaVu Sans Mono-14" nil t))
 ;;  ((find-font (font-spec :name "inconsolata"))
-;;   (set-frame-font "inconsolata-12" nil t)) 
+;;   (set-frame-font "inconsolata-12" nil t))
 ;;  ((find-font (font-spec :name "Lucida Console"))
-;;   (set-frame-font "Lucida Console-14" nil t)) 
+;;   (set-frame-font "Lucida Console-14" nil t))
 ;;  ((find-font (font-spec :name "courier"))
 ;;   (set-frame-font "courier-15" nil t)))
 
+(when (eq system-type 'darwin)
+  (setq mac-allow-anti-aliasing t))
+
 ;; disable some stuff
-(menu-bar-mode -1)
 (scroll-bar-mode -1)
 (when (fboundp 'tool-bar-mode)
   (tool-bar-mode -1))
@@ -172,22 +175,26 @@
   "Things to run when server is hit by new emacsclient instances."
   (message "Running server-visit-presets")
   ;; force-hide menu-bar (both GUI and terminal emacs)
-  (menu-bar-mode -1))
+  (menu-bar-mode -1)
+  ;; set left/right fringe widths
+  (fringe-mode '(10 . 2)))
+(server-visit-presets)
 (add-hook 'server-visit-hook 'server-visit-presets)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; nice window scrolling - `smooth-scrolling' package (SLOW) replaced with these small tweaks
-(setq scroll-conservatively 10000
-      scroll-margin 1
-      scroll-preserve-screen-position 1
-      scroll-up-aggressively 0.01
-      scroll-down-aggressively 0.01)
+(setq scroll-conservatively 101
+      ;; scroll-margin 1
+      ;; scroll-preserve-screen-position 1
+      ;; scroll-up-aggressively 0.01
+      ;; scroll-down-aggressively 0.01
+      )
 
 ;; tweak mouse scrolling
-(setq mouse-wheel-scroll-amount '(2 ((shift) . 1)) ;; two lines at a time
+(setq mouse-wheel-scroll-amount '(2 ((shift) . 3) ((control) . nil)) ;; two lines at a time
       ;; mouse-wheel-scroll-amount '(0.01) ;; super smooth
       mouse-wheel-progressive-speed nil ;; don't accelerate scroll-ing
-      mouse-wheel-follow-mouse 't ;; scroll window under mouse
+      ;; mouse-wheel-follow-mouse t ;; scroll window under mouse
       )
 
 ;; enable y/n answers
@@ -203,6 +210,7 @@
 ;; mode line settings
 (line-number-mode t)
 (column-number-mode t)
+(setq-default cursor-type 'bar)
 ;; minimal mode line format
 (setq-default mode-line-position '(line-number-mode
                                    ("(" "%l" (column-number-mode ":%c") ")")))
@@ -216,8 +224,6 @@
                                  mode-line-modes
                                  '(global-mode-string '("--" global-mode-string))
                                  "-%-"))
-;; set left/right fringe widths
-(fringe-mode '(6 . 4))
 
 ;; Emacs modes typically provide a standard means to change the
 ;; indentation width -- eg. c-basic-offset: use that to adjust your
@@ -227,6 +233,7 @@
               tab-width        4    ;; but maintain correct appearance
               standard-indent  2)
 (setq tab-always-indent 'complete) ;; smart tab behavior - indent or complete
+;; TODO use-package electric
 (electric-pair-mode -1) ;; disable electric pair
 (electric-indent-mode -1) ;; disable electric indent
 (remove-hook 'post-self-insert-hook
@@ -395,21 +402,19 @@
 
 (bind-key "C-x t" 'load-only-theme)
 
-(setq light-theme 'leuven)
-(setq dark-theme 'ample-flat)
-
 (use-package zenburn-theme
+  :defer t
   :disabled t
-  :config 
+  :config
   ;; Change color for directory in helm buffers list
   (eval-after-load 'helm-mode
     '(progn
        (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
 
-(use-package leuven-theme)
-(load-theme 'leuven t)
+(use-package leuven-theme :defer t)
 
-(use-package solarized-theme
+(use-package solarized-theme 
+  :defer t
   :config
   (setq solarized-use-more-italic t
         solarized-high-contrast-mode-line t
@@ -418,11 +423,14 @@
         solarized-emphasize-indicators t))
 
 (use-package apropospriate-theme
+  :disabled t
+  :defer t
   :init
   (setq apropospriate-mode-line-height 4.0))
 
 (use-package ample-theme
   :disabled t
+  :defer t
   :config
   (progn (load-theme 'ample t t)
          (load-theme 'ample-flat t t)
@@ -443,6 +451,11 @@
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
+(setq light-theme 'leuven)
+(setq dark-theme 'ample-flat)
+
+(load-theme 'solarized-light-theme t)
+
 ;; prettier modeline (disabled because SLOW)
 (use-package smart-mode-line
   :disabled t
@@ -450,6 +463,18 @@
   (setq sml/no-confirm-load-theme t)
   (setq sml/theme 'respectful)
   :config (sml/setup))
+
+;; use icons for modes on modeline when available
+;; mode-line will use certain icon sets installed on your system also
+;;   e.g. Font Awesome
+;; TODO: requires tweaking. clobbers delighted modes
+(use-package mode-icons
+  :disabled t
+  :config
+  (setq mode-icons-change-mode-name  nil
+        mode-icons-desaturate-active nil
+        mode-icons-desaturate-inactive t)
+  (mode-icons-mode))
 
 ;; mirror clipboard in kill ring
 (use-package clipmon
@@ -470,7 +495,7 @@
 
 (use-package projectile
   :diminish projectile-mode
-  :bind ("s-p" . projectile-command-map) 
+  :bind ("s-p" . projectile-command-map)
   :config
   (projectile-global-mode +1))
 
@@ -506,7 +531,7 @@
   :config
   (require 'helm-config)
   (require 'helm-eshell)
-  
+
   (defvar helm-source-header-default-background (face-attribute 'helm-source-header :background))
   (defvar helm-source-header-default-foreground (face-attribute 'helm-source-header :foreground))
   (defvar helm-source-header-default-box (face-attribute 'helm-source-header :box))
@@ -530,7 +555,7 @@
   (use-package helm-ag
     :disabled t
     :defer t)
-  
+
   (use-package helm-projectile
     :disabled t
     :init (setq projectile-completion-system 'helm)
@@ -554,7 +579,7 @@
   :defer 1
   :bind (("M-i" . swiper)
          ("M-I" . swiper-all))
-  :init 
+  :init
   (global-set-key "\C-s" 'swiper)
   (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
 
@@ -564,13 +589,15 @@
               ("C-x b" . ivy-switch-buffer)
               ("C-c r" . ivy-resume))
   :diminish ivy-mode
-  :init 
+  :init
   (setq ivy-height 13
         ivy-count-format "(%d/%d) "
         ivy-use-virtual-buffers t
         ivy-virtual-abbreviate 'full ; show the full virtual file paths
-        ivy-extra-directories nil    ; no ./ or ../ entries        
-        ivy-display-style 'fancy)
+        ivy-extra-directories nil    ; no ./ or ../ entries
+        ivy-display-style 'fancy
+        ;; make ivy regex non-greedy
+        ivy--regex-function (lambda (str) (ivy--regex str 1)))
   :config
   (ivy-mode 1))
 
@@ -580,10 +607,10 @@
               ("M-x" . counsel-M-x)
               ("C-x C-f" . counsel-find-file))
   :diminish counsel-mode
-  :init 
+  :init
   (require 'smex) ; keep M-x history
   :config
-  (use-package counsel-projectile 
+  (use-package counsel-projectile
     :commands (counsel-projectile-on)
     :bind (:map projectile-mode-map
                 ("C-c f" . counsel-projectile-find-file)
@@ -601,7 +628,7 @@
 
 (use-package abbrev
   :diminish abbrev-mode
-  :config 
+  :config
   (setq save-abbrevs 'silently))
 
 (use-package uniquify
@@ -649,7 +676,8 @@
   (windmove-default-keybindings))
 
 (use-package dired
-  :config
+  :diminish dired-mode
+  :config 
   ;; dired - reuse current buffer by pressing 'a'
   (put 'dired-find-alternate-file 'disabled nil)
   ;; always delete and copy recursively
@@ -671,7 +699,7 @@
 
 ;; TODO: investigate easy-kill's easy-mark
 (use-package easy-kill
-  :defer t 
+  :defer t
   :config
   (global-set-key [remap kill-ring-save] 'easy-kill))
 
@@ -681,11 +709,11 @@
     (exec-path-from-shell-initialize)))
 
 (use-package drag-stuff
-  :diminish drag-stuff-mode
   :bind (:map drag-stuff-mode-map
               ("M-<up>" . drag-stuff-up)
-              ("M-<down>" . drag-stuff-down))
+              ("M-<down>" . drag-stuff-down)) 
   :config
+  (delight 'drag-stuff-mode nil 'drag-stuff)
   (drag-stuff-global-mode 1))
 
 ;; rainbow parens based on depth
@@ -709,10 +737,10 @@
   (setq whitespace-line-column 80) ;; limit line length
   (setq whitespace-style '(face tabs empty trailing lines-tail)))
 
-(use-package vim-empty-lines-mode  
+(use-package vim-empty-lines-mode
   :init
   (delight 'vim-empty-lines-mode nil 'vim-empty-lines-mode)
-  (add-hook 'prog-mode-hook 'vim-empty-lines-mode))
+  (add-hook 'after-init-hook 'vim-empty-lines-mode))
 
 (use-package crux
   :commands (crux-start-or-switch-to)
@@ -772,7 +800,7 @@
                        company-etags
                        company-keywords)
                       company-files
-                      company-dabbrev))  
+                      company-dabbrev))
   :config
   (require 'company-dabbrev)
   (require 'company-dabbrev-code)
@@ -789,6 +817,7 @@
                ("C-M-," . dumb-jump-back))
   :config (dumb-jump-mode))
 
+;; TODO cleanup and use-package elisp-mode for elisp
 (use-package lisp-mode
   :defer t
   :init
@@ -868,9 +897,15 @@ Start `ielm' if it's not already running."
               (")" . sp-up-sexp))
   :config
   (require 'smartparens-config)
-  
+  (require 'smartparens-clojure)
+  (require 'smartparens-scala)
+  (require 'smartparens-html)
+  (require 'smartparens-haskell)
+  (require 'smartparens-racket)
+  (require 'smartparens-ruby)
+
   (setq sp-hybrid-kill-entire-symbol nil
-        ;; don't highlight pair after creation 
+        ;; don't highlight pair after creation
         sp-highlight-pair-overlay nil
         sp-show-pair-delay 0.05)
   
@@ -882,8 +917,9 @@ Start `ielm' if it's not already running."
          (not (or (get-text-property (point) 'part-side)
                   (get-text-property (point) 'block-side)))))
   (sp-local-pair 'web-mode "<" nil :when '(sp-web-mode-is-code-context))
-
-  
+  ;; WORKAROUND: make deleting empty pairs work as expected with hungry-delete-mode
+  ;; `https://github.com/syl20bnr/spacemacs/issues/6584'
+  (defadvice hungry-delete-backward (before sp-delete-pair-advice activate) (save-match-data (sp-delete-pair (ad-get-arg 0))))
   (show-smartparens-global-mode t)
   (smartparens-global-mode t))
 
@@ -906,6 +942,7 @@ Start `ielm' if it's not already running."
                     web-mode-markup-indent-offset 2
                     web-mode-css-indent-offset    2
                     web-mode-attr-indent-offset   2
+                    ;; play nice with smartparens
                     web-mode-enable-auto-pairing  nil))))
 
 ;; wrong number of arguments error
@@ -913,10 +950,10 @@ Start `ielm' if it's not already running."
   "Use web-mode for JSON content"
   (interactive)
   (web-mode)
-  (message "Setting web-mode content-type to json")
+  (message "now set to: json")
   (web-mode-set-content-type "json"))
 
-;; just use json-mode package for beautification
+;; just use json-mode package for JSON beautification
 (use-package json-mode
   :commands (json-mode-beautify))
 
@@ -985,7 +1022,7 @@ Start `ielm' if it's not already running."
               ("s-r m" . projectile-rails-find-model)
               ("s-r c" . projectile-rails-find-controller)
               ("s-r v" . projectile-rails-find-view))
-  :init 
+  :init
   (add-hook 'projectile-mode-hook 'projectile-rails-on))
 
 ;; Clojure
@@ -993,7 +1030,7 @@ Start `ielm' if it's not already running."
   :commands (clojure-mode)
   :init
   (delight 'clojure-mode "clj" 'clojure-mode)
-  (delight 'clojurescript-mode "cljs" 'clojure-mode) 
+  (delight 'clojurescript-mode "cljs" 'clojure-mode)
   :config
   (use-package clj-refactor
     :commands (clj-refactor-mode)
@@ -1003,7 +1040,7 @@ Start `ielm' if it's not already running."
     :commands (align-cljlet))
   (add-hook 'clojure-mode-hook #'subword-mode)
   (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode) 
+  (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'clojure-mode-hook #'clj-refactor-mode))
 
 (use-package cider
@@ -1022,7 +1059,7 @@ Start `ielm' if it's not already running."
            (figwheel-sidecar.repl-api/start-figwheel!)
            (figwheel-sidecar.repl-api/cljs-repl))")
   :config
-  (delight 'cider-mode nil 'cider)  
+  (delight 'cider-mode nil 'cider)
   (defun cider-repl-reset ()
     "Shortcut for calling `user/reset' when using the reloaded workflow:
   `https://github.com/stuartsierra/reloaded'"
@@ -1037,11 +1074,11 @@ Start `ielm' if it's not already running."
 (use-package scala-mode
   :interpreter ("scala" . scala-mode)
   :commands (scala-mode)
-  :config 
+  :config
   ;; Compatibility with `aggressive-indent'
   (setq scala-indent:align-forms t
         scala-indent:align-parameters t
-        scala-indent:default-run-on-strategy scala-indent:operator-strategy) 
+        scala-indent:default-run-on-strategy scala-indent:operator-strategy)
   ;; `smartparens' tweaks
   (sp-local-pair 'scala-mode "(" nil :post-handlers '(("||\n[i]" "RET")))
   (sp-local-pair 'scala-mode "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
@@ -1053,15 +1090,15 @@ Start `ielm' if it's not already running."
   (bind-key "s-<delete>" (sp-restrict-c 'sp-kill-sexp) scala-mode-map)
   (bind-key "s-<backspace>" (sp-restrict-c 'sp-backward-kill-sexp) scala-mode-map)
   (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
-  (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map))
+  (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map)
+  (add-to-list 'scala-mode-hook (lambda () (electric-indent-mode 1))))
 
 ;; TODO: Fix the current bug when opening a new scala file (without ensime running):
 ;;    `File mode specification error: (void-variable ensime-mode-key-prefix)'
-(use-package ensime 
+(use-package ensime
   :commands (ensime ensime-mode)
   :init
   (setq ensime-use-helm t)
-  
   (defun scala/enable-eldoc ()
     (setq-local eldoc-documentation-function
                 (lambda ()
@@ -1076,7 +1113,7 @@ Start `ielm' if it's not already running."
       (sbt-command ";ensimeConfig;ensimeConfigProject")
       (ensime-shutdown)
       (ensime)))
-  
+
   ;;(add-hook 'ensime-mode-hook 'scala/enable-eldoc)
   )
 
@@ -1097,6 +1134,7 @@ Start `ielm' if it's not already running."
   :commands (erlang-mode))
 
 ;; Markdown
+;; investigate markdown-mode+
 (use-package markdown-mode
   :commands (markdown-mode)
   :config
@@ -1134,8 +1172,8 @@ Start `ielm' if it's not already running."
   :config
   (super-save-mode +1))
 
-(use-package aggressive-indent 
-  :config 
+(use-package aggressive-indent
+  :config
   (use-package hungry-delete
     ;; Borrowed from `kaushalmodi'
     :config
@@ -1149,7 +1187,7 @@ Start `ielm' if it's not already running."
       ;; `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
       ;; i.e. when editing file names in the *Dired* buffer.
       (add-hook 'wdired-mode-hook 'turn-off-hungry-delete-mode)))
-  
+
   ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
   (dolist (source '(diary-mode
                     css-mode
@@ -1157,7 +1195,7 @@ Start `ielm' if it's not already running."
                     jade-mode
                     ruby-mode
                     scala-mode))
-    (add-to-list 'aggressive-indent-excluded-modes source t))  
+    (add-to-list 'aggressive-indent-excluded-modes source t))
   (global-aggressive-indent-mode +1))
 
 ;; highlight uncommitted changes on left side of buffer
@@ -1182,7 +1220,7 @@ Start `ielm' if it's not already running."
   :init
   ;; autosave the undo-tree history
   (setq undo-tree-history-directory-alist
-        `((".*" . ,temporary-file-directory))) 
+        `((".*" . ,temporary-file-directory)))
   (setq undo-tree-auto-save-history t)
   (delight 'undo-tree-mode nil 'undo-tree)
   (global-undo-tree-mode))
