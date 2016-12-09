@@ -476,6 +476,8 @@
         mode-icons-desaturate-inactive t)
   (mode-icons-mode))
 
+(use-package all-the-icons)
+
 ;; mirror clipboard in kill ring
 (use-package clipmon
   :init
@@ -908,18 +910,36 @@ Start `ielm' if it's not already running."
         ;; don't highlight pair after creation
         sp-highlight-pair-overlay nil
         sp-show-pair-delay 0.05)
-  
+
   (sp-pair "(" ")" :wrap "C-(") ;; how do people live without this?
   (sp-pair "[" "]" :wrap "s-[") ;; C-[ sends ESC :(
   (sp-pair "{" "}" :wrap "C-{")
+
+  ;; Web mode
   (defun sp-web-mode-is-code-context (id action context)
     (and (eq action 'insert)
          (not (or (get-text-property (point) 'part-side)
                   (get-text-property (point) 'block-side)))))
   (sp-local-pair 'web-mode "<" nil :when '(sp-web-mode-is-code-context))
+
+  ;; Scala mode
+  (sp-local-pair 'scala-mode "\"\"\"" "\"\"\"")
+  (sp-local-pair 'scala-mode "(" nil :post-handlers '(("||\n[i]" "RET")))
+  (sp-local-pair 'scala-mode "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
+  (defun sp-restrict-c (sym)
+    "Smartparens restriction on `SYM' for C-derived parenthesis."
+    (sp-restrict-to-pairs-interactive "{([" sym))
+  (eval-after-load 'scala-mode
+    (bind-key "s-<delete>" (sp-restrict-c 'sp-kill-sexp) scala-mode-map)
+    (bind-key "s-<backspace>" (sp-restrict-c 'sp-backward-kill-sexp) scala-mode-map)
+    (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
+    (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map)
+    (bind-key "C-<right>" 'sp-slurp-hybrid-sexp scala-mode-map))
+  
   ;; WORKAROUND: make deleting empty pairs work as expected with hungry-delete-mode
   ;; `https://github.com/syl20bnr/spacemacs/issues/6584'
   (defadvice hungry-delete-backward (before sp-delete-pair-advice activate) (save-match-data (sp-delete-pair (ad-get-arg 0))))
+  
   (show-smartparens-global-mode t)
   (smartparens-global-mode t))
 
@@ -1078,19 +1098,7 @@ Start `ielm' if it's not already running."
   ;; Compatibility with `aggressive-indent'
   (setq scala-indent:align-forms t
         scala-indent:align-parameters t
-        scala-indent:default-run-on-strategy scala-indent:operator-strategy)
-  ;; `smartparens' tweaks
-  (sp-local-pair 'scala-mode "(" nil :post-handlers '(("||\n[i]" "RET")))
-  (sp-local-pair 'scala-mode "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
-  (defun sp-restrict-c (sym)
-    "Smartparens restriction on `SYM' for C-derived parenthesis."
-    (sp-restrict-to-pairs-interactive "{([" sym))
-  ;; TODO: modify these keybindings
-  ;; TODO: map C-right to `sp-slurp-hybrid-sexp'
-  (bind-key "s-<delete>" (sp-restrict-c 'sp-kill-sexp) scala-mode-map)
-  (bind-key "s-<backspace>" (sp-restrict-c 'sp-backward-kill-sexp) scala-mode-map)
-  (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
-  (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map)
+        scala-indent:default-run-on-strategy scala-indent:operator-strategy) 
   (add-to-list 'scala-mode-hook (lambda () (electric-indent-mode 1))))
 
 ;; TODO: Fix the current bug when opening a new scala file (without ensime running):
@@ -1099,14 +1107,14 @@ Start `ielm' if it's not already running."
   :commands (ensime ensime-mode)
   :init
   (setq ensime-use-helm t)
-  (defun scala/enable-eldoc ()
+  (defun ensime-enable-eldoc ()
     (setq-local eldoc-documentation-function
                 (lambda ()
                   (when (ensime-connected-p)
                     (ensime-print-type-at-point))))
     (eldoc-mode +1))
 
-  (defun scala/ensime-gen-and-restart()
+  (defun ensime-gen-and-restart()
     "Regenerate `.ensime' file and restart the ensime server."
     (interactive)
     (progn
@@ -1114,7 +1122,7 @@ Start `ielm' if it's not already running."
       (ensime-shutdown)
       (ensime)))
 
-  ;;(add-hook 'ensime-mode-hook 'scala/enable-eldoc)
+  ;;(add-hook 'ensime-mode-hook 'scala/ensime-enable-eldoc)
   )
 
 ;; Scala Built Tool
