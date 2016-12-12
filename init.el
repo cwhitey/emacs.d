@@ -451,10 +451,10 @@
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
-(setq light-theme 'leuven)
+(setq light-theme 'solarized-light)
 (setq dark-theme 'ample-flat)
 
-(load-theme 'solarized-light-theme t)
+(load-theme light-theme t)
 
 ;; prettier modeline (disabled because SLOW)
 (use-package smart-mode-line
@@ -929,12 +929,14 @@ Start `ielm' if it's not already running."
   (defun sp-restrict-c (sym)
     "Smartparens restriction on `SYM' for C-derived parenthesis."
     (sp-restrict-to-pairs-interactive "{([" sym))
-  (eval-after-load 'scala-mode
-    (bind-key "s-<delete>" (sp-restrict-c 'sp-kill-sexp) scala-mode-map)
-    (bind-key "s-<backspace>" (sp-restrict-c 'sp-backward-kill-sexp) scala-mode-map)
-    (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
-    (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map)
-    (bind-key "C-<right>" 'sp-slurp-hybrid-sexp scala-mode-map))
+  (eval-after-load
+      'scala-mode
+    (lambda ()
+      (bind-key "s-<delete>" (sp-restrict-c 'sp-kill-sexp) scala-mode-map)
+      (bind-key "s-<backspace>" (sp-restrict-c 'sp-backward-kill-sexp) scala-mode-map)
+      (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
+      (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map)
+      (bind-key "C-<right>" 'sp-slurp-hybrid-sexp scala-mode-map)))
   
   ;; WORKAROUND: make deleting empty pairs work as expected with hungry-delete-mode
   ;; `https://github.com/syl20bnr/spacemacs/issues/6584'
