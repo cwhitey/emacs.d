@@ -212,13 +212,6 @@
 (column-number-mode t)
 (setq-default cursor-type 'bar)
 ;; minimal mode line format
-(defun custom-modeline-mode-icon ()
-  (let ((icon (all-the-icons-icon-for-buffer)))
-    (unless (symbolp icon) ;; This implies it's the major mode
-      (propertize icon
-                  'help-echo (format "Major-mode: `%s`" major-mode)
-                  'display '(raise 0.0)
-                  'face `(:height 1.0 :family ,(all-the-icons-icon-family-for-buffer) :inherit)))))
 (setq-default mode-line-position '(line-number-mode
                                    ("(" "%l" (column-number-mode ":%c") ")")))
 (setq-default mode-line-format '("  "
@@ -818,9 +811,7 @@
 (use-package lisp-mode
   :defer t
   :init
-  (if (fboundp 'all-the-icons-insert)
-      (delight 'emacs-lisp-mode (all-the-icons-fileicon "emacs" :height 0.7 :v-adjust -0.09) 'emacs-lisp)
-    (delight 'emacs-lisp-mode "EL" 'emacs-lisp))
+  (delight 'emacs-lisp-mode (all-the-icons-fileicon "elisp" :height 0.7 :v-adjust -0.09) 'emacs-lisp)
   (defun my-visit-ielm ()
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
@@ -1020,8 +1011,7 @@ Start `ielm' if it's not already running."
   (add-hook 'ruby-mode-hook #'subword-mode)
   (add-hook 'ruby-mode-hook #'robe-mode)
   (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
-  (when (fboundp 'all-the-icons-insert)
-    (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.9) 'ruby-mode))
+  (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.8 :v-adjust 0 :face 'all-the-icons-lred) 'ruby-mode)
   :config
   (use-package inf-ruby)
   (use-package robe)
@@ -1050,12 +1040,8 @@ Start `ielm' if it's not already running."
 (use-package clojure-mode
   :commands (clojure-mode)
   :init
-  (if (fboundp 'all-the-icons-insert)
-      (delight 'clojure-mode (all-the-icons-alltheicon "clojure-line" :height 0.8 :v-adjust -0.05) 'clojure-mode)
-    (delight 'clojure-mode "clj" 'clojure-mode))
-  (if (fboundp 'all-the-icons-insert)
-      (delight 'clojurescript-mode (all-the-icons-fileicon "cljs" :height 0.8 :v-adjust -0.15) 'clojure-mode)
-    (delight 'clojurescript-mode "cljs" 'clojure-mode))  
+  (delight 'clojure-mode (all-the-icons-alltheicon "clojure-line" :height 0.8 :v-adjust -0.05) 'clojure-mode)
+  (delight 'clojurescript-mode (all-the-icons-fileicon "cljs" :height 0.8 :v-adjust -0.15) 'clojure-mode)
   :config
   (use-package clj-refactor
     :commands (clj-refactor-mode)
@@ -1099,6 +1085,7 @@ Start `ielm' if it's not already running."
 (use-package scala-mode
   :interpreter ("scala" . scala-mode)
   :commands (scala-mode)
+  :init (delight 'scala-mode (all-the-icons-alltheicon "scala" :height 0.8 :v-adjust -0.05) 'scala-mode)
   :config
   ;; Compatibility with `aggressive-indent' ?
   (setq scala-indent:align-forms t
