@@ -1138,7 +1138,7 @@ Start `ielm' if it's not already running."
 (use-package markdown-mode
   :commands (markdown-mode)
   :config
-  (delight 'markdown-mode "MD" 'markdown-mode))
+  (delight 'markdown-mode (all-the-icons-octicon "markdown" :height 0.9 :v-adjust 0) 'markdown-mode))
 
 ;; Yaml
 (use-package yaml-mode
