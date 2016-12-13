@@ -69,7 +69,7 @@
                                hungry-delete
                                company ;; Completion framework
                                projectile
-                               mode-icons
+                               all-the-icons
                                clipmon
                                ag
                                anzu
@@ -1063,9 +1063,11 @@ Start `ielm' if it's not already running."
   :commands (clojure-mode)
   :init
   (if (fboundp 'all-the-icons-insert)
-      (delight 'clojure-mode "" 'clojure-mode)
+      (delight 'clojure-mode (all-the-icons-alltheicon "clojure-line" :height 0.8 :v-adjust -0.05) 'clojure-mode)
     (delight 'clojure-mode "clj" 'clojure-mode))
-  (delight 'clojurescript-mode "cljs" 'clojure-mode)
+  (if (fboundp 'all-the-icons-insert)
+      (delight 'clojurescript-mode (all-the-icons-fileicon "cljs" :height 0.8 :v-adjust -0.15) 'clojure-mode)
+    (delight 'clojurescript-mode "cljs" 'clojure-mode))  
   :config
   (use-package clj-refactor
     :commands (clj-refactor-mode)
