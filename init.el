@@ -212,6 +212,13 @@
 (column-number-mode t)
 (setq-default cursor-type 'bar)
 ;; minimal mode line format
+(defun custom-modeline-mode-icon ()
+  (let ((icon (all-the-icons-icon-for-buffer)))
+    (unless (symbolp icon) ;; This implies it's the major mode
+      (propertize icon
+                  'help-echo (format "Major-mode: `%s`" major-mode)
+                  'display '(raise 0.0)
+                  'face `(:height 1.0 :family ,(all-the-icons-icon-family-for-buffer) :inherit)))))
 (setq-default mode-line-position '(line-number-mode
                                    ("(" "%l" (column-number-mode ":%c") ")")))
 (setq-default mode-line-format '("  "
@@ -823,7 +830,9 @@
 (use-package lisp-mode
   :defer t
   :init
-  (delight 'emacs-lisp-mode "EL" 'emacs-lisp)
+  (if (fboundp 'all-the-icons-insert)
+      (delight 'emacs-lisp-mode (all-the-icons-fileicon "emacs" :height 0.7 :v-adjust -0.09) 'emacs-lisp)
+    (delight 'emacs-lisp-mode "EL" 'emacs-lisp))
   (defun my-visit-ielm ()
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
@@ -1023,6 +1032,8 @@ Start `ielm' if it's not already running."
   (add-hook 'ruby-mode-hook #'subword-mode)
   (add-hook 'ruby-mode-hook #'robe-mode)
   (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
+  (when (fboundp 'all-the-icons-insert)
+    (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.9) 'ruby-mode))
   :config
   (use-package inf-ruby)
   (use-package robe)
@@ -1051,7 +1062,9 @@ Start `ielm' if it's not already running."
 (use-package clojure-mode
   :commands (clojure-mode)
   :init
-  (delight 'clojure-mode "clj" 'clojure-mode)
+  (if (fboundp 'all-the-icons-insert)
+      (delight 'clojure-mode "" 'clojure-mode)
+    (delight 'clojure-mode "clj" 'clojure-mode))
   (delight 'clojurescript-mode "cljs" 'clojure-mode)
   :config
   (use-package clj-refactor
@@ -1097,7 +1110,7 @@ Start `ielm' if it's not already running."
   :interpreter ("scala" . scala-mode)
   :commands (scala-mode)
   :config
-  ;; Compatibility with `aggressive-indent'
+  ;; Compatibility with `aggressive-indent' ?
   (setq scala-indent:align-forms t
         scala-indent:align-parameters t
         scala-indent:default-run-on-strategy scala-indent:operator-strategy) 
