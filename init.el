@@ -422,7 +422,7 @@
 
 (use-package solarized-theme 
   :defer t
-  :config
+  :init
   (setq solarized-use-more-italic t
         solarized-high-contrast-mode-line t
         solarized-distinct-doc-face t
