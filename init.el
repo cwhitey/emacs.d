@@ -471,18 +471,6 @@
   (setq sml/theme 'respectful)
   :config (sml/setup))
 
-;; use icons for modes on modeline when available
-;; mode-line will use certain icon sets installed on your system also
-;;   e.g. Font Awesome
-;; TODO: requires tweaking. clobbers delighted modes
-(use-package mode-icons
-  :disabled t
-  :config
-  (setq mode-icons-change-mode-name  nil
-        mode-icons-desaturate-active nil
-        mode-icons-desaturate-inactive t)
-  (mode-icons-mode))
-
 (use-package all-the-icons)
 
 ;; mirror clipboard in kill ring
