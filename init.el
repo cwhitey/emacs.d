@@ -464,7 +464,10 @@
   (setq sml/theme 'respectful)
   :config (sml/setup))
 
-(use-package all-the-icons)
+(use-package all-the-icons
+  :init
+  (setq all-the-icons-scale-factor 0.9
+        all-the-icons-default-adjust 0))
 
 ;; mirror clipboard in kill ring
 (use-package clipmon
@@ -811,7 +814,7 @@
 (use-package lisp-mode
   :defer t
   :init
-  (delight 'emacs-lisp-mode (all-the-icons-fileicon "elisp" :height 0.7 :v-adjust -0.09) 'emacs-lisp)
+  (delight 'emacs-lisp-mode (all-the-icons-fileicon "elisp" :v-adjust -0.09) 'emacs-lisp)
   (defun my-visit-ielm ()
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
@@ -953,7 +956,8 @@ Start `ielm' if it's not already running."
                     web-mode-css-indent-offset    2
                     web-mode-attr-indent-offset   2
                     ;; play nice with smartparens
-                    web-mode-enable-auto-pairing  nil))))
+                    web-mode-enable-auto-pairing  nil)
+              (setq mode-name (all-the-icons-icon-for-mode 'web-mode)))))
 
 ;; wrong number of arguments error
 (defun json-mode-on ()
@@ -1011,7 +1015,7 @@ Start `ielm' if it's not already running."
   (add-hook 'ruby-mode-hook #'subword-mode)
   (add-hook 'ruby-mode-hook #'robe-mode)
   (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
-  (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.8 :v-adjust 0) 'ruby-mode)
+  (delight 'ruby-mode (all-the-icons-octicon "ruby") 'ruby-mode)
   :config
   (use-package inf-ruby)
   (use-package robe)
@@ -1040,8 +1044,8 @@ Start `ielm' if it's not already running."
 (use-package clojure-mode
   :commands (clojure-mode)
   :init
-  (delight 'clojure-mode (all-the-icons-alltheicon "clojure" :height 0.8 :v-adjust -0.05) 'clojure-mode)
-  (delight 'clojurescript-mode (all-the-icons-fileicon "cljs" :height 0.8 :v-adjust -0.15) 'clojure-mode)
+  (delight 'clojure-mode (all-the-icons-alltheicon "clojure" :v-adjust -0.05) 'clojure-mode)
+  (delight 'clojurescript-mode (all-the-icons-fileicon "cljs" :v-adjust -0.15) 'clojure-mode)
   :config
   (use-package clj-refactor
     :commands (clj-refactor-mode)
@@ -1085,7 +1089,7 @@ Start `ielm' if it's not already running."
 (use-package scala-mode
   :interpreter ("scala" . scala-mode)
   :commands (scala-mode)
-  :init (delight 'scala-mode (all-the-icons-alltheicon "scala" :height 0.8 :v-adjust -0.05) 'scala-mode)
+  :init (delight 'scala-mode (all-the-icons-alltheicon "scala" :v-adjust -0.05) 'scala-mode)
   :config
   ;; Compatibility with `aggressive-indent' ?
   (setq scala-indent:align-forms t
@@ -1138,7 +1142,7 @@ Start `ielm' if it's not already running."
 (use-package markdown-mode
   :commands (markdown-mode)
   :config
-  (delight 'markdown-mode (all-the-icons-octicon "markdown" :height 0.9 :v-adjust 0) 'markdown-mode))
+  (delight 'markdown-mode (all-the-icons-octicon "markdown") 'markdown-mode))
 
 ;; Yaml
 (use-package yaml-mode
