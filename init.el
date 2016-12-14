@@ -1030,6 +1030,8 @@ Start `ielm' if it's not already running."
   :commands (bundle-open bundle-console bundle-install bundle-update bundle-check))
 
 ;; Rails
+;; TODO: projectile-rails doesn't do a good job of detecting rails projects?
+;;   It got activated on a webmachine project
 (use-package projectile-rails
   :disabled t
   :after ruby-mode
@@ -1135,13 +1137,15 @@ Start `ielm' if it's not already running."
 
 ;; Erlang
 (use-package erlang
-  :commands (erlang-mode))
+  :commands (erlang-mode)
+  :init
+  (delight 'erlang-mode (all-the-icons-alltheicon "erlang") 'erlang))
 
 ;; Markdown
 ;; investigate markdown-mode+
 (use-package markdown-mode
   :commands (markdown-mode)
-  :config
+  :init
   (delight 'markdown-mode (all-the-icons-octicon "markdown") 'markdown-mode))
 
 ;; Yaml
@@ -1152,6 +1156,8 @@ Start `ielm' if it's not already running."
   :defer t
   :commands (gitconfig-mode)
   :mode ("\\gitconfig\\'" . gitconfig-mode)
+  :init
+  (delight 'gitconfig-mode (all-the-icons-faicon "git") 'gitconfig-mode)
   :config (add-hook 'gitconfig-mode-hook
                     (lambda ()
                       (setf indent-tabs-mode nil
@@ -1159,7 +1165,9 @@ Start `ielm' if it's not already running."
 
 (use-package dockerfile-mode
   :commands (dockerfile-mode)
-  :mode ("\\Dockerfile\\'" . dockerfile-mode))
+  :mode ("\\Dockerfile\\'" . dockerfile-mode)
+  :init
+  (delight 'dockerfile-mode (all-the-icons-fileicon "dockerfile") 'dockerfile-mode))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
