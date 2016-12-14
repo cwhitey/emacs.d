@@ -1011,7 +1011,7 @@ Start `ielm' if it's not already running."
   (add-hook 'ruby-mode-hook #'subword-mode)
   (add-hook 'ruby-mode-hook #'robe-mode)
   (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
-  (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.8 :v-adjust 0 :face 'all-the-icons-lred) 'ruby-mode)
+  (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.8 :v-adjust 0) 'ruby-mode)
   :config
   (use-package inf-ruby)
   (use-package robe)
@@ -1040,7 +1040,7 @@ Start `ielm' if it's not already running."
 (use-package clojure-mode
   :commands (clojure-mode)
   :init
-  (delight 'clojure-mode (all-the-icons-alltheicon "clojure-line" :height 0.8 :v-adjust -0.05) 'clojure-mode)
+  (delight 'clojure-mode (all-the-icons-alltheicon "clojure" :height 0.8 :v-adjust -0.05) 'clojure-mode)
   (delight 'clojurescript-mode (all-the-icons-fileicon "cljs" :height 0.8 :v-adjust -0.15) 'clojure-mode)
   :config
   (use-package clj-refactor
