@@ -976,7 +976,9 @@ Start `ielm' if it's not already running."
 (use-package scss-mode
   :defer t
   :mode (("\\.scss\\'" . scss-mode)
-         ("\\.sass\\'" . scss-mode)))
+         ("\\.sass\\'" . scss-mode))
+  :init
+  (delight 'scss-mode (all-the-icons-alltheicon "sass") 'scss-mode))
 
 (use-package tern
   :disabled t ;; must install tern-server on local machine
@@ -988,13 +990,13 @@ Start `ielm' if it's not already running."
   :interpreter "node"
   :config
   (setq-default js-indent-level 2)
-  (add-hook 'js2-mode-hook (lambda ()
-                             ;; (tern-mode t)
-                             (setq mode-name "JS2"))))
+  (delight 'js2-mode (all-the-icons-alltheicon "javascript") 'js2-mode))
 
 ;; Jade mode (js html templates)
 (use-package jade-mode
-  :defer t)
+  :defer t
+  :init
+  (delight 'jade-mode (all-the-icons-fileicon "jade") 'jade-mode))
 
 ;; Ruby
 ;; TODO: try enh-ruby-mode instead
