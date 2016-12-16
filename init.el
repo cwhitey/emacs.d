@@ -211,29 +211,6 @@
 (line-number-mode t)
 (column-number-mode t)
 (setq-default cursor-type 'bar)
-;; minimal mode line format
-(setq-default mode-line-position '(line-number-mode
-                                   ((:propertize "%l" face mode-line-buffer-id)
-                                    (column-number-mode ":%c"))))
-;; credit: lunaryorn
-(defvar my-vc-mode-line
-  '(" " (:propertize
-         ;; Strip the backend name from the VC status information
-         (:eval (let ((backend (symbol-name (vc-backend (buffer-file-name)))))
-                  (substring vc-mode (+ (length backend) 2))))
-         face mode-line-buffer-id))
-  "Mode line format for VC Mode.")
-;; necessary to enable :propertize and :eval forms for custom mode-line forms
-(put 'my-vc-mode-line 'risky-local-variable t)
-(setq-default mode-line-format '(" "
-                                 mode-line-buffer-identification
-                                 "  "
-                                 mode-line-position
-                                 "  "
-                                 mode-line-modes 
-                                 (vc-mode my-vc-mode-line)
-                                 "  "
-                                 "-%-"))
 
 ;; Emacs modes typically provide a standard means to change the
 ;; indentation width -- eg. c-basic-offset: use that to adjust your
@@ -466,7 +443,7 @@
 
 (load-theme light-theme t)
 
-;; prettier modeline (disabled because SLOW)
+;; prettier modeline (disabled because it's SLOW)
 (use-package smart-mode-line
   :disabled t
   :init
@@ -478,6 +455,32 @@
   :init
   (setq all-the-icons-scale-factor 0.9
         all-the-icons-default-adjust 0))
+
+;; minimal mode line format
+(setq-default mode-line-position '(line-number-mode
+                                   ((:propertize "%l" face mode-line-buffer-id)
+                                    (column-number-mode ":%c"))))
+;; credit: lunaryorn
+(defvar my-vc-mode-line
+  '(" "
+    (:eval (all-the-icons-octicon "mark-github"))
+    (:propertize
+     ;; Strip the backend name from the VC status information 
+     (:eval (let ((backend (symbol-name (vc-backend (buffer-file-name)))))
+              (substring vc-mode (+ (length backend) 1))))
+     face mode-line-buffer-id))
+  "Mode line format for VC Mode.")
+;; necessary to enable :propertize and :eval forms for custom mode-line forms
+(put 'my-vc-mode-line 'risky-local-variable t)
+(setq-default mode-line-format '(" "
+                                 mode-line-buffer-identification
+                                 "  "
+                                 mode-line-position
+                                 "  "
+                                 mode-line-modes 
+                                 (vc-mode my-vc-mode-line)
+                                 "  "
+                                 "-%-"))
 
 ;; mirror clipboard in kill ring
 (use-package clipmon
