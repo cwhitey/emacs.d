@@ -94,7 +94,7 @@
                                json-mode json-reformat
                                js2-mode
                                clojure-mode cider clj-refactor align-cljlet
-                               ruby-mode inf-ruby robe rspec-mode ruby-tools chruby
+                               inf-ruby robe rspec-mode ruby-tools chruby
                                scala-mode ensime
                                restclient
                                exec-path-from-shell
@@ -1045,6 +1045,11 @@ Start `ielm' if it's not already running."
   (use-package chruby
     :config (chruby "ruby 2.2.3"))
   (use-package rspec-mode))
+
+(use-package python-mode
+  :defer t
+  :init
+  (delight 'python-mode (all-the-icons-alltheicon "python") 'python-mode))
 
 (use-package bundler
   :commands (bundle-open bundle-console bundle-install bundle-update bundle-check))
