@@ -457,10 +457,14 @@
         all-the-icons-default-adjust 0))
 
 ;; minimal mode line format
-(setq-default mode-line-position '(line-number-mode
-                                   ((:propertize "%l" face mode-line-buffer-id)
-                                    (column-number-mode ":%c"))))
-;; credit: lunaryorn
+(setq-default mode-line-position '(line-number-mode 
+                                   ("["
+                                    (:propertize "%l" face mode-line-buffer-id)
+                                    (column-number-mode ":%c") 
+                                    "]"
+                                    (" %3p"))))
+(defvar my-mode-line-buffer-identification
+  '(:propertize "%7b" face mode-line-buffer-id))
 (defvar my-vc-mode-line
   '(" "
     (:eval (all-the-icons-octicon "mark-github"))
@@ -472,8 +476,9 @@
   "Mode line format for VC Mode.")
 ;; necessary to enable :propertize and :eval forms for custom mode-line forms
 (put 'my-vc-mode-line 'risky-local-variable t)
+(put 'my-mode-line-buffer-identification 'risky-local-variable t)
 (setq-default mode-line-format '(" "
-                                 mode-line-buffer-identification
+                                 my-mode-line-buffer-identification
                                  "  "
                                  mode-line-position
                                  "  "
