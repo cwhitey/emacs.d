@@ -215,14 +215,12 @@
 (setq-default mode-line-position '(line-number-mode
                                    ("(" "%l" (column-number-mode ":%c") ")")))
 (setq-default mode-line-format '("  "
-                                 mode-line-buffer-identification
-                                 "  "
-                                 mode-line-position
-                                 "  "
-                                 (vc-mode vc-mode)
+                                 mode-line-buffer-identification 
+                                 mode-line-position 
                                  "   "
-                                 mode-line-modes
-                                 '(global-mode-string '("--" global-mode-string))
+                                 mode-line-modes 
+                                 (vc-mode vc-mode)
+                                 " "
                                  "-%-"))
 
 ;; Emacs modes typically provide a standard means to change the
