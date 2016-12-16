@@ -213,14 +213,26 @@
 (setq-default cursor-type 'bar)
 ;; minimal mode line format
 (setq-default mode-line-position '(line-number-mode
-                                   ("(" "%l" (column-number-mode ":%c") ")")))
-(setq-default mode-line-format '("  "
-                                 mode-line-buffer-identification 
-                                 mode-line-position 
-                                 "   "
+                                   ((:propertize "%l" face mode-line-buffer-id)
+                                    (column-number-mode ":%c"))))
+;; credit: lunaryorn
+(defvar my-vc-mode-line
+  '(" " (:propertize
+         ;; Strip the backend name from the VC status information
+         (:eval (let ((backend (symbol-name (vc-backend (buffer-file-name)))))
+                  (substring vc-mode (+ (length backend) 2))))
+         face mode-line-buffer-id))
+  "Mode line format for VC Mode.")
+;; necessary to enable :propertize and :eval forms for custom mode-line forms
+(put 'my-vc-mode-line 'risky-local-variable t)
+(setq-default mode-line-format '(" "
+                                 mode-line-buffer-identification
+                                 "  "
+                                 mode-line-position
+                                 "  "
                                  mode-line-modes 
-                                 (vc-mode vc-mode)
-                                 " "
+                                 (vc-mode my-vc-mode-line)
+                                 "  "
                                  "-%-"))
 
 ;; Emacs modes typically provide a standard means to change the
@@ -1091,7 +1103,9 @@ Start `ielm' if it's not already running."
 (use-package scala-mode
   :interpreter ("scala" . scala-mode)
   :commands (scala-mode)
-  :init (delight 'scala-mode (all-the-icons-alltheicon "scala" :v-adjust -0.05) 'scala-mode)
+  :init
+  (add-hook 'scala-mode-hook (lambda ()
+                               (setq mode-name (all-the-icons-alltheicon "scala" :v-adjust -0.05))))
   :config
   ;; Compatibility with `aggressive-indent' ?
   (setq scala-indent:align-forms t
@@ -1200,7 +1214,8 @@ Start `ielm' if it's not already running."
       ;; i.e. when editing file names in the *Dired* buffer.
       (add-hook 'wdired-mode-hook 'turn-off-hungry-delete-mode)))
 
-  ;; TODO: something is making ruby code go out of wack after certain aggressive indents. investigate. use enh-ruby-mode instead?
+  ;; TODO: cannot locally enable any modes in `aggressive-indent-excluded-modes'
+  ;;   This would be helpful for testing etc.
   (dolist (source '(diary-mode
                     css-mode
                     less-css-mode
