@@ -438,8 +438,8 @@
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
-(setq light-theme 'solarized-light)
-(setq dark-theme 'ample-flat)
+(defvar light-theme 'solarized-light)
+(defvar dark-theme 'ample-flat)
 
 (load-theme light-theme t)
 
@@ -452,7 +452,7 @@
   :config (sml/setup))
 
 (use-package all-the-icons
-  :init
+  :config
   (setq all-the-icons-scale-factor 0.9
         all-the-icons-default-adjust 0))
 
@@ -568,7 +568,7 @@
     :config (helm-projectile-on))
 
   (use-package helm-open-github
-    ;; This package doesn't support enterprise github repositories
+    ;; TODO: This package doesn't support enterprise github repositories
     ;; e.g. https://git.realestate.com.au/[org]/[repo] vs. https://github.com/[org]/[repo]
     :bind (("C-c g f" . helm-open-github-from-file)
            ("C-c g c" . helm-open-github-from-commit)
@@ -867,7 +867,7 @@ Start `ielm' if it's not already running."
          ("\\zlogout\\'" . shell-script-mode)))
 
 (use-package smartparens
-  :defer 1
+  :defer 2
   :commands
   smartparens-strict-mode
   smartparens-mode
@@ -1228,7 +1228,7 @@ Start `ielm' if it's not already running."
     (add-to-list 'aggressive-indent-excluded-modes source t))
   (global-aggressive-indent-mode +1))
 
-;; highlight uncommitted changes on left side of buffer
+;; highlight uncommitted changes on fringe
 (use-package diff-hl
   :config
   (global-diff-hl-mode +1)
