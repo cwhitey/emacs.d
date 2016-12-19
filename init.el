@@ -139,7 +139,8 @@
 ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
 ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
 ;; Set font with fall-backs
-(add-to-list 'default-frame-alist '(font . "Courier-15"))
+(add-to-list 'default-frame-alist '(font . "Hack-14"))
+;;(add-to-list 'default-frame-alist '(font . "Courier-15"))
 ;; (custom-set-faces
 ;;  '(default ((t (:height 140 :family "Source Code Pro")))))
 ;; (custom-set-faces
@@ -275,6 +276,7 @@
 (global-set-key (kbd "C-x s-c") 'save-buffers-kill-server-or-client)
 ;; make it harder to accidentally kill a frame with OSX bindings (command-w)
 (when (eq system-type 'darwin)
+  ;; TODO: prompt user, then kill frame (y-or-n kill frame?)
   (global-set-key (kbd "s-w") 'dont-kill-emacs))
 
 ;; more convenient key bindings cycling buffers (hands stay on home)
@@ -462,7 +464,7 @@
                                     (:propertize "%l" face mode-line-buffer-id)
                                     (column-number-mode ":%c") 
                                     "]"
-                                    (" %3p"))))
+                                    ("  %3p"))))
 (defvar my-mode-line-buffer-identification
   '(:propertize "%7b" face mode-line-buffer-id))
 (defvar my-vc-mode-line
@@ -751,7 +753,7 @@
 (use-package vim-empty-lines-mode
   :init
   (delight 'vim-empty-lines-mode nil 'vim-empty-lines-mode)
-  (add-hook 'after-init-hook 'vim-empty-lines-mode))
+  (add-hook 'after-init-hook 'globam-vim-empty-lines-mode))
 
 (use-package crux
   :commands (crux-start-or-switch-to)
@@ -791,6 +793,9 @@
   (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
   :config
   (global-flycheck-mode +1))
+(asdfasdfasdf (((()))))
+(use-package flycheck-pos-tip
+  :config (flycheck-pos-tip-mode))
 
 (use-package company
   :init
@@ -832,8 +837,9 @@
 (use-package lisp-mode
   :defer t
   :init
+  (delight 'lisp-interaction-mode (all-the-icons-fileicon "lisp" :v-adjust -0.1) 'lisp-mode)
   (delight 'emacs-lisp-mode (all-the-icons-fileicon "elisp" :v-adjust -0.09) 'emacs-lisp)
-  (defun my-visit-ielm ()
+  (defun switch-to-ielm ()
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
     (interactive)
@@ -1071,7 +1077,7 @@ Start `ielm' if it's not already running."
 (use-package clojure-mode
   :commands (clojure-mode)
   :init
-  (delight 'clojure-mode (all-the-icons-alltheicon "clojure" :v-adjust -0.05) 'clojure-mode)
+  (delight 'clojure-mode (all-the-icons-alltheicon "clojure-line" :v-adjust -0.05) 'clojure-mode)
   (delight 'clojurescript-mode (all-the-icons-fileicon "cljs" :v-adjust -0.15) 'clojure-mode)
   :config
   (use-package clj-refactor
