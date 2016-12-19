@@ -221,7 +221,7 @@
               tab-width        4    ;; but maintain correct appearance
               standard-indent  2)
 (setq tab-always-indent 'complete) ;; smart tab behavior - indent or complete
-;; TODO use-package electric
+;; TODO `use-package electric'
 (electric-pair-mode -1) ;; disable electric pair
 (electric-indent-mode -1) ;; disable electric indent
 (remove-hook 'post-self-insert-hook
@@ -301,33 +301,19 @@
 (global-set-key (kbd "s-q") #'fill-paragraph)
 (global-set-key (kbd "s-x") #'execute-extended-command)
 
-;; scroll buffer independent of where point is
-(defun scroll-buffer-down ()
-  (interactive)
-  (scroll-down 1))
-(defun scroll-buffer-up ()
-  (interactive)
-  (scroll-up 1))
-(bind-key (kbd "M-p") 'scroll-buffer-down)
-(bind-key (kbd "M-n") 'scroll-buffer-up)
-
 ;; quicker movement when needed
 (defun super-next-line ()
   (interactive)
   (ignore-errors (next-line 5)))
-
 (defun super-previous-line ()
   (interactive)
   (ignore-errors (previous-line 5)))
-
 (defun super-backward-char ()
   (interactive)
   (ignore-errors (backward-char 5)))
-
 (defun super-forward-char ()
   (interactive)
   (ignore-errors (forward-char 5)))
-
 (bind-keys ("C-S-n" . super-next-line)
            ("C-S-p" . super-previous-line)
            ("C-S-b" . super-backward-char)
@@ -345,11 +331,10 @@
 (require 'diminish)
 (use-package delight)
 
-(use-package paradox
-  :defer 5
+(use-package paradox 
   :config
   ;; Override `package' commands
-  (paradox-enable))
+  (add-hook 'after-init-hook 'paradox-enable))
 
 ;; supply :chords keyword for use-package definitions
 ;; this also gives us the key-chord library
@@ -424,9 +409,7 @@
   (progn (load-theme 'ample t t)
          (load-theme 'ample-flat t t)
          (load-theme 'ample-light t t)
-         (enable-theme 'ample-flat))
-  ;; TODO: Tweak helm-buffer-directory colors
-  ;; Change face helm-grep-finish to match helm-candidate-number
+         (enable-theme 'ample-flat)) 
   ;; Fix ensime's popup suggestion faces (company-mode stuff?)
   (eval-after-load 'swiper
     '(progn
@@ -514,21 +497,17 @@
 
 ;; HELM HELM HELM
 (use-package helm
-  :defer 1
+  :defer 2
   :diminish helm-mode
   :bind-keymap (("C-c h" . helm-command-prefix))
   :chords (("xx" . helm-M-x)
            ("yy" . helm-show-kill-ring))
-  :bind (;; ("M-x" . helm-M-x)
-         ("C-x C-m" . helm-M-x)
-         ("M-y" . helm-show-kill-ring)
-         ;; ("C-x b" . helm-mini)
-         ("C-x C-b". helm-buffers-list)
-         ;; ("C-x C-f" . helm-find-files)
+  :bind (("C-x C-m" . helm-M-x)
+         ("M-y" . helm-show-kill-ring) 
+         ("C-x C-b". helm-buffers-list) 
          ("C-h r" . helm-info-emacs)
          :map helm-command-map
-         ("o" . helm-occur)
-         ;; ("g" . helm-do-grep)
+         ("o" . helm-occur) 
          ("SPC" . helm-all-mark-rings))
   :init
   (setq helm-split-window-in-side-p           t
@@ -584,7 +563,7 @@
 
 ;; TODO: This defer timeout forces helm to load? Figure out why helm doesn't load on its own
 (use-package helm-descbinds
-  :defer 2
+  :defer 3
   :bind (("C-h b" . helm-descbinds)
          ("C-h w" . helm-descbinds)))
 
@@ -753,7 +732,7 @@
 (use-package vim-empty-lines-mode
   :init
   (delight 'vim-empty-lines-mode nil 'vim-empty-lines-mode)
-  (add-hook 'after-init-hook 'globam-vim-empty-lines-mode))
+  (add-hook 'after-init-hook 'global-vim-empty-lines-mode))
 
 (use-package crux
   :commands (crux-start-or-switch-to)
@@ -793,9 +772,6 @@
   (setq-default flycheck-disabled-checkers '(emacs-lisp-checkdoc))
   :config
   (global-flycheck-mode +1))
-(asdfasdfasdf (((()))))
-(use-package flycheck-pos-tip
-  :config (flycheck-pos-tip-mode))
 
 (use-package company
   :init
@@ -837,21 +813,25 @@
 (use-package lisp-mode
   :defer t
   :init
-  (delight 'lisp-interaction-mode (all-the-icons-fileicon "lisp" :v-adjust -0.1) 'lisp-mode)
+  (delight 'lisp-interaction-mode (all-the-icons-fileicon "lisp" :v-adjust -0.1) 'lisp-mode) 
+  (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
+  (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode))
+
+(use-package elisp-mode
+  :defer t
+  :init
   (delight 'emacs-lisp-mode (all-the-icons-fileicon "elisp" :v-adjust -0.09) 'emacs-lisp)
   (defun switch-to-ielm ()
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
     (interactive)
     (crux-start-or-switch-to 'ielm "*ielm*"))
-  (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
-  (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
   (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
   (define-key emacs-lisp-mode-map (kbd "M-.") #'find-function)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'my-visit-ielm)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'switch-to-ielm)
   (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
   (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer))
 
@@ -869,13 +849,7 @@ Start `ielm' if it's not already running."
   (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode)
   (add-hook 'ielm-mode-hook #'elisp-slime-nav-mode))
 
-(use-package sh-script
-  :mode (("\\zshrc\\'" . shell-script-mode)
-         ("\\zshenv\\'" . shell-script-mode)
-         ("\\zpreztorc\\'" . shell-script-mode)
-         ("\\zprofile\\'" . shell-script-mode)
-         ("\\zlogin\\'" . shell-script-mode)
-         ("\\zlogout\\'" . shell-script-mode)))
+(use-package sh-script)
 
 (use-package smartparens
   :defer 2
@@ -995,8 +969,7 @@ Start `ielm' if it's not already running."
 (use-package json-mode
   :commands (json-mode-beautify))
 
-;; TODO: add CSS mode
-;; Required in PATH: `scss` and `scss_lint`
+;; Recommended in PATH: `scss' and `scss_lint'
 (use-package scss-mode
   :defer t
   :mode (("\\.scss\\'" . scss-mode)
@@ -1234,7 +1207,7 @@ Start `ielm' if it's not already running."
       (add-hook 'wdired-mode-hook 'turn-off-hungry-delete-mode)))
 
   ;; TODO: cannot locally enable any modes in `aggressive-indent-excluded-modes'
-  ;;   This would be helpful for testing etc.
+  ;;   This would be helpful for testing etc.. PR potential?
   (dolist (source '(diary-mode
                     css-mode
                     less-css-mode
@@ -1246,6 +1219,7 @@ Start `ielm' if it's not already running."
 
 ;; highlight uncommitted changes on fringe
 (use-package diff-hl
+  :defer 3
   :config
   (global-diff-hl-mode +1)
   (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
