@@ -304,10 +304,10 @@
 ;; quicker movement when needed
 (defun super-next-line ()
   (interactive)
-  (ignore-errors (next-line 5)))
+  (ignore-errors (forward-line 5)))
 (defun super-previous-line ()
   (interactive)
-  (ignore-errors (previous-line 5)))
+  (ignore-errors (forward-line -5)))
 (defun super-backward-char ()
   (interactive)
   (ignore-errors (backward-char 5)))
@@ -327,7 +327,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq use-package-verbose t)
+;;(setq use-package-verbose t)
 (require 'diminish)
 (use-package delight)
 
