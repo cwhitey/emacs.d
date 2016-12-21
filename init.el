@@ -358,7 +358,7 @@
 ;; these are also promising:
 ;; - apropospriate-dark (fix avy, fix startup)
 ;; - flatland
-;; - atom-dark (needs fixing)
+;; - atom-dark (very dark)
 ;; - atom-one-dark
 ;; - flatui (light)
 ;; - darcula
@@ -389,7 +389,7 @@
 
 (use-package solarized-theme 
   :defer t
-  :init
+  :config
   (setq solarized-use-more-italic t
         solarized-high-contrast-mode-line t
         solarized-distinct-doc-face t
@@ -773,8 +773,10 @@
   :config
   (global-flycheck-mode +1))
 
-(use-package company
-  :init
+(use-package company  
+  :config
+  (require 'company-dabbrev)
+  (require 'company-dabbrev-code)
   (setq
    company-dabbrev-ignore-case nil
    company-dabbrev-code-ignore-case nil
@@ -782,6 +784,7 @@
    company-idle-delay 0
    company-show-numbers t
    company-minimum-prefix-length 3
+   company-tooltip-align-annotations t
    company-frontends '(company-pseudo-tooltip-unless-just-one-frontend
                        company-preview-if-just-one-frontend)
    company-backends '(company-elisp
@@ -792,10 +795,7 @@
                        company-etags
                        company-keywords)
                       company-files
-                      company-dabbrev))
-  :config
-  (require 'company-dabbrev)
-  (require 'company-dabbrev-code)
+                      company-dabbrev)) 
   ;; disables TAB in company-mode, freeing it for yasnippet
   (define-key company-active-map [tab] nil)
   (define-key company-active-map (kbd "TAB") nil)
