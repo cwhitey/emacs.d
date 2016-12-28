@@ -37,9 +37,7 @@
       '(("melpa-stable" . "http://stable.melpa.org/packages/")
         ("melpa" . "http://melpa.org/packages/")
         ("gnu" . "http://elpa.gnu.org/packages/"))
-      ;; Prefer MELPA Stable over GNU over MELPA.  IOW prefer MELPA's stable
-      ;; packages over everything and only fall back to GNU or MELPA if
-      ;; necessary.
+      ;; Prefer MELPA Stable over GNU over MELPA.
       package-archive-priorities
       '(("melpa-stable" . 10)
         ("gnu"          . 5)
@@ -118,12 +116,11 @@
       inhibit-startup-screen t
       initial-major-mode 'emacs-lisp-mode
       initial-scratch-message nil
-      custom-file (expand-file-name "custom.el" user-emacs-directory) ;; load external file for customized settings
+      custom-file (expand-file-name "custom.el" user-emacs-directory)
       ;; reduce the frequency of garbage collection by making it happen on
       ;; each 50MB of allocated data (the default is on every 0.76MB)
-      gc-cons-threshold 50000000
-      ;; warn when opening files bigger than 100MB
-      large-file-warning-threshold 100000000
+      gc-cons-threshold 50000000 
+      large-file-warning-threshold 100000000 ;; warn when opening files bigger than 100MB
       user-full-name "Callum White"
       user-mail-address "callumw1991@gmail.com")
 
@@ -135,7 +132,7 @@
 (unless (file-exists-p user-savefile-dir)
   (make-directory user-savefile-dir))
 
-;; Test char and monospace:
+;; Test char and monospace `M-x set-frame-font':
 ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
 ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
 ;; Set font with fall-backs
@@ -176,12 +173,13 @@
   "Things to run when server is hit by new emacsclient instances."
   (message "Running server-visit-presets")
   ;; force-hide menu-bar (both GUI and terminal emacs)
-  (menu-bar-mode -1)
-  ;; set left/right fringe widths
-  (fringe-mode '(10 . 2)))
+  (menu-bar-mode -1))
 (server-visit-presets)
 (add-hook 'server-visit-hook 'server-visit-presets)
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; force-set frame fringe sizes on frame creation
+(add-hook 'after-make-frame-functions (lambda (a)
+                                        (fringe-mode '(8 . 2))))
 
 ;; nice window scrolling - `smooth-scrolling' package (SLOW) replaced with these small tweaks
 (setq scroll-conservatively 101
@@ -364,11 +362,12 @@
 ;; - darcula
 
 (defun disable-themes (themes)
+  "Disable all current themes"
   (dolist (theme themes)
     (disable-theme theme)))
 
 (defun load-only-theme ()
-  "load theme after disabling all current themes"
+  "Load theme after disabling all current themes"
   (interactive)
   (let ((themes custom-enabled-themes))
     (if (call-interactively 'load-theme)
@@ -777,6 +776,7 @@
   :config
   (require 'company-dabbrev)
   (require 'company-dabbrev-code)
+  (use-package company-ghc)
   (setq
    company-dabbrev-ignore-case nil
    company-dabbrev-code-ignore-case nil
@@ -787,7 +787,8 @@
    company-tooltip-align-annotations t
    company-frontends '(company-pseudo-tooltip-unless-just-one-frontend
                        company-preview-if-just-one-frontend)
-   company-backends '(company-elisp
+   company-backends '(company-robe
+                      company-elisp
                       company-semantic
                       company-capf
                       (company-dabbrev-code
@@ -798,8 +799,7 @@
                       company-dabbrev)) 
   ;; disables TAB in company-mode, freeing it for yasnippet
   (define-key company-active-map [tab] nil)
-  (define-key company-active-map (kbd "TAB") nil)
-  (push 'company-robe company-backends)
+  (define-key company-active-map (kbd "TAB") nil) 
   (add-hook 'prog-mode-hook #'company-mode))
 
 (use-package dumb-jump
@@ -1034,17 +1034,18 @@ Start `ielm' if it's not already running."
   :commands (bundle-open bundle-console bundle-install bundle-update bundle-check))
 
 ;; Rails
-;; TODO: projectile-rails doesn't do a good job of detecting rails projects?
-;;   It got activated on a webmachine project
-(use-package projectile-rails
-  :disabled t
+(use-package projectile-rails 
   :after ruby-mode
+  :commands (projectile-rails-on projectile-rails-mode)
   :bind (:map projectile-rails-mode-map
               ("s-r m" . projectile-rails-find-model)
               ("s-r c" . projectile-rails-find-controller)
               ("s-r v" . projectile-rails-find-view))
-  :init
-  (add-hook 'projectile-mode-hook 'projectile-rails-on))
+  ;; :init
+  ;; TODO: projectile-rails doesn't do a good job of detecting rails projects?
+  ;;   It activated itself on a webmachine project
+  ;; (add-hook 'projectile-mode-hook 'projectile-rails-on)
+  )
 
 ;; Clojure
 (use-package clojure-mode
@@ -1064,6 +1065,7 @@ Start `ielm' if it's not already running."
   (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'clojure-mode-hook #'clj-refactor-mode))
 
+;; Clojure REPLs
 (use-package cider
   :commands (cider-jack-in
              cider-jack-in-clojurescript)
@@ -1105,6 +1107,18 @@ Start `ielm' if it's not already running."
         scala-indent:default-run-on-strategy scala-indent:operator-strategy) 
   (add-to-list 'scala-mode-hook (lambda () (electric-indent-mode 1))))
 
+;; Scala Built Tool
+(use-package sbt-mode
+  :defer t
+  :commands (sbt-start sbt-command)
+  :config
+  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
+  ;; allows using SPACE when in the minibuffer
+  (substitute-key-definition
+   'minibuffer-complete-word
+   'self-insert-command
+   minibuffer-local-completion-map))
+
 ;; TODO: Fix the current bug when opening a new scala file (without ensime running):
 ;;    `File mode specification error: (void-variable ensime-mode-key-prefix)'
 (use-package ensime
@@ -1129,17 +1143,16 @@ Start `ielm' if it's not already running."
   ;;(add-hook 'ensime-mode-hook 'scala/ensime-enable-eldoc)
   )
 
-;; Scala Built Tool
-(use-package sbt-mode
-  :defer t
-  :commands (sbt-start sbt-command)
+;; Haskell
+(use-package haskell-mode
+  :mode ("\\.hs\\'")
+  :commands (haskell-mode)
   :config
-  ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
-  ;; allows using SPACE when in the minibuffer
-  (substitute-key-definition
-   'minibuffer-complete-word
-   'self-insert-command
-   minibuffer-local-completion-map))
+  (delight 'haskell-mode (all-the-icons-alltheicon "haskell") 'haskell-mode))
+
+;; requires ghc-mod cmd tool
+(use-package ghc 
+  :commands (ghc-init ghc-debug))
 
 ;; Erlang
 (use-package erlang
@@ -1148,7 +1161,6 @@ Start `ielm' if it's not already running."
   (delight 'erlang-mode (all-the-icons-alltheicon "erlang") 'erlang))
 
 ;; Markdown
-;; investigate markdown-mode+
 (use-package markdown-mode
   :commands (markdown-mode)
   :init
@@ -1176,9 +1188,9 @@ Start `ielm' if it's not already running."
   (delight 'dockerfile-mode (all-the-icons-fileicon "dockerfile") 'dockerfile-mode))
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Other
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Misc. defuns
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package zop-to-char
   :defer t
   :bind (("M-z" . zop-up-to-char)
@@ -1191,21 +1203,7 @@ Start `ielm' if it's not already running."
   (super-save-mode +1))
 
 (use-package aggressive-indent
-  :config
-  (use-package hungry-delete
-    ;; Borrowed from `kaushalmodi'
-    :config
-    (progn
-      (setq hungry-delete-chars-to-skip " \t\r\f\v")
-      (defun turn-off-hungry-delete-mode ()
-        "Turn off hungry delete mode."
-        (hungry-delete-mode -1))
-      (global-hungry-delete-mode) ;; Enable `hungry-delete-mode' everywhere ..
-      ;; Except ..
-      ;; `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
-      ;; i.e. when editing file names in the *Dired* buffer.
-      (add-hook 'wdired-mode-hook 'turn-off-hungry-delete-mode)))
-
+  :config 
   ;; TODO: cannot locally enable any modes in `aggressive-indent-excluded-modes'
   ;;   This would be helpful for testing etc.. PR potential?
   (dolist (source '(diary-mode
@@ -1216,6 +1214,19 @@ Start `ielm' if it's not already running."
                     scala-mode))
     (add-to-list 'aggressive-indent-excluded-modes source t))
   (global-aggressive-indent-mode +1))
+
+(use-package hungry-delete
+  ;; Borrowed from `kaushalmodi'
+  :config
+  (progn
+    (setq hungry-delete-chars-to-skip " \t\r\f\v")
+    (defun hungry-delete-mode-off ()
+      "Turn off hungry delete mode."
+      (hungry-delete-mode -1))
+    (global-hungry-delete-mode) ;; Enable `hungry-delete-mode' everywhere ..
+    ;; Except... `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
+    ;; i.e. when editing file names in the *Dired* buffer.
+    (add-hook 'wdired-mode-hook 'hungry-delete-mode-off)))
 
 ;; highlight uncommitted changes on fringe
 (use-package diff-hl
@@ -1245,7 +1256,7 @@ Start `ielm' if it's not already running."
   (delight 'undo-tree-mode nil 'undo-tree)
   (global-undo-tree-mode))
 
-;; goto edit history locations without changing anything
+;; goto edit history locations
 (use-package goto-chg
   :bind (("C-c ," . goto-last-change)
          ("C-c ." . goto-last-change-reverse)))
@@ -1264,6 +1275,10 @@ Start `ielm' if it's not already running."
    ("C-c m d" . mc/mark-all-like-this-in-defun)
    ("M-<mouse-1>" . mc/add-cursor-on-click)))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Misc. defuns
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun contextual-backspace ()
   "Hungry whitespace or delete word depending on context.
    https://github.com/fommil/dotfiles"
