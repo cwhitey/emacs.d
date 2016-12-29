@@ -762,10 +762,94 @@
          ([remap kill-whole-line] . crux-kill-whole-line)
          ("C-c s" . crux-ispell-word-then-abbrev)))
 
+;; highlight uncommitted changes on fringe
+(use-package diff-hl
+  :defer 3
+  :config
+  (global-diff-hl-mode +1)
+  (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
+
+;; display key binding completion help for partially typed commands
+(use-package which-key
+  :diminish which-key-mode
+  :config
+  (which-key-mode +1))
+
+(use-package undo-tree
+  :chords (("uu" . undo-tree-visualize))
+  :bind (("C-/" . undo-tree-undo)
+         ("C-?" . undo-tree-redo)
+         ("C-x u" . undo-tree-visualize)
+         ("s-/" . undo-tree-visualize))
+  :init
+  ;; autosave the undo-tree history
+  (setq undo-tree-history-directory-alist
+        `((".*" . ,temporary-file-directory)))
+  (setq undo-tree-auto-save-history t)
+  (delight 'undo-tree-mode nil 'undo-tree)
+  (global-undo-tree-mode))
+
+;; goto edit history locations
+(use-package goto-chg
+  :bind (("C-c ," . goto-last-change)
+         ("C-c ." . goto-last-change-reverse)))
+
+(use-package multiple-cursors
+  :init (global-unset-key (kbd "M-<down-mouse-1>"))
+  :bind
+  (("C-c m t" . mc/mark-all-like-this)
+   ("C-c m m" . mc/mark-all-like-this-dwim)
+   ("C-c m l" . mc/edit-lines)
+   ("C-c m e" . mc/edit-ends-of-lines)
+   ("C-c m a" . mc/edit-beginnings-of-lines)
+   ("C-c m n" . mc/mark-next-like-this)
+   ("C-c m p" . mc/mark-previous-like-this)
+   ("C-c m s" . mc/mark-sgml-tag-pair)
+   ("C-c m d" . mc/mark-all-like-this-in-defun)
+   ("M-<mouse-1>" . mc/add-cursor-on-click)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Programming modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package zop-to-char
+  :defer t
+  :bind (("M-z" . zop-up-to-char)
+         ("M-Z" . zop-to-char)))
+
+;; save emacs buffers when they lose focus
+(use-package super-save
+  :diminish super-save-mode
+  :config
+  (super-save-mode +1))
+
+(use-package aggressive-indent
+  :config 
+  ;; TODO: cannot locally enable any modes in `aggressive-indent-excluded-modes'
+  ;;   This would be helpful for testing etc.. PR potential?
+  (dolist (source '(diary-mode
+                    css-mode
+                    less-css-mode
+                    jade-mode
+                    ruby-mode
+                    scala-mode))
+    (add-to-list 'aggressive-indent-excluded-modes source t))
+  (global-aggressive-indent-mode +1))
+
+(use-package hungry-delete
+  ;; Borrowed from `kaushalmodi'
+  :config
+  (progn
+    (setq hungry-delete-chars-to-skip " \t\r\f\v")
+    (defun hungry-delete-mode-off ()
+      "Turn off hungry delete mode."
+      (hungry-delete-mode -1))
+    (global-hungry-delete-mode) ;; Enable `hungry-delete-mode' everywhere ..
+    ;; Except... `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
+    ;; i.e. when editing file names in the *Dired* buffer.
+    (add-hook 'wdired-mode-hook 'hungry-delete-mode-off)))
+
 (use-package flycheck
   :defer 2
   :init
@@ -1194,94 +1278,6 @@ Start `ielm' if it's not already running."
   :mode ("\\Dockerfile\\'" . dockerfile-mode)
   :init
   (delight 'dockerfile-mode (all-the-icons-fileicon "dockerfile") 'dockerfile-mode))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Misc. defuns
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package zop-to-char
-  :defer t
-  :bind (("M-z" . zop-up-to-char)
-         ("M-Z" . zop-to-char)))
-
-;; save emacs buffers when they lose focus
-(use-package super-save
-  :diminish super-save-mode
-  :config
-  (super-save-mode +1))
-
-(use-package aggressive-indent
-  :config 
-  ;; TODO: cannot locally enable any modes in `aggressive-indent-excluded-modes'
-  ;;   This would be helpful for testing etc.. PR potential?
-  (dolist (source '(diary-mode
-                    css-mode
-                    less-css-mode
-                    jade-mode
-                    ruby-mode
-                    scala-mode))
-    (add-to-list 'aggressive-indent-excluded-modes source t))
-  (global-aggressive-indent-mode +1))
-
-(use-package hungry-delete
-  ;; Borrowed from `kaushalmodi'
-  :config
-  (progn
-    (setq hungry-delete-chars-to-skip " \t\r\f\v")
-    (defun hungry-delete-mode-off ()
-      "Turn off hungry delete mode."
-      (hungry-delete-mode -1))
-    (global-hungry-delete-mode) ;; Enable `hungry-delete-mode' everywhere ..
-    ;; Except... `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
-    ;; i.e. when editing file names in the *Dired* buffer.
-    (add-hook 'wdired-mode-hook 'hungry-delete-mode-off)))
-
-;; highlight uncommitted changes on fringe
-(use-package diff-hl
-  :defer 3
-  :config
-  (global-diff-hl-mode +1)
-  (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
-  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
-
-;; display key binding completion help for partially typed commands
-(use-package which-key
-  :diminish which-key-mode
-  :config
-  (which-key-mode +1))
-
-(use-package undo-tree
-  :chords (("uu" . undo-tree-visualize))
-  :bind (("C-/" . undo-tree-undo)
-         ("C-?" . undo-tree-redo)
-         ("C-x u" . undo-tree-visualize)
-         ("s-/" . undo-tree-visualize))
-  :init
-  ;; autosave the undo-tree history
-  (setq undo-tree-history-directory-alist
-        `((".*" . ,temporary-file-directory)))
-  (setq undo-tree-auto-save-history t)
-  (delight 'undo-tree-mode nil 'undo-tree)
-  (global-undo-tree-mode))
-
-;; goto edit history locations
-(use-package goto-chg
-  :bind (("C-c ," . goto-last-change)
-         ("C-c ." . goto-last-change-reverse)))
-
-(use-package multiple-cursors
-  :init (global-unset-key (kbd "M-<down-mouse-1>"))
-  :bind
-  (("C-c m t" . mc/mark-all-like-this)
-   ("C-c m m" . mc/mark-all-like-this-dwim)
-   ("C-c m l" . mc/edit-lines)
-   ("C-c m e" . mc/edit-ends-of-lines)
-   ("C-c m a" . mc/edit-beginnings-of-lines)
-   ("C-c m n" . mc/mark-next-like-this)
-   ("C-c m p" . mc/mark-previous-like-this)
-   ("C-c m s" . mc/mark-sgml-tag-pair)
-   ("C-c m d" . mc/mark-all-like-this-in-defun)
-   ("M-<mouse-1>" . mc/add-cursor-on-click)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
