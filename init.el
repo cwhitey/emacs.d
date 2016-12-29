@@ -48,6 +48,7 @@
         (clj-refactor . "melpa-stable")
         (ensime       . "melpa-stable")
         (sbt-mode     . "melpa-stable")
+        (company-ghc  . "melpa-stable")
         (counsel      . "melpa")
         (ivy          . "melpa"))
       ;; keep the installed packages in .emacs.d
@@ -66,6 +67,7 @@
                                aggressive-indent
                                hungry-delete
                                company ;; Completion framework
+                               company-ghc
                                projectile
                                all-the-icons
                                clipmon
@@ -451,7 +453,7 @@
   '(:propertize "%7b" face mode-line-buffer-id))
 (defvar my-vc-mode-line
   '(" "
-    (:eval (all-the-icons-octicon "mark-github"))
+    (:eval (all-the-icons-octicon "mark-github" :height 0.95 :v-adjust 0.1))
     (:propertize
      ;; Strip the backend name from the VC status information 
      (:eval (let ((backend (symbol-name (vc-backend (buffer-file-name)))))
@@ -809,13 +811,13 @@
                ("C-M-," . dumb-jump-back))
   :config (dumb-jump-mode))
 
-;; TODO cleanup and use-package elisp-mode for elisp
 (use-package lisp-mode
   :defer t
   :init
   (delight 'lisp-interaction-mode (all-the-icons-fileicon "lisp" :v-adjust -0.1) 'lisp-mode) 
   (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
-  (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode))
+  (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
+  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode))
 
 (use-package elisp-mode
   :defer t
@@ -825,7 +827,7 @@
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
     (interactive)
-    (crux-start-or-switch-to 'ielm "*ielm*"))
+    (crux-start-or-switch-to 'ielm "*ielm*")) 
   (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
@@ -839,15 +841,15 @@ Start `ielm' if it's not already running."
   :defer t
   :init
   (add-hook 'ielm-mode-hook #'eldoc-mode)
-  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode) 
   (add-hook 'ielm-mode-hook #'turn-on-smartparens-strict-mode))
 
 (use-package elisp-slime-nav
   :defer t
-  :init
+  :config
   (delight 'elisp-slime-nav-mode nil 'elisp-slime-nav)
-  (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode)
-  (add-hook 'ielm-mode-hook #'elisp-slime-nav-mode))
+  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
+    (add-hook hook #'elisp-slime-nav-mode)))
 
 (use-package sh-script)
 
@@ -1014,7 +1016,7 @@ Start `ielm' if it's not already running."
   (add-hook 'ruby-mode-hook #'subword-mode)
   (add-hook 'ruby-mode-hook #'robe-mode)
   (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
-  (delight 'ruby-mode (all-the-icons-octicon "ruby") 'ruby-mode)
+  (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.95 :v-adjust 0.1) 'ruby-mode) 
   :config
   (use-package inf-ruby)
   (use-package robe)
@@ -1139,16 +1141,22 @@ Start `ielm' if it's not already running."
       (sbt-command ";ensimeConfig;ensimeConfigProject")
       (ensime-shutdown)
       (ensime)))
-
   ;;(add-hook 'ensime-mode-hook 'scala/ensime-enable-eldoc)
   )
 
 ;; Haskell
+;; TODO: disabled because it craps all over my setup.
+;;   certain buffers won't allow M-DEL (subword-mode disabled?)
 (use-package haskell-mode
+  :disabled t
   :mode ("\\.hs\\'")
   :commands (haskell-mode)
   :config
-  (delight 'haskell-mode (all-the-icons-alltheicon "haskell") 'haskell-mode))
+  (delight 'haskell-mode (all-the-icons-alltheicon "haskell") 'haskell-mode) 
+  ;; (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+  ;; (add-hook 'haskell-mode-hook 'turn-on-haskell-ghci)
+  ;; (setq-default haskell-program-name "ghci")
+  )
 
 ;; requires ghc-mod cmd tool
 (use-package ghc 
