@@ -336,9 +336,8 @@
   ;; Override `package' commands
   (add-hook 'after-init-hook 'paradox-enable))
 
-;; supply :chords keyword for use-package definitions
-;; this also gives us the key-chord library
-;; usage:
+;; Key-chord library and :chords keyword for use-package defs
+;; Usage inside use-package def:
 ;;   :chords (("jj" . jump-to-definition))
 (use-package use-package-chords
   :config (key-chord-mode 1))
@@ -362,24 +361,8 @@
 ;; - atom-one-dark
 ;; - flatui (light)
 ;; - darcula
-
-(defun disable-themes (themes)
-  "Disable all current themes"
-  (dolist (theme themes)
-    (disable-theme theme)))
-
-(defun load-only-theme ()
-  "Load theme after disabling all current themes"
-  (interactive)
-  (let ((themes custom-enabled-themes))
-    (if (call-interactively 'load-theme)
-        (disable-themes themes))))
-
-(bind-key "C-x t" 'load-only-theme)
-
 (use-package zenburn-theme
-  :defer t
-  :disabled t
+  :defer t 
   :config
   ;; Change color for directory in helm buffers list
   (eval-after-load 'helm-mode
@@ -397,14 +380,12 @@
         solarized-distinct-fringe-background t
         solarized-emphasize-indicators t))
 
-(use-package apropospriate-theme
-  :disabled t
+(use-package apropospriate-theme 
   :defer t
-  :init
+  :config
   (setq apropospriate-mode-line-height 4.0))
 
-(use-package ample-theme
-  :disabled t
+(use-package ample-theme 
   :defer t
   :config
   (progn (load-theme 'ample t t)
@@ -416,27 +397,32 @@
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
-(use-package color-theme-sanityinc-tomorrow
-  :disabled t
+(use-package color-theme-sanityinc-tomorrow 
   :config
   (color-theme-sanityinc-tomorrow-night)
   (eval-after-load 'swiper
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
+(defun disable-themes (themes)
+  "Disable all current themes"
+  (dolist (theme themes)
+    (disable-theme theme)))
+(defun load-only-theme ()
+  "Load theme after disabling all current themes"
+  (interactive)
+  (let ((themes custom-enabled-themes))
+    (if (call-interactively 'load-theme)
+        (disable-themes themes))))
+(bind-key "C-x t" 'load-only-theme)
+
 (defvar light-theme 'solarized-light)
 (defvar dark-theme 'ample-flat)
 
 (load-theme light-theme t)
 
-;; prettier modeline (disabled because it's SLOW)
-(use-package smart-mode-line
-  :disabled t
-  :init
-  (setq sml/no-confirm-load-theme t)
-  (setq sml/theme 'respectful)
-  :config (sml/setup))
-
+;; provide icons to use in the modeline etc.
+;; REQUIRED: install the fonts in `all-the-icons-fonts'
 (use-package all-the-icons
   :config
   (setq all-the-icons-scale-factor 0.9
@@ -487,8 +473,7 @@
 (use-package magit
   :bind (("C-x g" . magit-status)))
 
-(use-package ag
-  :defer t)
+(use-package ag :defer t)
 
 (use-package projectile
   :diminish projectile-mode
@@ -544,10 +529,6 @@
                           :height 0.1)))
   (add-hook 'helm-before-initialize-hook 'helm-toggle-header-line)
   (helm-autoresize-mode 1)
-
-  (use-package helm-ag
-    :disabled t
-    :defer t)
 
   (use-package helm-projectile
     :disabled t
