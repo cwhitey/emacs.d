@@ -439,7 +439,7 @@
   '(:propertize "%7b" face mode-line-buffer-id))
 (defvar my-vc-mode-line
   '(" "
-    (:eval (all-the-icons-octicon "mark-github" :height 0.95 :v-adjust 0.1))
+    (:eval (all-the-icons-octicon "git-branch" :height 0.95 :v-adjust 0.1))
     (:propertize
      ;; Strip the backend name from the VC status information 
      (:eval (let ((backend (symbol-name (vc-backend (buffer-file-name)))))
@@ -1022,7 +1022,7 @@ Start `ielm' if it's not already running."
                     web-mode-attr-indent-offset   2
                     ;; play nice with smartparens
                     web-mode-enable-auto-pairing  nil)
-              (setq mode-name (all-the-icons-icon-for-mode 'web-mode)))))
+              (setq mode-name (all-the-icons-icon-for-mode 'web-mode :v-adjust -0.1)))))
 
 ;; wrong number of arguments error
 (defun json-mode-on ()
@@ -1031,6 +1031,11 @@ Start `ielm' if it's not already running."
   (web-mode)
   (message "now set to: json")
   (web-mode-set-content-type "json"))
+
+(use-package haml-mode
+  :defer t
+  :config
+  (delight 'haml-mode (all-the-icons-fileicon "haml") 'haml-mode))
 
 ;; just use json-mode package for JSON beautification
 (use-package json-mode
@@ -1212,12 +1217,12 @@ Start `ielm' if it's not already running."
 ;; Haskell
 ;; TODO: disabled because it craps all over my setup.
 ;;   certain buffers won't allow M-DEL (subword-mode disabled?)
+(delight 'haskell-mode (all-the-icons-alltheicon "haskell") 'haskell-mode)
 (use-package haskell-mode
   :disabled t
   :mode ("\\.hs\\'")
   :commands (haskell-mode)
-  :config
-  (delight 'haskell-mode (all-the-icons-alltheicon "haskell") 'haskell-mode) 
+  :config 
   ;; (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
   ;; (add-hook 'haskell-mode-hook 'turn-on-haskell-ghci)
   ;; (setq-default haskell-program-name "ghci")
