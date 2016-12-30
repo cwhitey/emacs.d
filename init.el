@@ -181,6 +181,7 @@
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; force-set frame fringe sizes on frame creation
 (add-hook 'after-make-frame-functions (lambda (a)
+                                        (message "Updating fringe widths")
                                         (fringe-mode '(8 . 2))))
 
 ;; nice window scrolling - `smooth-scrolling' package (SLOW) replaced with these small tweaks
