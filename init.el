@@ -366,6 +366,7 @@
 ;; - flatui (light)
 ;; - darcula
 (use-package zenburn-theme
+  :disabled
   :defer t 
   :config
   ;; Change color for directory in helm buffers list
@@ -374,6 +375,7 @@
        (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
 
 (use-package leuven-theme
+  :disabled
   :defer t)
 
 (use-package solarized-theme
@@ -384,7 +386,8 @@
         solarized-distinct-fringe-background t
         solarized-emphasize-indicators t))
 
-(use-package apropospriate-theme 
+(use-package apropospriate-theme
+  :disabled
   :defer t
   :config
   (setq apropospriate-mode-line-height 4.0))
@@ -402,6 +405,7 @@
        (set-face-background 'swiper-line-face "#404040"))))
 
 (use-package color-theme-sanityinc-tomorrow
+  :disabled
   :defer t
   :config
   (color-theme-sanityinc-tomorrow-night)
