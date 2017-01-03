@@ -79,7 +79,9 @@
                                drag-stuff
                                undo-tree
                                magit
-                               helm helm-ag helm-descbinds helm-open-github helm-projectile
+                               copy-as-format
+                               git-link git-timemachine
+                               helm helm-ag helm-descbinds helm-projectile
                                swiper ivy counsel counsel-projectile
                                ample-theme leuven-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme
                                rainbow-delimiters
@@ -178,6 +180,7 @@
   (menu-bar-mode -1))
 (server-visit-presets)
 (add-hook 'server-visit-hook 'server-visit-presets)
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; force-set frame fringe sizes on frame creation
 (add-hook 'after-make-frame-functions (lambda (a)
@@ -370,11 +373,11 @@
     '(progn
        (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
 
-(use-package leuven-theme :defer t)
+(use-package leuven-theme
+  :defer t)
 
-(use-package solarized-theme 
-  :defer t
-  :init
+(use-package solarized-theme
+  :config
   (setq solarized-use-more-italic t
         solarized-high-contrast-mode-line t
         solarized-distinct-doc-face t
@@ -398,7 +401,8 @@
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
-(use-package color-theme-sanityinc-tomorrow 
+(use-package color-theme-sanityinc-tomorrow
+  :defer t
   :config
   (color-theme-sanityinc-tomorrow-night)
   (eval-after-load 'swiper
@@ -420,7 +424,7 @@
 (defvar light-theme 'solarized-light)
 (defvar dark-theme 'ample-flat)
 
-(load-theme light-theme t)
+(load-theme dark-theme t)
 
 ;; provide icons to use in the modeline etc.
 ;; REQUIRED: install the fonts in `all-the-icons-fonts'
@@ -534,15 +538,7 @@
   (use-package helm-projectile
     :disabled t
     :init (setq projectile-completion-system 'helm)
-    :config (helm-projectile-on))
-
-  (use-package helm-open-github
-    ;; TODO: This package doesn't support enterprise github repositories
-    ;; e.g. https://git.realestate.com.au/[org]/[repo] vs. https://github.com/[org]/[repo]
-    :bind (("C-c g f" . helm-open-github-from-file)
-           ("C-c g c" . helm-open-github-from-commit)
-           ("C-c g i" . helm-open-github-from-issues)
-           ("C-c g p" . helm-open-github-from-pull-requests))))
+    :config (helm-projectile-on)))
 
 ;; TODO: This defer timeout forces helm to load? Figure out why helm doesn't load on its own
 (use-package helm-descbinds
@@ -725,7 +721,7 @@
          ("C-M-z" . crux-indent-defun)
          ("C-c u" . crux-view-url)
          ("C-c e" . crux-eval-and-replace)
-         ("C-c w" . crux-swap-windows)
+         ;; ("C-c w" . crux-swap-windows)
          ("C-c D" . crux-delete-file-and-buffer)
          ("C-c r" . crux-rename-buffer-and-file)
          ("C-c t" . crux-visit-term-buffer)
@@ -790,6 +786,34 @@
    ("C-c m s" . mc/mark-sgml-tag-pair)
    ("C-c m d" . mc/mark-all-like-this-in-defun)
    ("M-<mouse-1>" . mc/add-cursor-on-click)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Dev tooling
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package copy-as-format
+  :defer t
+  :commands (copy-as-format-slack
+             copy-as-format-github
+             copy-as-format-html
+             copy-as-format-markdown)
+  :config
+  (global-set-key (kbd "C-c w s") 'copy-as-format-slack)
+  (global-set-key (kbd "C-c w g") 'copy-as-format-github)
+  (global-set-key (kbd "C-c w h") 'copy-as-format-html)
+  (global-set-key (kbd "C-c w m") 'copy-as-format-markdown))
+
+(use-package git-link
+  :defer t
+  :commands (git-link)
+  :config (global-set-key (kbd "C-c w l") 'git-link))
+
+(use-package git-timemachine
+  :defer t
+  :commands (git-timemachine git-timemachine-toggle)
+  :config
+  (global-set-key (kbd "C-c w t") 'git-timemachine)
+  (global-set-key (kbd "C-c w T") 'git-timemachine-toggle))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1192,8 +1216,10 @@ Start `ielm' if it's not already running."
    'self-insert-command
    minibuffer-local-completion-map))
 
-;; TODO: Fix the current bug when opening a new scala file (without ensime running):
-;;    `File mode specification error: (void-variable ensime-mode-key-prefix)'
+
+;; WORKAROUND: https://github.com/syl20bnr/spacemacs/issues/6578
+(require 'ensime)
+
 (use-package ensime
   :commands (ensime ensime-mode)
   :init
