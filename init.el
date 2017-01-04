@@ -82,8 +82,8 @@
                                copy-as-format
                                git-link git-timemachine
                                helm helm-ag helm-descbinds helm-projectile
-                               swiper ivy counsel counsel-projectile
-                               ample-theme leuven-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme
+                               swiper ivy ivy-rich counsel counsel-projectile
+                               ample-theme leuven-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme seti-theme
                                rainbow-delimiters
                                rainbow-mode ;; Render RGB strings with color
                                dumb-jump
@@ -563,7 +563,7 @@
               ("C-x b" . ivy-switch-buffer)
               ("C-c r" . ivy-resume))
   :diminish ivy-mode
-  :init
+  :init 
   (setq ivy-height 13
         ivy-count-format "(%d/%d) "
         ivy-use-virtual-buffers t
@@ -573,6 +573,12 @@
         ;; make ivy regex non-greedy
         ivy--regex-function (lambda (str) (ivy--regex str 1)))
   :config
+  (use-package ivy-rich
+    :config
+    (setq ivy-rich-switch-buffer-name-max-length 35
+          ivy-rich-switch-buffer-mode-max-length 20
+          ivy-rich-switch-buffer-project-max-length 21)
+    (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer))
   (ivy-mode 1))
 
 (use-package counsel
