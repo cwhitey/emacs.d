@@ -552,12 +552,11 @@
 
 (use-package swiper
   :defer 1
-  :bind (("M-i" . swiper)
-         ("M-I" . swiper-all))
-  :init
-  (global-set-key "\C-s" 'swiper)
+  :bind (("M-I" . swiper-all))
+  :init 
   (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
 
+;; TODO: Use ivy-rich package
 (use-package ivy
   :defer 1
   :bind (:map ivy-mode-map
@@ -580,10 +579,12 @@
   :defer 1
   :bind (:map counsel-mode-map
               ("M-x" . counsel-M-x)
-              ("C-x C-f" . counsel-find-file))
+              ("C-x C-f" . counsel-find-file)
+              ("M-i" . counsel-grep-or-swiper))
   :diminish counsel-mode
   :init
   (require 'smex) ; keep M-x history
+  (global-set-key "\C-s" 'counsel-grep-or-swiper)
   :config
   (use-package counsel-projectile
     :commands (counsel-projectile-on)
@@ -608,8 +609,8 @@
 
 (use-package uniquify
   :config
-  (setq uniquify-buffer-name-style 'forward)
-  (setq uniquify-separator "/")
+  (setq uniquify-buffer-name-style 'post-forward)
+  (setq uniquify-separator ":")
   ;; rename after killing uniquified
   (setq uniquify-after-kill-buffer-p t)
   ;; don't muck with special buffers
@@ -744,14 +745,6 @@
          ([remap kill-whole-line] . crux-kill-whole-line)
          ("C-c s" . crux-ispell-word-then-abbrev)))
 
-;; highlight uncommitted changes on fringe
-(use-package diff-hl
-  :defer 3
-  :config
-  (global-diff-hl-mode +1)
-  (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
-  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
-
 ;; display key binding completion help for partially typed commands
 (use-package which-key
   :diminish which-key-mode
@@ -791,6 +784,17 @@
    ("C-c m d" . mc/mark-all-like-this-in-defun)
    ("M-<mouse-1>" . mc/add-cursor-on-click)))
 
+(use-package zop-to-char
+  :defer t
+  :bind (("M-z" . zop-up-to-char)
+         ("M-Z" . zop-to-char)))
+
+;; save emacs buffers when they lose focus
+(use-package super-save
+  :diminish super-save-mode
+  :config
+  (super-save-mode +1))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Dev tooling
@@ -819,46 +823,13 @@
   (global-set-key (kbd "C-c w t") 'git-timemachine)
   (global-set-key (kbd "C-c w T") 'git-timemachine-toggle))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Programming modes
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package zop-to-char
-  :defer t
-  :bind (("M-z" . zop-up-to-char)
-         ("M-Z" . zop-to-char)))
-
-;; save emacs buffers when they lose focus
-(use-package super-save
-  :diminish super-save-mode
+;; highlight uncommitted changes on fringe
+(use-package diff-hl
+  :defer 3
   :config
-  (super-save-mode +1))
-
-(use-package aggressive-indent
-  :config 
-  ;; TODO: cannot locally enable any modes in `aggressive-indent-excluded-modes'
-  ;;   This would be helpful for testing etc.. PR potential?
-  (dolist (source '(diary-mode
-                    css-mode
-                    less-css-mode
-                    jade-mode
-                    ruby-mode
-                    scala-mode))
-    (add-to-list 'aggressive-indent-excluded-modes source t))
-  (global-aggressive-indent-mode +1))
-
-(use-package hungry-delete
-  ;; Borrowed from `kaushalmodi'
-  :config
-  (progn
-    (setq hungry-delete-chars-to-skip " \t\r\f\v")
-    (defun hungry-delete-mode-off ()
-      "Turn off hungry delete mode."
-      (hungry-delete-mode -1))
-    (global-hungry-delete-mode) ;; Enable `hungry-delete-mode' everywhere ..
-    ;; Except... `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
-    ;; i.e. when editing file names in the *Dired* buffer.
-    (add-hook 'wdired-mode-hook 'hungry-delete-mode-off)))
+  (global-diff-hl-mode +1)
+  (add-hook 'dired-mode-hook 'diff-hl-dired-mode)
+  (add-hook 'magit-post-refresh-hook 'diff-hl-magit-post-refresh))
 
 (use-package flycheck
   :defer 2
@@ -897,6 +868,36 @@
   (define-key company-active-map [tab] nil)
   (define-key company-active-map (kbd "TAB") nil) 
   (add-hook 'prog-mode-hook #'company-mode))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Programming modes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package aggressive-indent
+  :config 
+  ;; TODO: cannot locally enable any modes in `aggressive-indent-excluded-modes'
+  ;;   This would be helpful for testing etc.. PR potential?
+  (dolist (source '(diary-mode
+                    css-mode
+                    less-css-mode
+                    jade-mode
+                    ruby-mode
+                    scala-mode))
+    (add-to-list 'aggressive-indent-excluded-modes source t))
+  (global-aggressive-indent-mode +1))
+
+(use-package hungry-delete
+  ;; Borrowed from `kaushalmodi'
+  :config
+  (progn
+    (setq hungry-delete-chars-to-skip " \t\r\f\v")
+    (defun hungry-delete-mode-off ()
+      "Turn off hungry delete mode."
+      (hungry-delete-mode -1))
+    (global-hungry-delete-mode) ;; Enable `hungry-delete-mode' everywhere ..
+    ;; Except... `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
+    ;; i.e. when editing file names in the *Dired* buffer.
+    (add-hook 'wdired-mode-hook 'hungry-delete-mode-off)))
 
 (use-package dumb-jump
   ;; bind keys (have to override globals by using *)
