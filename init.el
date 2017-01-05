@@ -85,7 +85,7 @@
                                helm helm-ag helm-descbinds helm-projectile
                                swiper ivy ivy-rich counsel counsel-projectile
                                ;; A bunch of pretty themes I like to switch between
-                               ample-theme leuven-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme
+                               ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme
                                rainbow-delimiters
                                rainbow-mode ;; Render RGB strings with color
                                dumb-jump
@@ -392,7 +392,8 @@
   :config
   (setq apropospriate-mode-line-height 4.0))
 
-(use-package ample-theme 
+(use-package ample-theme
+  :disabled t
   :defer t
   :config
   (progn (load-theme 'ample t t)
@@ -400,15 +401,6 @@
          (load-theme 'ample-light t t)
          (enable-theme 'ample-flat))
   ;; Fix ensime's popup suggestion faces (company-mode stuff?)
-  (eval-after-load 'swiper
-    '(progn
-       (set-face-background 'swiper-line-face "#404040"))))
-
-(use-package color-theme-sanityinc-tomorrow
-  :disabled t
-  :defer t
-  :config
-  (color-theme-sanityinc-tomorrow-night)
   (eval-after-load 'swiper
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
@@ -425,7 +417,7 @@
         (disable-themes themes))))
 (bind-key "C-x t" 'load-only-theme)
 
-(defvar light-theme 'solarized-light)
+(defvar light-theme 'plan9)
 (defvar dark-theme 'darktooth)
 
 (load-theme dark-theme t)
@@ -573,7 +565,7 @@
         ;; make ivy regex non-greedy
         ivy--regex-function (lambda (str) (ivy--regex str 1)))
   :config
-  (use-package ivy-rich
+  (use-package ivy-rich 
     :load-path "lisp/ivy-rich"
     :config
     (setq ivy-rich-switch-buffer-name-max-length 35
