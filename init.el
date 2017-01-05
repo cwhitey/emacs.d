@@ -84,7 +84,8 @@
                                idle-highlight-mode
                                helm helm-ag helm-descbinds helm-projectile
                                swiper ivy ivy-rich counsel counsel-projectile
-                               ample-theme leuven-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme seti-theme
+                               ;; A bunch of pretty themes I like to switch between
+                               ample-theme leuven-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme
                                rainbow-delimiters
                                rainbow-mode ;; Render RGB strings with color
                                dumb-jump
