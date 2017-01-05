@@ -81,6 +81,7 @@
                                magit
                                copy-as-format
                                git-link git-timemachine
+                               idle-highlight-mode
                                helm helm-ag helm-descbinds helm-projectile
                                swiper ivy ivy-rich counsel counsel-projectile
                                ample-theme leuven-theme zenburn-theme solarized-theme color-theme-sanityinc-tomorrow apropospriate-theme plan9-theme flatui-theme seti-theme
@@ -335,10 +336,7 @@
 (require 'diminish)
 (use-package delight)
 
-(use-package paradox 
-  :config
-  ;; Override `package' commands
-  (add-hook 'after-init-hook 'paradox-enable))
+(use-package paradox :defer 3)
 
 ;; Key-chord library and :chords keyword for use-package defs
 ;; Usage inside use-package def:
@@ -365,8 +363,9 @@
 ;; - atom-one-dark
 ;; - flatui (light)
 ;; - darcula
+;; - seti
 (use-package zenburn-theme
-  :disabled
+  :disabled t
   :defer t 
   :config
   ;; Change color for directory in helm buffers list
@@ -375,7 +374,7 @@
        (set-face-attribute 'helm-buffer-directory nil :foreground "#93E0E3" :background "#3F3F3F"))))
 
 (use-package leuven-theme
-  :disabled
+  :disabled t
   :defer t)
 
 (use-package solarized-theme
@@ -387,7 +386,7 @@
         solarized-emphasize-indicators t))
 
 (use-package apropospriate-theme
-  :disabled
+  :disabled t
   :defer t
   :config
   (setq apropospriate-mode-line-height 4.0))
@@ -398,14 +397,14 @@
   (progn (load-theme 'ample t t)
          (load-theme 'ample-flat t t)
          (load-theme 'ample-light t t)
-         (enable-theme 'ample-flat)) 
+         (enable-theme 'ample-flat))
   ;; Fix ensime's popup suggestion faces (company-mode stuff?)
   (eval-after-load 'swiper
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
 (use-package color-theme-sanityinc-tomorrow
-  :disabled
+  :disabled t
   :defer t
   :config
   (color-theme-sanityinc-tomorrow-night)
@@ -426,7 +425,7 @@
 (bind-key "C-x t" 'load-only-theme)
 
 (defvar light-theme 'solarized-light)
-(defvar dark-theme 'ample-flat)
+(defvar dark-theme 'darktooth)
 
 (load-theme dark-theme t)
 
@@ -574,11 +573,13 @@
         ivy--regex-function (lambda (str) (ivy--regex str 1)))
   :config
   (use-package ivy-rich
+    :load-path "lisp/ivy-rich"
     :config
     (setq ivy-rich-switch-buffer-name-max-length 35
           ivy-rich-switch-buffer-mode-max-length 20
-          ivy-rich-switch-buffer-project-max-length 21)
-    (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer))
+          ivy-rich-switch-buffer-project-max-length 21))
+  (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
+  ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
   (ivy-mode 1))
 
 (use-package counsel
@@ -1233,8 +1234,7 @@ Start `ielm' if it's not already running."
 
 (use-package ensime
   :commands (ensime ensime-mode)
-  :init
-  (setq ensime-use-helm t)
+  :init 
   (defun ensime-enable-eldoc ()
     (setq-local eldoc-documentation-function
                 (lambda ()
@@ -1322,5 +1322,15 @@ Start `ielm' if it's not already running."
       (subword-backward-kill 1))
      (t
       (backward-kill-word 1)))))
+
+(defun copy-file-name-to-clipboard ()
+  "Copy the current buffer file name to the clipboard."
+  (interactive)
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-file-name))))
+    (when filename
+      (kill-new filename)
+      (message "Copied buffer file name '%s' to the clipboard." filename))))
 
 ;;; init.el ends here
