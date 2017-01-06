@@ -388,6 +388,7 @@
 
 (use-package solarized-theme
   :config
+  :defer t
   (setq solarized-use-more-italic t
         solarized-high-contrast-mode-line t
         solarized-distinct-doc-face t
@@ -413,6 +414,11 @@
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
+(defvar light-theme 'plan9)
+(defvar dark-theme 'darktooth)
+
+(load-theme light-theme t)
+
 (defun disable-themes (themes)
   "Disable all current themes"
   (dolist (theme themes)
@@ -423,12 +429,8 @@
   (let ((themes custom-enabled-themes))
     (if (call-interactively 'load-theme)
         (disable-themes themes))))
+
 (bind-key "C-x t" 'load-only-theme)
-
-(defvar light-theme 'plan9)
-(defvar dark-theme 'darktooth)
-
-(load-theme light-theme t)
 
 ;; provide icons to use in the modeline etc.
 ;; REQUIRED: install the fonts in `all-the-icons-fonts'
