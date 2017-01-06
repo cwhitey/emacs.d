@@ -73,6 +73,7 @@
                                clipmon
                                ag
                                anzu
+                               fasd
                                goto-chg
                                crux
                                super-save
@@ -184,7 +185,9 @@
 (add-hook 'server-visit-hook 'server-visit-presets)
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-;; force-set frame fringe sizes on frame creation
+;;(add-to-list 'default-frame-alist '(left-fringe . 8))
+;;(add-to-list 'default-frame-alist '(right-fringe . 2))
+;; force-set frame fringe sizes on frame creation...?
 (add-hook 'after-make-frame-functions (lambda (a)
                                         (message "Updating fringe widths")
                                         (fringe-mode '(8 . 2))))
@@ -548,7 +551,6 @@
   :init 
   (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
 
-;; TODO: Use ivy-rich package
 (use-package ivy
   :defer 1
   :bind (:map ivy-mode-map
