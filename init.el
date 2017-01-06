@@ -420,7 +420,7 @@
 (defvar light-theme 'plan9)
 (defvar dark-theme 'darktooth)
 
-(load-theme dark-theme t)
+(load-theme light-theme t)
 
 ;; provide icons to use in the modeline etc.
 ;; REQUIRED: install the fonts in `all-the-icons-fonts'
@@ -430,10 +430,10 @@
         all-the-icons-default-adjust 0))
 
 ;; minimal mode line format
-(setq-default mode-line-position '(line-number-mode 
+(setq-default mode-line-position '(line-number-mode
                                    ("["
                                     (:propertize "%l" face mode-line-buffer-id)
-                                    (column-number-mode ":%c") 
+                                    (column-number-mode ":%c")
                                     "]"
                                     ("  %3p"))))
 (defvar my-mode-line-buffer-identification
@@ -568,9 +568,10 @@
   (use-package ivy-rich 
     :load-path "lisp/ivy-rich"
     :config
-    (setq ivy-rich-switch-buffer-name-max-length 35
+    (setq ivy-rich-switch-buffer-name-max-length 40
           ivy-rich-switch-buffer-mode-max-length 20
-          ivy-rich-switch-buffer-project-max-length 21))
+          ivy-rich-switch-buffer-project-max-length 21
+          ivy-rich-switch-buffer-delimiter " "))
   (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
   ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
   (ivy-mode 1))
