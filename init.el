@@ -63,7 +63,7 @@
 (defvar my-install-packages '(use-package
                                use-package-chords
                                delight
-                               smartparens
+                               discover-my-major 
                                aggressive-indent
                                hungry-delete
                                company ;; Completion framework
@@ -83,6 +83,7 @@
                                copy-as-format
                                git-link git-timemachine
                                idle-highlight-mode
+                               smartparens
                                helm helm-ag helm-descbinds helm-projectile
                                swiper ivy ivy-rich counsel counsel-projectile
                                ;; A bunch of pretty themes I like to switch between
@@ -190,7 +191,8 @@
 ;; force-set frame fringe sizes on frame creation...?
 (add-hook 'after-make-frame-functions (lambda (a)
                                         (message "Updating fringe widths")
-                                        (fringe-mode '(8 . 2))))
+                                        ;;(fringe-mode '(8 . 2))
+                                        ))
 
 ;; nice window scrolling - `smooth-scrolling' package (SLOW) replaced with these small tweaks
 (setq scroll-conservatively 101
@@ -348,8 +350,11 @@
 (use-package use-package-chords
   :config (key-chord-mode 1))
 
-(use-package fasd
-  :config (global-fasd-mode 1))
+;; TODO: Needs ivy support
+(use-package fasd 
+  :config
+  (setq fasd-completing-read-function 'ivy-completing-read)
+  (global-fasd-mode 1))
 
 (use-package zoom-frm
   :bind (("C-+" . zoom-frm-in)
@@ -872,6 +877,10 @@
   (define-key company-active-map (kbd "TAB") nil) 
   (add-hook 'prog-mode-hook #'company-mode))
 
+(use-package idle-highlight-mode
+  :diminish idle-highlight-mode
+  :config
+  (add-hook 'prog-mode-hook 'idle-highlight-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Programming modes
