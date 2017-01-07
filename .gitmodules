@@ -1,0 +1,3 @@
+[submodule "lisp/ivy-rich"]
+	path = lisp/ivy-rich
+	url = https://github.com/cwhitey/ivy-rich.git
