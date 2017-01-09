@@ -387,8 +387,8 @@
   :defer t)
 
 (use-package solarized-theme
-  :config
   :defer t
+  :config
   (setq solarized-use-more-italic t
         solarized-high-contrast-mode-line t
         solarized-distinct-doc-face t
@@ -1065,8 +1065,8 @@ Start `ielm' if it's not already running."
                     web-mode-css-indent-offset    2
                     web-mode-attr-indent-offset   2
                     ;; play nice with smartparens
-                    web-mode-enable-auto-pairing  nil)
-              (setq mode-name (all-the-icons-icon-for-mode 'web-mode :v-adjust -0.1)))))
+                    web-mode-enable-auto-pairing  nil) 
+              (setq mode-name (all-the-icons-icon-for-mode 'web-mode)))))
 
 ;; wrong number of arguments error
 (defun json-mode-on ()
