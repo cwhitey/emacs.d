@@ -488,7 +488,13 @@
 
 (use-package projectile
   :diminish projectile-mode
-  :bind ("s-p" . projectile-command-map)
+  :bind-keymap (("s-p" . projectile-keymap-prefix))
+  :bind  (("C-c f" . projectile-find-file)
+          ("C-c d" . projectile-find-dir)
+          ("C-c s" . projectile-ag)
+          ("s-f" . projectile-find-file)
+          ("s-d" . projectile-find-dir)
+          ("s-s" . projectile-ag))
   :config
   (projectile-global-mode +1))
 
@@ -497,14 +503,10 @@
   :defer 2
   :diminish helm-mode
   :bind-keymap (("C-c h" . helm-command-prefix))
-  :chords (("xx" . helm-M-x)
-           ("yy" . helm-show-kill-ring))
-  :bind (("C-x C-m" . helm-M-x)
-         ("M-y" . helm-show-kill-ring) 
-         ("C-x C-b". helm-buffers-list) 
+  :chords (("yy" . helm-show-kill-ring))
+  :bind (("M-y" . helm-show-kill-ring) 
          ("C-h r" . helm-info-emacs)
-         :map helm-command-map
-         ("o" . helm-occur) 
+         :map helm-command-map 
          ("SPC" . helm-all-mark-rings))
   :init
   (setq helm-split-window-in-side-p           t
@@ -539,12 +541,7 @@
                           :box nil
                           :height 0.1)))
   (add-hook 'helm-before-initialize-hook 'helm-toggle-header-line)
-  (helm-autoresize-mode 1)
-
-  (use-package helm-projectile
-    :disabled t
-    :init (setq projectile-completion-system 'helm)
-    :config (helm-projectile-on)))
+  (helm-autoresize-mode 1))
 
 ;; TODO: This defer timeout forces helm to load? Figure out why helm doesn't load on its own
 (use-package helm-descbinds
@@ -565,7 +562,7 @@
               ("C-c r" . ivy-resume))
   :diminish ivy-mode
   :init 
-  (setq ivy-height 13
+  (setq ivy-height 16
         ivy-count-format "(%d/%d) "
         ivy-use-virtual-buffers t
         ivy-virtual-abbreviate 'full ; show the full virtual file paths
@@ -585,26 +582,27 @@
   ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
   (ivy-mode 1))
 
+;; TODO might be good to fiddle with fasd.el instead
+(defun counsel-fasd-find-file ()
+  (interactive)
+  (ivy-read "FASD results:"
+            (split-string (shell-command-to-string "fasd -l -a -R"))))
+
 (use-package counsel
   :defer 1
   :bind (:map counsel-mode-map
               ("M-x" . counsel-M-x)
               ("C-x C-f" . counsel-find-file)
+              ("C-x C-S-f" . counsel-fasd-find-file)
               ("M-i" . counsel-grep-or-swiper))
+  :chords (("xx" . counsel-M-x))
   :diminish counsel-mode
   :init
   (require 'smex) ; keep M-x history
   (global-set-key "\C-s" 'counsel-grep-or-swiper)
   :config
   (use-package counsel-projectile
-    :commands (counsel-projectile-on)
-    :bind (:map projectile-mode-map
-                ("C-c f" . counsel-projectile-find-file)
-                ("C-c d" . counsel-projectile-find-dir)
-                ("C-c s" . counsel-projectile-ag)
-                ("s-f" . counsel-projectile-find-file)
-                ("s-d" . counsel-projectile-find-dir)
-                ("s-s" . counsel-projectile-ag))
+    :commands (counsel-projectile-on) 
     :init (setq projectile-completion-system 'ivy))
   (counsel-projectile-on)
   (counsel-mode 1))
@@ -724,13 +722,16 @@
   (setq whitespace-style '(face tabs empty trailing lines-tail)))
 
 (use-package vim-empty-lines-mode
-  :init
-  (delight 'vim-empty-lines-mode nil 'vim-empty-lines-mode)
-  (add-hook 'after-init-hook 'global-vim-empty-lines-mode)
+  :diminish vim-empty-lines-mode
+  :init 
+  (add-hook 'prog-mode-hook 'vim-empty-lines-mode)
   (defun disable-vim-empty-lines-mode ()
     (vim-empty-lines-mode -1))
+  ;; `vim-empty-lines-mode' screws up repls
+  (add-hook 'shell-mode-hook 'disable-vim-empty-lines-mode)
   (add-hook 'ielm-mode-hook 'disable-vim-empty-lines-mode)
-  (add-hook 'sbt-mode-hook 'disable-vim-empty-lines-mode))
+  (add-hook 'sbt-mode-hook 'disable-vim-empty-lines-mode)
+  (add-hook 'cider-repl-mode-hook 'disable-vim-empty-lines-mode))
 
 (use-package crux
   :commands (crux-start-or-switch-to)
@@ -930,7 +931,7 @@
   (delight 'lisp-interaction-mode (all-the-icons-fileicon "lisp" :v-adjust -0.1) 'lisp-mode) 
   (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
   (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
-  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode))
+  (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode))
 
 (use-package elisp-mode
   :defer t
@@ -954,9 +955,10 @@ Start `ielm' if it's not already running."
   :defer t
   :init
   (add-hook 'ielm-mode-hook #'eldoc-mode)
-  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode) 
-  (add-hook 'ielm-mode-hook #'turn-on-smartparens-strict-mode))
+  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'ielm-mode-hook #'turn-on-smartparens-strict-mode)) 
 
+;; Navigate emacs lisp with `M-.' and `M-,'
 (use-package elisp-slime-nav
   :defer t
   :config
