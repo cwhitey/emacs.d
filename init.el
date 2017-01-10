@@ -726,7 +726,11 @@
 (use-package vim-empty-lines-mode
   :init
   (delight 'vim-empty-lines-mode nil 'vim-empty-lines-mode)
-  (add-hook 'after-init-hook 'global-vim-empty-lines-mode))
+  (add-hook 'after-init-hook 'global-vim-empty-lines-mode)
+  (defun disable-vim-empty-lines-mode ()
+    (vim-empty-lines-mode -1))
+  (add-hook 'ielm-mode-hook 'disable-vim-empty-lines-mode)
+  (add-hook 'sbt-mode-hook 'disable-vim-empty-lines-mode))
 
 (use-package crux
   :commands (crux-start-or-switch-to)
