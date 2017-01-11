@@ -417,7 +417,7 @@
 (defvar light-theme 'plan9)
 (defvar dark-theme 'darktooth)
 
-(load-theme light-theme t)
+(load-theme dark-theme t)
 
 (defun disable-themes (themes)
   "Disable all current themes"
@@ -490,7 +490,11 @@
   :diminish projectile-mode
   :bind ("s-p" . projectile-command-map)
   :config
-  (projectile-global-mode +1))
+  (projectile-mode +1))
+
+;; Help projectile resolve duplicates when using `projectile-find-tag'
+(use-package etags-select
+  :commands etags-select-find-tag)
 
 ;; HELM HELM HELM
 (use-package helm
@@ -1221,6 +1225,11 @@ Start `ielm' if it's not already running."
   (add-hook 'scala-mode-hook (lambda ()
                                (setq mode-name (all-the-icons-alltheicon "scala" :v-adjust -0.05))))
   :config
+  ;; TODO use regex to find `\\class (.*) \\' in file instead of using filename
+  (defun scala-find-spec-name ()
+    "Find spec name of current buffer."
+    (concat "*." (file-name-sans-extension (file-name-nondirectory (buffer-name)))))
+  
   ;; Compatibility with `aggressive-indent' ?
   (setq scala-indent:align-forms t
         scala-indent:align-parameters t
@@ -1230,8 +1239,37 @@ Start `ielm' if it's not already running."
 ;; Scala Built Tool
 (use-package sbt-mode
   :defer t
+  :after scala-mode
   :commands (sbt-start sbt-command)
+  :bind (("C-c C-s t" . sbt-test)
+         ("C-c C-s o" . sbt-test-only)
+         ("C-c C-s c" . sbt-compile)
+         ("C-c C-s C" . sbt-compile-all))
   :config
+  (setq sbt:clear-buffer-before-command nil)
+  
+  (defun sbt-test ()
+    "Run test with current file."
+    (interactive)
+    (sbt-command "test"))
+  
+  (defun sbt-test-only ()
+    "Run test with current file."
+    (interactive)
+    (sbt-command (concat "testOnly " (scala-find-spec-name))))
+
+  (defun sbt-compile ()
+    "Compile project."
+    (interactive)
+    (sbt-command ";compile"))
+
+  (defun sbt-compile-all ()
+    "Compile project."
+    (interactive)
+    (sbt-command ";compile;test:compile"))
+
+  (defalias 'scala-repl 'run-scala)
+  
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
   ;; allows using SPACE when in the minibuffer
   (substitute-key-definition
@@ -1241,10 +1279,11 @@ Start `ielm' if it's not already running."
 
 
 ;; WORKAROUND: https://github.com/syl20bnr/spacemacs/issues/6578
-(require 'ensime)
-
+;;(require 'ensime)
 (use-package ensime
+  :disabled t
   :commands (ensime ensime-mode)
+  :after (scala-mode sbt-mode)
   :init 
   (defun ensime-enable-eldoc ()
     (setq-local eldoc-documentation-function
@@ -1253,15 +1292,15 @@ Start `ielm' if it's not already running."
                     (ensime-print-type-at-point))))
     (eldoc-mode +1))
 
+  ;;(add-hook 'ensime-mode-hook 'scala/ensime-enable-eldoc)
+  
   (defun ensime-gen-and-restart()
     "Regenerate `.ensime' file and restart the ensime server."
     (interactive)
     (progn
       (sbt-command ";ensimeConfig;ensimeConfigProject")
       (ensime-shutdown)
-      (ensime)))
-  ;;(add-hook 'ensime-mode-hook 'scala/ensime-enable-eldoc)
-  )
+      (ensime))))
 
 ;; Haskell
 ;; TODO: disabled because it craps all over my setup.
@@ -1344,4 +1383,10 @@ Start `ielm' if it's not already running."
       (kill-new filename)
       (message "Copied buffer file name '%s' to the clipboard." filename))))
 
+
+
+;; load local machine config (.e.g work machine config)
+(defvar local-config-file "lisp/local.el")
+(if (file-exists-p local-config-file)
+    (load-file local-config-file))
 ;;; init.el ends here
