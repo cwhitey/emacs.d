@@ -922,6 +922,7 @@
     ;; i.e. when editing file names in the *Dired* buffer.
     (add-hook 'wdired-mode-hook 'hungry-delete-mode-off)))
 
+;; TODO: modify dumb-jump faces to match counsel (they don't change per-theme currently)
 (use-package dumb-jump
   ;; bind keys (have to override globals by using *)
   :bind* (:map dumb-jump-mode-map
@@ -1233,7 +1234,8 @@ Start `ielm' if it's not already running."
     (concat "*." (file-name-sans-extension (file-name-nondirectory (buffer-name)))))
   
   ;; Compatibility with `aggressive-indent' ?
-  (setq scala-indent:align-forms t
+  (setq scala-indent:use-javadoc-style t
+        scala-indent:align-forms t
         scala-indent:align-parameters t
         scala-indent:default-run-on-strategy scala-indent:operator-strategy) 
   (add-to-list 'scala-mode-hook (lambda () (electric-indent-mode 1))))
@@ -1248,7 +1250,9 @@ Start `ielm' if it's not already running."
          ("C-c C-s c" . sbt-compile)
          ("C-c C-s C" . sbt-compile-all))
   :config
-  (setq sbt:clear-buffer-before-command nil)
+  
+  (setq sbt:clear-buffer-before-command nil
+        sbt:display-command-buffer nil)
   
   (defun sbt-test ()
     "Run test with current file."
@@ -1260,15 +1264,20 @@ Start `ielm' if it's not already running."
     (interactive)
     (sbt-command (concat "testOnly " (scala-find-spec-name))))
 
-  (defun sbt-compile ()
+  (defun sbt-test-compile ()
     "Compile project."
     (interactive)
-    (sbt-command ";compile"))
+    (sbt-command ";test:compile"))
 
   (defun sbt-compile-all ()
     "Compile project."
     (interactive)
     (sbt-command ";compile;test:compile"))
+
+  ;; Not too bad when combined with `sbt:display-command-buffer' as nil
+  (add-hook 'scala-mode-hook
+            (lambda ()
+              (add-hook 'after-save-hook 'sbt-test-compile)))
 
   (defalias 'scala-repl 'run-scala)
   
