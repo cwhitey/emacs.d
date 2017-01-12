@@ -498,9 +498,10 @@
   :config
   (projectile-mode +1))
 
+;; TODO use GNU Global plugin ggtags
 ;; Help projectile resolve duplicates when using `projectile-find-tag'
-(use-package etags-select
-  :commands etags-select-find-tag)
+;; (use-package etags-select
+;;   :commands etags-select-find-tag)
 
 ;; HELM HELM HELM
 (use-package helm
