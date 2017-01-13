@@ -417,8 +417,6 @@
 (defvar light-theme 'plan9)
 (defvar dark-theme 'darktooth)
 
-(load-theme dark-theme t)
-
 (defun disable-themes (themes)
   "Disable all current themes"
   (dolist (theme themes)
@@ -587,7 +585,7 @@
   ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
   (ivy-mode 1))
 
-;; TODO might be good to fiddle with fasd.el instead
+;; TODO might be good to fiddle with fasd.el instead (to provide ivy support)
 (defun counsel-fasd-find-file ()
   (interactive)
   (ivy-read "FASD results:"
@@ -611,6 +609,12 @@
     :init (setq projectile-completion-system 'ivy))
   (counsel-projectile-on)
   (counsel-mode 1))
+
+(use-package counsel-gtags
+  :after counsel
+  :config
+  ;; TODO fix this. The transformer isn't being applied
+  (ivy-set-display-transformer 'counsel-gtags-dwim 'counsel-git-grep-transformer))
 
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
@@ -733,10 +737,10 @@
   (defun disable-vim-empty-lines-mode ()
     (vim-empty-lines-mode -1))
   ;; `vim-empty-lines-mode' screws up repls
-  (add-hook 'shell-mode-hook 'disable-vim-empty-lines-mode)
-  (add-hook 'ielm-mode-hook 'disable-vim-empty-lines-mode)
-  (add-hook 'sbt-mode-hook 'disable-vim-empty-lines-mode)
-  (add-hook 'cider-repl-mode-hook 'disable-vim-empty-lines-mode))
+  (add-hook 'shell-mode-hook #'disable-vim-empty-lines-mode)
+  (add-hook 'ielm-mode-hook #'disable-vim-empty-lines-mode)
+  (add-hook 'sbt-mode-hook #'disable-vim-empty-lines-mode)
+  (add-hook 'cider-repl-mode-hook #'disable-vim-empty-lines-mode))
 
 (use-package crux
   :commands (crux-start-or-switch-to)
@@ -1395,7 +1399,7 @@ Start `ielm' if it's not already running."
       (kill-new filename)
       (message "Copied buffer file name '%s' to the clipboard." filename))))
 
-
+(load-theme dark-theme t)
 
 ;; load local machine config (.e.g work machine config)
 (defvar local-config-file "lisp/local.el")
