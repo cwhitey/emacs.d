@@ -61,7 +61,7 @@
   (package-refresh-contents))
 
 (defvar my-install-packages '(use-package
-                               use-package-chords
+                                 use-package-chords
                                delight
                                discover-my-major 
                                aggressive-indent
@@ -87,7 +87,7 @@
                                helm helm-ag helm-descbinds helm-projectile
                                swiper ivy ivy-rich counsel counsel-projectile
                                ;; A bunch of pretty themes I like to switch between
-                               ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme
+                               ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme doom-themes
                                rainbow-delimiters
                                rainbow-mode ;; Render RGB strings with color
                                dumb-jump
@@ -366,7 +366,7 @@
 
 ;; THEMES (more themes here: https://pawelbx.github.io/emacs-theme-gallery/)
 ;; these are also promising:
-;; - apropospriate-dark (fix avy, fix startup)
+;; - apropospriate-dark (fix avy, fix startup, fix modeline)
 ;; - flatland
 ;; - atom-dark (very dark)
 ;; - atom-one-dark
@@ -415,7 +415,7 @@
        (set-face-background 'swiper-line-face "#404040"))))
 
 (defvar light-theme 'plan9)
-(defvar dark-theme 'darktooth)
+(defvar dark-theme 'doom-one)
 
 (defun disable-themes (themes)
   "Disable all current themes"
@@ -588,7 +588,7 @@
 ;; TODO might be good to fiddle with fasd.el instead (to provide ivy support)
 (defun counsel-fasd-find-file ()
   (interactive)
-  (ivy-read "FASD results:"
+  (ivy-read "FASD pattern:"
             (split-string (shell-command-to-string "fasd -l -a -R"))))
 
 (use-package counsel
@@ -613,8 +613,9 @@
 (use-package counsel-gtags
   :after counsel
   :config
-  ;; TODO fix this. The transformer isn't being applied
-  (ivy-set-display-transformer 'counsel-gtags-dwim 'counsel-git-grep-transformer))
+  
+  ;;(ivy-set-display-transformer 'counsel-gtags--select-file 'counsel-git-grep-transformer)
+  )
 
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
@@ -1280,9 +1281,10 @@ Start `ielm' if it's not already running."
     (sbt-command ";compile;test:compile"))
 
   ;; Not too bad when combined with `sbt:display-command-buffer' as nil
-  (add-hook 'scala-mode-hook
-            (lambda ()
-              (add-hook 'after-save-hook 'sbt-test-compile)))
+  ;;   TODO: This logic runs even when in non-scala buffers...
+  ;; (add-hook 'scala-mode-hook
+  ;;           (lambda ()
+  ;;             (add-hook 'after-save-hook 'sbt-test-compile)))
 
   (defalias 'scala-repl 'run-scala)
   
@@ -1301,14 +1303,6 @@ Start `ielm' if it's not already running."
   :commands (ensime ensime-mode)
   :after (scala-mode sbt-mode)
   :init 
-  (defun ensime-enable-eldoc ()
-    (setq-local eldoc-documentation-function
-                (lambda ()
-                  (when (ensime-connected-p)
-                    (ensime-print-type-at-point))))
-    (eldoc-mode +1))
-
-  ;;(add-hook 'ensime-mode-hook 'scala/ensime-enable-eldoc)
   
   (defun ensime-gen-and-restart()
     "Regenerate `.ensime' file and restart the ensime server."
@@ -1326,7 +1320,8 @@ Start `ielm' if it's not already running."
   :disabled t
   :mode ("\\.hs\\'")
   :commands (haskell-mode)
-  :config 
+  :config
+  (add-hook 'haskell-mode-hook 'haskell-interactive-mode)
   ;; (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
   ;; (add-hook 'haskell-mode-hook 'turn-on-haskell-ghci)
   ;; (setq-default haskell-program-name "ghci")
