@@ -61,7 +61,7 @@
   (package-refresh-contents))
 
 (defvar my-install-packages '(use-package
-                                 use-package-chords
+                               use-package-chords
                                delight
                                discover-my-major 
                                aggressive-indent
@@ -598,12 +598,14 @@
               ("C-x C-f" . counsel-find-file)
               ("C-x C-S-f" . counsel-fasd-find-file)
               ("M-i" . counsel-grep-or-swiper))
-  :chords (("xx" . counsel-M-x))
+  :chords (("xx" . counsel-M-x)
+           ("yy" . counsel-yank-pop))
   :diminish counsel-mode
   :init
   (require 'smex) ; keep M-x history
-  (global-set-key "\C-s" 'counsel-grep-or-swiper)
   :config
+  (global-set-key "\C-s" 'counsel-grep-or-swiper)
+  (setq counsel-yank-pop-separator (propertize "\n------------------------------\n" 'face 'error))
   (use-package counsel-projectile
     :commands (counsel-projectile-on) 
     :init (setq projectile-completion-system 'ivy))
@@ -612,8 +614,7 @@
 
 (use-package counsel-gtags
   :after counsel
-  :config
-  
+  :config  
   ;;(ivy-set-display-transformer 'counsel-gtags--select-file 'counsel-git-grep-transformer)
   )
 
