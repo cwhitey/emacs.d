@@ -427,7 +427,9 @@
   (let ((themes custom-enabled-themes))
     (if (call-interactively 'load-theme)
         (disable-themes themes))))
-
+(defun disable-all-themes ()
+  (interactive)
+  (mapcar #'disable-theme custom-enabled-themes))
 (bind-key "C-x t" 'load-only-theme)
 
 ;; provide icons to use in the modeline etc.
@@ -597,7 +599,8 @@
               ("M-x" . counsel-M-x)
               ("C-x C-f" . counsel-find-file)
               ("C-x C-S-f" . counsel-fasd-find-file)
-              ("M-i" . counsel-grep-or-swiper))
+              ("M-i" . counsel-grep-or-swiper)
+              ("M-y" . counsel-yank-pop))
   :chords (("xx" . counsel-M-x)
            ("yy" . counsel-yank-pop))
   :diminish counsel-mode
@@ -614,7 +617,7 @@
 
 (use-package counsel-gtags
   :after counsel
-  :config  
+  ;;:config
   ;;(ivy-set-display-transformer 'counsel-gtags--select-file 'counsel-git-grep-transformer)
   )
 
@@ -1395,6 +1398,7 @@ Start `ielm' if it's not already running."
       (kill-new filename)
       (message "Copied buffer file name '%s' to the clipboard." filename))))
 
+(disable-all-themes)
 (load-theme dark-theme t)
 
 ;; load local machine config (.e.g work machine config)
