@@ -144,6 +144,7 @@
 ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
 ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
 ;; Set font with fall-backs
+;; TODO: Also try Roboto-mono
 (add-to-list 'default-frame-alist '(font . "Hack-14"))
 ;;(add-to-list 'default-frame-alist '(font . "Courier-15"))
 ;; (custom-set-faces
@@ -564,6 +565,7 @@
   :defer 1
   :bind (:map ivy-mode-map
               ("C-x b" . ivy-switch-buffer)
+              ("C-x C-b" . ivy-switch-buffer)
               ("C-c r" . ivy-resume))
   :diminish ivy-mode
   :init 
@@ -1261,8 +1263,7 @@ Start `ielm' if it's not already running."
          ("C-c C-s C" . sbt-compile-all))
   :config
   
-  (setq sbt:clear-buffer-before-command nil
-        sbt:display-command-buffer nil)
+  (setq sbt:clear-buffer-before-command nil)
   
   (defun sbt-test ()
     "Run test with current file."
