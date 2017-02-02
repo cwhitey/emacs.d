@@ -633,8 +633,8 @@
 
 (use-package uniquify
   :config
-  (setq uniquify-buffer-name-style 'post-forward)
-  (setq uniquify-separator ":")
+  (setq uniquify-buffer-name-style 'forward)
+  ;;(setq uniquify-separator "/")
   ;; rename after killing uniquified
   (setq uniquify-after-kill-buffer-p t)
   ;; don't muck with special buffers
@@ -1405,5 +1405,6 @@ Start `ielm' if it's not already running."
 ;; load local machine config (.e.g work machine config)
 (defvar local-config-file "lisp/local.el")
 (if (file-exists-p local-config-file)
-    (load-file local-config-file))
+    (progn (message "Loading local config file")
+           (load-file local-config-file)))
 ;;; init.el ends here
