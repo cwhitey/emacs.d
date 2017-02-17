@@ -331,6 +331,8 @@
            ("C-S-b" . super-backward-char)
            ("C-S-f" . super-forward-char))
 
+(defun frame-maximize (&rest args) (set-frame-parameter nil 'fullscreen 'maximized))
+
 (diminish 'yas-global-mode)
 (diminish 'yas-minor-mode)
 (diminish 'server-mode)
@@ -363,7 +365,12 @@
          ("C-0" . zoom-frm-unzoom)
          ("C-x C-+" . text-scale-increase)
          ("C-x C--" . text-scale-decrease)
-         ("C-x C-0" . text-scale-adjust)))
+         ("C-x C-0" . text-scale-adjust))
+  :config
+  ;;Maximize frame after zooming
+  (advice-add 'zoom-frm-in :after 'frame-maximize)
+  (advice-add 'zoom-frm-out :after 'frame-maximize)
+  (advice-add 'zoom-frm-unzoom :after 'frame-maximize))
 
 ;; THEMES (more themes here: https://pawelbx.github.io/emacs-theme-gallery/)
 ;; these are also promising:
@@ -610,6 +617,8 @@
   (require 'smex) ; keep M-x history
   :config
   (global-set-key "\C-s" 'counsel-grep-or-swiper)
+  ;; recenter screen after match accept. equiv to `C-l'
+  (advice-add 'counsel-grep-or-swiper :after (lambda (&rest args) (recenter-top-bottom)))
   (setq counsel-yank-pop-separator (propertize "\n------------------------------\n" 'face 'error))
   (use-package counsel-projectile
     :commands (counsel-projectile-on) 
@@ -1049,6 +1058,7 @@ Start `ielm' if it's not already running."
   (sp-local-pair 'scala-mode "\"\"\"" "\"\"\"")
   (sp-local-pair 'scala-mode "(" nil :post-handlers '(("||\n[i]" "RET")))
   (sp-local-pair 'scala-mode "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
+  (sp-local-pair 'web-mode "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
   (defun sp-restrict-c (sym)
     "Smartparens restriction on `SYM' for C-derived parenthesis."
     (sp-restrict-to-pairs-interactive "{([" sym))
