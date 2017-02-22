@@ -132,7 +132,7 @@
       user-full-name "Callum White"
       user-mail-address "callumw1991@gmail.com")
 
-(load custom-file)
+;; (load custom-file)
 
 (defconst user-savefile-dir (expand-file-name "savefile" user-emacs-directory))
 
