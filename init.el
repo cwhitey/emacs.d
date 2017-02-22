@@ -144,9 +144,9 @@
 ;; 0123456789abcdefghijklmnopqrstuvwxyz [] () :;,. !@#$^&*
 ;; 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ {} <> "'`  ~-_/|\?
 ;; Set font with fall-backs
-;; TODO: Also try Roboto-mono
-(add-to-list 'default-frame-alist '(font . "Hack-14"))
-;;(add-to-list 'default-frame-alist '(font . "Courier-15"))
+(add-to-list 'default-frame-alist '(font . "Roboto Mono-15"))
+;; (add-to-list 'default-frame-alist '(font . "Hack-14"))
+;; (add-to-list 'default-frame-alist '(font . "Courier-15"))
 ;; (custom-set-faces
 ;;  '(default ((t (:height 140 :family "Source Code Pro")))))
 ;; (custom-set-faces
