@@ -423,7 +423,7 @@
        (set-face-background 'swiper-line-face "#404040"))))
 
 (defvar light-theme 'plan9)
-(defvar dark-theme 'doom-one)
+(defvar dark-theme 'atom-one-dark)
 
 (defun disable-themes (themes)
   "Disable all current themes"
