@@ -499,10 +499,10 @@
   :bind-keymap (("s-p" . projectile-keymap-prefix))
   :bind  (("C-c f" . projectile-find-file)
           ("C-c d" . projectile-find-dir)
-          ("C-c s" . projectile-ag)
+          ("C-c s" . projectile-ripgrep)
           ("s-f" . projectile-find-file)
           ("s-d" . projectile-find-dir)
-          ("s-s" . projectile-ag))
+          ("s-s" . projectile-ripgrep))
   :config
   (projectile-mode +1))
 
@@ -617,12 +617,40 @@
   (require 'smex) ; keep M-x history
   :config
   (global-set-key "\C-s" 'counsel-grep-or-swiper)
-  ;; recenter screen after match accept. equiv to `C-l'
+  ;; recenter screen after accept match
   (advice-add 'counsel-grep-or-swiper :after (lambda (&rest args) (recenter-top-bottom)))
   (setq counsel-yank-pop-separator (propertize "\n------------------------------\n" 'face 'error))
   (use-package counsel-projectile
     :commands (counsel-projectile-on) 
-    :init (setq projectile-completion-system 'ivy))
+    :init (setq projectile-completion-system 'ivy)
+    :config
+    (defun counsel-projectile-rg (&optional options)
+      "Ivy version of `projectile-ripgrep'."
+      (interactive)
+      (if (projectile-project-p)
+          (let* ((ignored
+                  (unless (eq (projectile-project-vcs) 'git)
+                    ;; `ripgrep' properly supports git ignore files (unlike `ag')
+                    (append
+                     (cl-union (projectile-ignored-files-rel) grep-find-ignored-files)
+                     (cl-union (projectile-ignored-directories-rel) grep-find-ignored-directories))))
+                 (options
+                  (if current-prefix-arg
+                      (read-string "options: ")
+                    options))
+                 (options
+                  (concat options " "
+                          (mapconcat (lambda (i)
+                                       (concat "--ignore " (shell-quote-argument i)))
+                                     ignored
+                                     " "))))
+            (counsel-rg nil
+                        (projectile-project-root)
+                        options
+                        (projectile-prepend-project-name "ripgrep")))
+        (user-error "You're not in a project")))
+
+    (define-key projectile-mode-map [remap projectile-ripgrep] #'counsel-projectile-rg))
   (counsel-projectile-on)
   (counsel-mode 1))
 
