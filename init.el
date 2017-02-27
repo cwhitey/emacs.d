@@ -582,7 +582,7 @@
         ivy-virtual-abbreviate 'full ; show the full virtual file paths
         ivy-extra-directories nil    ; no ./ or ../ entries
         ivy-display-style 'fancy
-        ;; make ivy regex non-greedy
+        ;; make ivy regex non-greedy and non-fuzzy
         ivy--regex-function (lambda (str) (ivy--regex str 1)))
   :config
   (use-package ivy-rich 
@@ -596,7 +596,7 @@
   ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
   (ivy-mode 1))
 
-;; TODO might be good to fiddle with fasd.el instead (to provide ivy support)
+;; TODO might be good to fiddle with fasd.el instead (to provide ivy support), and PR
 (defun counsel-fasd-find-file ()
   (interactive)
   (ivy-read "FASD pattern:"
