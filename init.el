@@ -576,14 +576,15 @@
               ("C-c r" . ivy-resume))
   :diminish ivy-mode
   :init 
-  (setq ivy-height 16
-        ivy-count-format "(%d/%d) "
-        ivy-use-virtual-buffers t
-        ivy-virtual-abbreviate 'full ; show the full virtual file paths
-        ivy-extra-directories nil    ; no ./ or ../ entries
-        ivy-display-style 'fancy
+  (setq ivy-height               16
+        ivy-count-format         "(%d/%d) "
+        ivy-use-virtual-buffers  t
+        ivy-virtual-abbreviate   'full ; show the full virtual file paths
+        ivy-extra-directories    nil ; no ./ or ../ entries
+        ivy-display-style        'fancy
+        ivy-initial-inputs-alist nil
         ;; make ivy regex non-greedy and non-fuzzy
-        ivy--regex-function (lambda (str) (ivy--regex str 1)))
+        ivy--regex-function      (lambda (str) (ivy--regex str 1)))
   :config
   (use-package ivy-rich 
     :load-path "lisp/ivy-rich"
@@ -592,7 +593,16 @@
           ivy-rich-switch-buffer-mode-max-length 20
           ivy-rich-switch-buffer-project-max-length 21
           ivy-rich-switch-buffer-delimiter " "))
-  (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
+  ;; (with-current-buffer (current-buffer) list-buffers-directory)
+  (defun cwhitey-ivy-switch-buffer-full-paths-transformer (str)
+    (let ((b (get-buffer str)))
+      (if (and b
+               (buffer-file-name b)
+               (buffer-modified-p b))
+          (propertize str 'face 'ivy-modified-buffer)
+        str)))
+  ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
+  (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-full-paths-transformer)
   ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
   (ivy-mode 1))
 
