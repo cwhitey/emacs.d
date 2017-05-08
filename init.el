@@ -63,7 +63,7 @@
 (defvar my-install-packages '(use-package
                                use-package-chords
                                delight
-                               discover-my-major 
+                               discover-my-major
                                aggressive-indent
                                hungry-delete
                                company ;; Completion framework
@@ -127,7 +127,7 @@
       custom-file (expand-file-name "custom.el" user-emacs-directory)
       ;; reduce the frequency of garbage collection by making it happen on
       ;; each 50MB of allocated data (the default is on every 0.76MB)
-      gc-cons-threshold 50000000 
+      gc-cons-threshold 50000000
       large-file-warning-threshold 100000000 ;; warn when opening files bigger than 100MB
       user-full-name "Callum White"
       user-mail-address "callumw1991@gmail.com")
@@ -354,7 +354,7 @@
   :config (key-chord-mode 1))
 
 ;; TODO: Needs ivy support
-(use-package fasd 
+(use-package fasd
   :config
   (setq fasd-completing-read-function 'ivy-completing-read)
   (global-fasd-mode 1))
@@ -383,7 +383,7 @@
 ;; - seti
 (use-package zenburn-theme
   :disabled t
-  :defer t 
+  :defer t
   :config
   ;; Change color for directory in helm buffers list
   (eval-after-load 'helm-mode
@@ -460,7 +460,7 @@
   '(" "
     (:eval (all-the-icons-octicon "git-branch" :height 0.95 :v-adjust 0.1))
     (:propertize
-     ;; Strip the backend name from the VC status information 
+     ;; Strip the backend name from the VC status information
      (:eval (let ((backend (symbol-name (vc-backend (buffer-file-name)))))
               (substring vc-mode (+ (length backend) 1))))
      face mode-line-buffer-id))
@@ -473,7 +473,7 @@
                                  "  "
                                  mode-line-position
                                  "  "
-                                 mode-line-modes 
+                                 mode-line-modes
                                  (vc-mode my-vc-mode-line)
                                  "  "
                                  "-%-"))
@@ -517,9 +517,9 @@
   :diminish helm-mode
   :bind-keymap (("C-c h" . helm-command-prefix))
   :chords (("yy" . helm-show-kill-ring))
-  :bind (("M-y" . helm-show-kill-ring) 
+  :bind (("M-y" . helm-show-kill-ring)
          ("C-h r" . helm-info-emacs)
-         :map helm-command-map 
+         :map helm-command-map
          ("SPC" . helm-all-mark-rings))
   :init
   (setq helm-split-window-in-side-p           t
@@ -565,7 +565,7 @@
 (use-package swiper
   :defer 1
   :bind (("M-I" . swiper-all))
-  :init 
+  :init
   (define-key isearch-mode-map (kbd "M-i") 'swiper-from-isearch))
 
 (use-package ivy
@@ -575,7 +575,7 @@
               ("C-x C-b" . ivy-switch-buffer)
               ("C-c r" . ivy-resume))
   :diminish ivy-mode
-  :init 
+  :init
   (setq ivy-height               16
         ivy-count-format         "(%d/%d) "
         ivy-use-virtual-buffers  t
@@ -586,23 +586,28 @@
         ;; make ivy regex non-greedy and non-fuzzy
         ivy--regex-function      (lambda (str) (ivy--regex str 1)))
   :config
-  (use-package ivy-rich 
+  (use-package ivy-rich
     :load-path "lisp/ivy-rich"
     :config
     (setq ivy-rich-switch-buffer-name-max-length 40
           ivy-rich-switch-buffer-mode-max-length 20
           ivy-rich-switch-buffer-project-max-length 21
           ivy-rich-switch-buffer-delimiter " "))
-  ;; (with-current-buffer (current-buffer) list-buffers-directory)
-  (defun cwhitey-ivy-switch-buffer-full-paths-transformer (str)
+  (defun ivy-switch-buffer-full-paths-transformer (str)
     (let ((b (get-buffer str)))
-      (if (and b
-               (buffer-file-name b)
-               (buffer-modified-p b))
-          (propertize str 'face 'ivy-modified-buffer)
+      (if b
+          (let ((dir-name (with-current-buffer b list-buffers-directory))
+                (f-name (buffer-file-name b)))
+            (if f-name
+                (if (buffer-modified-p b)
+                    (propertize (abbreviate-file-name f-name) 'face 'ivy-modified-buffer)
+                  (abbreviate-file-name f-name))
+              (if dir-name
+                  (propertize (abbreviate-file-name dir-name) 'face 'ivy-subdir)
+                str)))
         str)))
-  ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
-  (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-full-paths-transformer)
+  (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
+  ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-full-paths-transformer)
   ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
   (ivy-mode 1))
 
@@ -631,9 +636,10 @@
   (advice-add 'counsel-grep-or-swiper :after (lambda (&rest args) (recenter-top-bottom)))
   (setq counsel-yank-pop-separator (propertize "\n------------------------------\n" 'face 'error))
   (use-package counsel-projectile
-    :commands (counsel-projectile-on) 
+    :commands (counsel-projectile-on)
     :init (setq projectile-completion-system 'ivy)
     :config
+    (setq counsel-rg-base-command "rg -i --no-heading --line-number --hidden %s .")
     (defun counsel-projectile-rg (&optional options)
       "Ivy version of `projectile-ripgrep'."
       (interactive)
@@ -724,7 +730,7 @@
 
 (use-package dired
   :diminish dired-mode
-  :config 
+  :config
   ;; dired - reuse current buffer by pressing 'a'
   (put 'dired-find-alternate-file 'disabled nil)
   ;; always delete and copy recursively
@@ -758,7 +764,7 @@
 (use-package drag-stuff
   :bind (:map drag-stuff-mode-map
               ("M-<up>" . drag-stuff-up)
-              ("M-<down>" . drag-stuff-down)) 
+              ("M-<down>" . drag-stuff-down))
   :config
   (delight 'drag-stuff-mode nil 'drag-stuff)
   (drag-stuff-global-mode 1))
@@ -786,7 +792,7 @@
 
 (use-package vim-empty-lines-mode
   :diminish vim-empty-lines-mode
-  :init 
+  :init
   (add-hook 'prog-mode-hook 'vim-empty-lines-mode)
   (defun disable-vim-empty-lines-mode ()
     (vim-empty-lines-mode -1))
@@ -917,7 +923,7 @@
   :config
   (global-flycheck-mode +1))
 
-(use-package company  
+(use-package company
   :config
   (require 'company-dabbrev)
   (require 'company-dabbrev-code)
@@ -941,10 +947,10 @@
                        company-etags
                        company-keywords)
                       company-files
-                      company-dabbrev)) 
+                      company-dabbrev))
   ;; disables TAB in company-mode, freeing it for yasnippet
   (define-key company-active-map [tab] nil)
-  (define-key company-active-map (kbd "TAB") nil) 
+  (define-key company-active-map (kbd "TAB") nil)
   (add-hook 'prog-mode-hook #'company-mode))
 
 (use-package idle-highlight-mode
@@ -956,7 +962,7 @@
 ;; Programming modes
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package aggressive-indent
-  :config 
+  :config
   ;; TODO: cannot locally enable any modes in `aggressive-indent-excluded-modes'
   ;;   This would be helpful for testing etc.. PR potential?
   (dolist (source '(diary-mode
@@ -992,7 +998,7 @@
 (use-package lisp-mode
   :defer t
   :init
-  (delight 'lisp-interaction-mode (all-the-icons-fileicon "lisp" :v-adjust -0.1) 'lisp-mode) 
+  (delight 'lisp-interaction-mode (all-the-icons-fileicon "lisp" :v-adjust -0.1) 'lisp-mode)
   (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
   (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode))
@@ -1005,7 +1011,7 @@
     "Switch to default `ielm' buffer.
 Start `ielm' if it's not already running."
     (interactive)
-    (crux-start-or-switch-to 'ielm "*ielm*")) 
+    (crux-start-or-switch-to 'ielm "*ielm*"))
   (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
   (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
@@ -1020,7 +1026,7 @@ Start `ielm' if it's not already running."
   :init
   (add-hook 'ielm-mode-hook #'eldoc-mode)
   (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'ielm-mode-hook #'turn-on-smartparens-strict-mode)) 
+  (add-hook 'ielm-mode-hook #'turn-on-smartparens-strict-mode))
 
 ;; Navigate emacs lisp with `M-.' and `M-,'
 (use-package elisp-slime-nav
@@ -1108,11 +1114,11 @@ Start `ielm' if it's not already running."
       (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
       (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map)
       (bind-key "C-<right>" 'sp-slurp-hybrid-sexp scala-mode-map)))
-  
+
   ;; WORKAROUND: make deleting empty pairs work as expected with hungry-delete-mode
   ;; `https://github.com/syl20bnr/spacemacs/issues/6584'
   (defadvice hungry-delete-backward (before sp-delete-pair-advice activate) (save-match-data (sp-delete-pair (ad-get-arg 0))))
-  
+
   (show-smartparens-global-mode t)
   (smartparens-global-mode t))
 
@@ -1136,7 +1142,7 @@ Start `ielm' if it's not already running."
                     web-mode-css-indent-offset    2
                     web-mode-attr-indent-offset   2
                     ;; play nice with smartparens
-                    web-mode-enable-auto-pairing  nil) 
+                    web-mode-enable-auto-pairing  nil)
               (setq mode-name (all-the-icons-icon-for-mode 'web-mode)))))
 
 ;; wrong number of arguments error
@@ -1201,7 +1207,7 @@ Start `ielm' if it's not already running."
   (add-hook 'ruby-mode-hook #'subword-mode)
   (add-hook 'ruby-mode-hook #'robe-mode)
   (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
-  (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.95 :v-adjust 0.1) 'ruby-mode) 
+  (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.95 :v-adjust 0.1) 'ruby-mode)
   :config
   (use-package inf-ruby)
   (use-package robe)
@@ -1221,8 +1227,9 @@ Start `ielm' if it's not already running."
   :commands (bundle-open bundle-console bundle-install bundle-update bundle-check))
 
 ;; Rails
-(use-package projectile-rails 
+(use-package projectile-rails
   :after ruby-mode
+  :disabled t
   :commands (projectile-rails-on projectile-rails-mode)
   :bind (:map projectile-rails-mode-map
               ("s-r m" . projectile-rails-find-model)
@@ -1292,12 +1299,12 @@ Start `ielm' if it's not already running."
   (defun scala-find-spec-name ()
     "Find spec name of current buffer."
     (concat "*." (file-name-sans-extension (file-name-nondirectory (buffer-name)))))
-  
+
   ;; Compatibility with `aggressive-indent' ?
   (setq scala-indent:use-javadoc-style t
         scala-indent:align-forms t
         scala-indent:align-parameters t
-        scala-indent:default-run-on-strategy scala-indent:operator-strategy) 
+        scala-indent:default-run-on-strategy scala-indent:operator-strategy)
   (add-to-list 'scala-mode-hook (lambda () (electric-indent-mode 1))))
 
 ;; Scala Built Tool
@@ -1310,14 +1317,14 @@ Start `ielm' if it's not already running."
          ("C-c C-s c" . sbt-compile)
          ("C-c C-s C" . sbt-compile-all))
   :config
-  
+
   (setq sbt:clear-buffer-before-command nil)
-  
+
   (defun sbt-test ()
     "Run test with current file."
     (interactive)
     (sbt-command "test"))
-  
+
   (defun sbt-test-only ()
     "Run test with current file."
     (interactive)
@@ -1340,7 +1347,7 @@ Start `ielm' if it's not already running."
   ;;             (add-hook 'after-save-hook 'sbt-test-compile)))
 
   (defalias 'scala-repl 'run-scala)
-  
+
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
   ;; allows using SPACE when in the minibuffer
   (substitute-key-definition
@@ -1355,8 +1362,8 @@ Start `ielm' if it's not already running."
   :disabled t
   :commands (ensime ensime-mode)
   :after (scala-mode sbt-mode)
-  :init 
-  
+  :init
+
   (defun ensime-gen-and-restart()
     "Regenerate `.ensime' file and restart the ensime server."
     (interactive)
@@ -1381,7 +1388,7 @@ Start `ielm' if it's not already running."
   )
 
 ;; requires ghc-mod cmd tool
-(use-package ghc 
+(use-package ghc
   :commands (ghc-init ghc-debug))
 
 ;; Erlang
@@ -1450,9 +1457,11 @@ Start `ielm' if it's not already running."
 (disable-all-themes)
 (load-theme dark-theme t)
 
-;; load local machine config (.e.g work machine config)
-(defvar local-config-file "lisp/local.el")
-(if (file-exists-p local-config-file)
-    (progn (message "Loading local config file")
-           (load-file local-config-file)))
+;; load local machine config (.e.g work machine config). Located at `lisp/local/local.el'
+(use-package local
+  :load-path "lisp/local")
+;;(defvar local-config-file "lisp/local.el")
+;; (if (file-exists-p local-config-file)
+;;     (progn (message "Loading local config file")
+;;            (load-file local-config-file)))
 ;;; init.el ends here
