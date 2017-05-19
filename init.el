@@ -10,7 +10,7 @@
 
 ;;; Commentary:
 
-;; This is my personal Emacs configuration.  Nothing more, nothing less.
+;; Just my own personal Emacs config. 
 
 ;;; License:
 
@@ -338,9 +338,15 @@
 (diminish 'server-mode)
 (diminish 'auto-revert-mode)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; General Purpose packages
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;(setq use-package-verbose t)
 (require 'diminish)
 (use-package delight)
@@ -417,7 +423,7 @@
          (load-theme 'ample-flat t t)
          (load-theme 'ample-light t t)
          (enable-theme 'ample-flat))
-  ;; Fix ensime's popup suggestion faces (company-mode stuff?)
+  ;; TODO: Fix ensime's popup suggestion faces (company-mode stuff?)
   (eval-after-load 'swiper
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
@@ -441,7 +447,7 @@
 (bind-key "C-x t" 'load-only-theme)
 
 ;; provide icons to use in the modeline etc.
-;; REQUIRED: install the fonts in `all-the-icons-fonts'
+;; REQUIRED: install the fonts in `all-the-icons-fonts/'
 (use-package all-the-icons
   :config
   (setq all-the-icons-scale-factor 0.9
@@ -478,7 +484,7 @@
                                  "  "
                                  "-%-"))
 
-;; mirror clipboard in kill ring
+;; mirror OS clipboard in kill ring
 (use-package clipmon
   :init
   (add-to-list 'after-init-hook 'clipmon-mode-start))
@@ -513,6 +519,7 @@
 
 ;; HELM HELM HELM
 (use-package helm
+  :disabled t
   :defer 2
   :diminish helm-mode
   :bind-keymap (("C-c h" . helm-command-prefix))
@@ -558,6 +565,7 @@
 
 ;; TODO: This defer timeout forces helm to load? Figure out why helm doesn't load on its own
 (use-package helm-descbinds
+  :disabled t
   :defer 3
   :bind (("C-h b" . helm-descbinds)
          ("C-h w" . helm-descbinds)))
@@ -611,7 +619,7 @@
   ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
   (ivy-mode 1))
 
-;; TODO might be good to fiddle with fasd.el instead (to provide ivy support), and PR
+;; TODO: might be good to fiddle with fasd.el instead (to provide ivy support), and PR
 (defun counsel-fasd-find-file ()
   (interactive)
   (ivy-read "FASD pattern:"
@@ -756,11 +764,6 @@
   :config
   (global-set-key [remap kill-ring-save] 'easy-kill))
 
-(use-package exec-path-from-shell
-  :config
-  (when (memq window-system '(mac ns))
-    (exec-path-from-shell-initialize)))
-
 (use-package drag-stuff
   :bind (:map drag-stuff-mode-map
               ("M-<up>" . drag-stuff-up)
@@ -769,11 +772,7 @@
   (delight 'drag-stuff-mode nil 'drag-stuff)
   (drag-stuff-global-mode 1))
 
-;; rainbow parens based on depth
-(use-package rainbow-delimiters
-  :defer t)
-
-;; colorise color names in programming buffers (e.g. #000000)
+;; colorise color names in programming buffers (e.g. #BEB)
 (use-package rainbow-mode
   :diminish rainbow-mode
   :commands (rainbow-mode)
@@ -953,14 +952,20 @@
   (define-key company-active-map (kbd "TAB") nil)
   (add-hook 'prog-mode-hook #'company-mode))
 
+;; rainbow parens based on depth
+(use-package rainbow-delimiters
+  :defer t)
+
+(use-package exec-path-from-shell
+  :config
+  (when (memq window-system '(mac ns))
+    (exec-path-from-shell-initialize)))
+
 (use-package idle-highlight-mode
   :diminish idle-highlight-mode
   :config
   (add-hook 'prog-mode-hook 'idle-highlight-mode))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Programming modes
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package aggressive-indent
   :config
   ;; TODO: cannot locally enable any modes in `aggressive-indent-excluded-modes'
@@ -977,66 +982,21 @@
 (use-package hungry-delete
   ;; Borrowed from `kaushalmodi'
   :config
-  (progn
-    (setq hungry-delete-chars-to-skip " \t\r\f\v")
-    (defun hungry-delete-mode-off ()
-      "Turn off hungry delete mode."
-      (hungry-delete-mode -1))
-    (global-hungry-delete-mode) ;; Enable `hungry-delete-mode' everywhere ..
-    ;; Except... `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
-    ;; i.e. when editing file names in the *Dired* buffer.
-    (add-hook 'wdired-mode-hook 'hungry-delete-mode-off)))
+  (setq hungry-delete-chars-to-skip " \t\r\f\v")
+  (defun hungry-delete-mode-off ()
+    "Turn off hungry delete mode."
+    (hungry-delete-mode -1))
+  (global-hungry-delete-mode) ;; Enable `hungry-delete-mode' everywhere ..
+  ;; Except... `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
+  ;; i.e. when editing file names in the *Dired* buffer.
+  (add-hook 'wdired-mode-hook 'hungry-delete-mode-off)
+  (bind-key "C-c <backspace>" 'hungry-delete-backward hungry-delete-mode-map)
+  (bind-key "C-c C-d" 'hungry-delete-forward hungry-delete-mode-map))
 
-;; TODO: modify dumb-jump faces to match counsel (they don't change per-theme currently)
-(use-package dumb-jump
-  ;; bind keys (have to override globals by using *)
-  :bind* (:map dumb-jump-mode-map
-               ("C-M-." . dumb-jump-go)
-               ("C-M-," . dumb-jump-back))
-  :config (dumb-jump-mode))
-
-(use-package lisp-mode
-  :defer t
-  :init
-  (delight 'lisp-interaction-mode (all-the-icons-fileicon "lisp" :v-adjust -0.1) 'lisp-mode)
-  (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
-  (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
-  (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode))
-
-(use-package elisp-mode
-  :defer t
-  :init
-  (delight 'emacs-lisp-mode (all-the-icons-fileicon "elisp" :v-adjust -0.09) 'emacs-lisp)
-  (defun switch-to-ielm ()
-    "Switch to default `ielm' buffer.
-Start `ielm' if it's not already running."
-    (interactive)
-    (crux-start-or-switch-to 'ielm "*ielm*"))
-  (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
-  (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
-  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
-  (define-key emacs-lisp-mode-map (kbd "M-.") #'find-function)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'switch-to-ielm)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer))
-
-(use-package ielm
-  :defer t
-  :init
-  (add-hook 'ielm-mode-hook #'eldoc-mode)
-  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'ielm-mode-hook #'turn-on-smartparens-strict-mode))
-
-;; Navigate emacs lisp with `M-.' and `M-,'
-(use-package elisp-slime-nav
-  :defer t
-  :config
-  (delight 'elisp-slime-nav-mode nil 'elisp-slime-nav)
-  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
-    (add-hook hook #'elisp-slime-nav-mode)))
-
-(use-package sh-script)
+(use-package subword
+  :ensure nil
+  :diminish subword-mode
+  :config (global-subword-mode t))
 
 (use-package smartparens
   :defer 2
@@ -1122,6 +1082,62 @@ Start `ielm' if it's not already running."
   (show-smartparens-global-mode t)
   (smartparens-global-mode t))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Programming modes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; TODO: modify dumb-jump faces to match counsel (they currently don't change per-theme)
+(use-package dumb-jump
+  ;; bind keys (have to override globals by using *)
+  :bind* (:map dumb-jump-mode-map
+               ("C-M-." . dumb-jump-go)
+               ("C-M-," . dumb-jump-back))
+  :config (dumb-jump-mode))
+
+(use-package lisp-mode
+  :defer t
+  :init
+  (delight 'lisp-interaction-mode (all-the-icons-fileicon "lisp" :v-adjust -0.1) 'lisp-mode)
+  (add-hook 'lisp-interaction-mode-hook #'eldoc-mode)
+  (add-hook 'lisp-mode-hook #'turn-on-smartparens-strict-mode)
+  (add-hook 'lisp-mode-hook #'rainbow-delimiters-mode))
+
+(use-package elisp-mode
+  :defer t
+  :init
+  (delight 'emacs-lisp-mode (all-the-icons-fileicon "elisp" :v-adjust -0.09) 'emacs-lisp)
+  (defun switch-to-ielm ()
+    "Switch to default `ielm' buffer.
+Start `ielm' if it's not already running."
+    (interactive)
+    (crux-start-or-switch-to 'ielm "*ielm*"))
+  (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
+  (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
+  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
+  (define-key emacs-lisp-mode-map (kbd "M-.") #'find-function)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'switch-to-ielm)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
+  (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer))
+
+(use-package ielm
+  :defer t
+  :init
+  (add-hook 'ielm-mode-hook #'eldoc-mode)
+  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'ielm-mode-hook #'turn-on-smartparens-strict-mode))
+
+;; Navigate emacs lisp with `M-.' and `M-,'
+(use-package elisp-slime-nav
+  :defer t
+  :config
+  (delight 'elisp-slime-nav-mode nil 'elisp-slime-nav)
+  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
+    (add-hook hook #'elisp-slime-nav-mode)))
+
+(use-package sh-script)
+
+;; Web modes
 ;; TODO: investigate skewer-mode
 (use-package web-mode
   :defer t
@@ -1136,7 +1152,7 @@ Start `ielm' if it's not already running."
               ;; short circuit js mode and just do everything in jsx-mode
               (if (equal web-mode-content-type "javascript")
                   (web-mode-set-content-type "jsx")
-                (message "now set to: %s" web-mode-content-type))
+                (message "Content type now set to: %s" web-mode-content-type))
               (setq web-mode-code-indent-offset   2
                     web-mode-markup-indent-offset 2
                     web-mode-css-indent-offset    2
@@ -1145,22 +1161,29 @@ Start `ielm' if it's not already running."
                     web-mode-enable-auto-pairing  nil)
               (setq mode-name (all-the-icons-icon-for-mode 'web-mode)))))
 
-;; wrong number of arguments error
+;; FIXME: wrong number of arguments error
 (defun json-mode-on ()
   "Use web-mode for JSON content"
   (interactive)
   (web-mode)
-  (message "now set to: json")
+  (message "Content type now set to: json")
   (web-mode-set-content-type "json"))
 
-(use-package haml-mode
-  :defer t
-  :config
-  (delight 'haml-mode (all-the-icons-fileicon "haml") 'haml-mode))
-
-;; just use json-mode package for JSON beautification
+;; use json-mode package only for JSON beautification
 (use-package json-mode
   :commands (json-mode-beautify))
+
+(use-package js2-mode
+  :commands (js2-mode)
+  :mode (("\\.pac\\'" . js2-mode))
+  :interpreter "node"
+  :config
+  (setq-default js-indent-level 2)
+  (delight 'js2-mode (all-the-icons-alltheicon "javascript") 'js2-mode))
+
+(use-package tern
+  :disabled t ;; must install tern-server on local machine
+  :defer t)
 
 ;; Recommended in PATH: `scss' and `scss_lint'
 (use-package scss-mode
@@ -1170,17 +1193,10 @@ Start `ielm' if it's not already running."
   :init
   (delight 'scss-mode (all-the-icons-alltheicon "sass") 'scss-mode))
 
-(use-package tern
-  :disabled t ;; must install tern-server on local machine
-  :defer t)
-
-(use-package js2-mode
-  :commands (js2-mode)
-  :mode (("\\.pac\\'" . js2-mode))
-  :interpreter "node"
+(use-package haml-mode
+  :defer t
   :config
-  (setq-default js-indent-level 2)
-  (delight 'js2-mode (all-the-icons-alltheicon "javascript") 'js2-mode))
+  (delight 'haml-mode (all-the-icons-fileicon "haml") 'haml-mode))
 
 ;; Jade mode (js html templates)
 (use-package jade-mode
@@ -1216,15 +1232,14 @@ Start `ielm' if it's not already running."
     (delight 'ruby-tools-mode nil 'ruby-tools))
   (use-package chruby
     :config (chruby "ruby 2.2.3"))
-  (use-package rspec-mode))
+  (use-package rspec-mode)
+  (use-package bundler
+    :commands (bundle-open bundle-console bundle-install bundle-update bundle-check)))
 
 (use-package python-mode
   :defer t
   :init
   (delight 'python-mode (all-the-icons-alltheicon "python") 'python-mode))
-
-(use-package bundler
-  :commands (bundle-open bundle-console bundle-install bundle-update bundle-check))
 
 ;; Rails
 (use-package projectile-rails
@@ -1299,7 +1314,9 @@ Start `ielm' if it's not already running."
   (defun scala-find-spec-name ()
     "Find spec name of current buffer."
     (concat "*." (file-name-sans-extension (file-name-nondirectory (buffer-name)))))
-
+  ;; Prefer smartparens for parens handling
+  (remove-hook 'post-self-insert-hook
+               'scala-indent:indent-on-parentheses)
   ;; Compatibility with `aggressive-indent' ?
   (setq scala-indent:use-javadoc-style t
         scala-indent:align-forms t
@@ -1347,7 +1364,8 @@ Start `ielm' if it's not already running."
   ;;             (add-hook 'after-save-hook 'sbt-test-compile)))
 
   (defalias 'scala-repl 'run-scala)
-
+  (defalias 'sbt-console 'run-scala)
+  
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
   ;; allows using SPACE when in the minibuffer
   (substitute-key-definition
@@ -1355,22 +1373,23 @@ Start `ielm' if it's not already running."
    'self-insert-command
    minibuffer-local-completion-map))
 
-
 ;; WORKAROUND: https://github.com/syl20bnr/spacemacs/issues/6578
-;;(require 'ensime)
-(use-package ensime
-  :disabled t
+(require 'ensime)
+(use-package ensime 
   :commands (ensime ensime-mode)
   :after (scala-mode sbt-mode)
-  :init
-
+  :init 
   (defun ensime-gen-and-restart()
     "Regenerate `.ensime' file and restart the ensime server."
     (interactive)
     (progn
       (sbt-command ";ensimeConfig;ensimeConfigProject")
       (ensime-shutdown)
-      (ensime))))
+      (ensime)))
+  (put 'ensime-auto-generate-config 'safe-local-variable #'booleanp)
+  (setq
+   ensime-startup-notification nil
+   ensime-startup-snapshot-notification nil))
 
 ;; Haskell
 ;; TODO: disabled because it craps all over my setup.
@@ -1407,6 +1426,7 @@ Start `ielm' if it's not already running."
 (use-package yaml-mode
   :commands (yaml-mode))
 
+;; `.git/config' files
 (use-package gitconfig-mode
   :defer t
   :commands (gitconfig-mode)
