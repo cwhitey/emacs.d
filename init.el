@@ -66,9 +66,8 @@
                                discover-my-major
                                aggressive-indent
                                hungry-delete
-                               company ;; Completion framework
-                               company-ghc
-                               projectile
+                               ;; completion
+                               company company-ghc 
                                all-the-icons
                                clipmon
                                ag
@@ -82,26 +81,6 @@
                                magit
                                copy-as-format
                                git-link git-timemachine
-                               idle-highlight-mode
-                               smartparens
-                               helm helm-ag helm-descbinds helm-projectile
-                               swiper ivy ivy-rich counsel counsel-projectile
-                               ;; A bunch of pretty themes I like to switch between
-                               ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme doom-themes
-                               rainbow-delimiters
-                               rainbow-mode ;; Render RGB strings with color
-                               dumb-jump
-                               markdown-mode
-                               dockerfile-mode
-                               gitconfig-mode
-                               yaml-mode
-                               scss-mode
-                               web-mode
-                               json-mode json-reformat
-                               js2-mode
-                               clojure-mode cider clj-refactor align-cljlet
-                               inf-ruby robe rspec-mode ruby-tools chruby
-                               scala-mode ensime
                                restclient
                                exec-path-from-shell
                                zoom-frm
@@ -109,7 +88,31 @@
                                diff-hl
                                vim-empty-lines-mode
                                multiple-cursors
-                               persistent-scratch)
+                               persistent-scratch
+                               idle-highlight-mode
+                               smartparens
+                               projectile
+                               helm helm-ag helm-descbinds helm-projectile
+                               swiper ivy ivy-rich counsel counsel-projectile
+                               ;; pretty themes
+                               ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme doom-themes
+                               rainbow-delimiters
+                               rainbow-mode ;; Render RGB strings with color
+                               dumb-jump 
+                               ;; clojure
+                               clojure-mode cider clj-refactor align-cljlet
+                               ;; ruby
+                               inf-ruby robe rspec-mode ruby-tools chruby
+                               ;; scala
+                               scala-mode ensime
+                               ;; JS/JSON
+                               js2-mode json-mode json-reformat
+                               web-mode
+                               scss-mode 
+                               markdown-mode
+                               dockerfile-mode
+                               gitconfig-mode
+                               yaml-mode)
   "A list of packages to ensure are installed at launch.")
 
 (dolist (p my-install-packages)
@@ -190,19 +193,19 @@
 ;;(add-to-list 'default-frame-alist '(left-fringe . 8))
 ;;(add-to-list 'default-frame-alist '(right-fringe . 2))
 ;; force-set frame fringe sizes on frame creation...?
+;; TODO: this isn't working properly
 (add-hook 'after-make-frame-functions (lambda (a)
                                         (message "Updating fringe widths")
                                         ;;(fringe-mode '(8 . 2))
                                         ))
 
-;; nice window scrolling - `smooth-scrolling' package (SLOW) replaced with these small tweaks
+;; replaced `smooth-scrolling' with these small tweaks
 (setq scroll-conservatively 101
       ;; scroll-margin 1
       ;; scroll-preserve-screen-position 1
       ;; scroll-up-aggressively 0.01
       ;; scroll-down-aggressively 0.01
       )
-
 ;; tweak mouse scrolling
 (setq mouse-wheel-scroll-amount '(2 ((shift) . 3) ((control) . nil)) ;; two lines at a time
       ;; mouse-wheel-scroll-amount '(0.01) ;; super smooth
@@ -1479,9 +1482,7 @@ Start `ielm' if it's not already running."
 
 ;; load local machine config (.e.g work machine config). Located at `lisp/local/local.el'
 (use-package local
-  :load-path "lisp/local")
-;;(defvar local-config-file "lisp/local.el")
-;; (if (file-exists-p local-config-file)
-;;     (progn (message "Loading local config file")
-;;            (load-file local-config-file)))
+  :load-path "lisp/local"
+  :config
+  (message "Loaded local config from lisp/local/local.el"))
 ;;; init.el ends here
