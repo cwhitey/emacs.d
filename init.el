@@ -316,6 +316,8 @@
 (global-set-key (kbd "s-q") #'fill-paragraph)
 (global-set-key (kbd "s-x") #'execute-extended-command)
 
+(global-set-key "\C-s" 'isearch-forward)
+
 ;; quicker movement when needed
 (defun super-next-line ()
   (interactive)
@@ -573,6 +575,8 @@
   :bind (("C-h b" . helm-descbinds)
          ("C-h w" . helm-descbinds)))
 
+
+
 (use-package swiper
   :defer 1
   :bind (("M-I" . swiper-all))
@@ -641,8 +645,7 @@
   :diminish counsel-mode
   :init
   (require 'smex) ; keep M-x history
-  :config
-  (global-set-key "\C-s" 'counsel-grep-or-swiper)
+  :config 
   ;; recenter screen after accept match
   (advice-add 'counsel-grep-or-swiper :after (lambda (&rest args) (recenter-top-bottom)))
   (setq counsel-yank-pop-separator (propertize "\n------------------------------\n" 'face 'error))
@@ -1004,10 +1007,10 @@
 (use-package smartparens
   :defer 2
   :commands
-  smartparens-strict-mode
-  smartparens-mode
-  sp-restrict-to-pairs-interactive
-  sp-local-pair
+  (smartparens-strict-mode
+   smartparens-mode
+   sp-restrict-to-pairs-interactive
+   sp-local-pair)
   ;; sp-smartparens-bindings without the annoying rebinding of M-<delete> and M-<backspace>
   :bind (:map smartparens-mode-map
               ("C-M-f" . sp-forward-sexp)
