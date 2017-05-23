@@ -272,23 +272,26 @@
                                          try-complete-lisp-symbol-partially
                                          try-complete-lisp-symbol))
 
-;; make it harder to kill emacs
-(defun save-buffers-kill-server-or-client ()
+(defun save-buffers-kill-frame-or-client ()
   "Run appropriate kill command.
    Make sure we're not constantly killing the server when we just want to kill the frame."
   (interactive)
   (if (and (fboundp 'server-running-p)
            (server-running-p))
-      (save-buffers-kill-terminal)
+      (if (daemonp)
+          (progn (save-some-buffers t)
+                 (delete-frame)))
+    (save-buffers-kill-terminal)
     (save-buffers-kill-emacs)))
 
+;; make it harder to kill emacs
 (defun dont-kill-emacs()
   "Disable C-x C-c binding execute kill-emacs."
   (interactive)
-  (error (substitute-command-keys "To exit emacs: \\[save-buffers-kill-server-or-client]")))
+  (error (substitute-command-keys "To exit emacs: \\[save-buffers-kill-frame-or-client]")))
 (global-set-key (kbd "C-x C-c") 'dont-kill-emacs)
-(global-set-key (kbd "C-x M-c") 'save-buffers-kill-server-or-client)
-(global-set-key (kbd "C-x s-c") 'save-buffers-kill-server-or-client)
+(global-set-key (kbd "C-x M-c") 'save-buffers-kill-frame-or-client)
+(global-set-key (kbd "C-x s-c") 'save-buffers-kill-frame-or-client)
 ;; make it harder to accidentally kill a frame with OSX bindings (command-w)
 (when (eq system-type 'darwin)
   ;; TODO: prompt user, then kill frame (y-or-n kill frame?)
@@ -307,7 +310,6 @@
 (define-key 'help-command (kbd "C-k") #'find-function-on-key)
 (define-key 'help-command (kbd "C-v") #'find-variable)
 (define-key 'help-command (kbd "C-l") #'find-library)
-
 (define-key 'help-command (kbd "C-i") #'info-display-manual)
 
 ;; misc useful keybindings
@@ -316,7 +318,38 @@
 (global-set-key (kbd "s-q") #'fill-paragraph)
 (global-set-key (kbd "s-x") #'execute-extended-command)
 
+;; isearch
 (global-set-key "\C-s" 'isearch-forward)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Misc. defuns
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun contextual-backspace ()
+  "Hungry whitespace or delete word depending on context.
+   https://github.com/fommil/dotfiles"
+  (interactive)
+  (if (looking-back "[[:space:]\n]\\{2,\\}" (- (point) 2))
+      (while (looking-back "[[:space:]\n]" (- (point) 1))
+        (delete-char -1))
+    (cond
+     ((and (boundp 'smartparens-strict-mode)
+           smartparens-strict-mode)
+      (sp-backward-kill-word 1))
+     (subword-mode
+      (subword-backward-kill 1))
+     (t
+      (backward-kill-word 1)))))
+
+(defun copy-file-name-to-clipboard ()
+  "Copy the current buffer file name to the clipboard."
+  (interactive)
+  (let ((filename (if (equal major-mode 'dired-mode)
+                      default-directory
+                    (buffer-file-name))))
+    (when filename
+      (kill-new filename)
+      (message "Copied buffer file name '%s' to the clipboard." filename))))
 
 ;; quicker movement when needed
 (defun super-next-line ()
@@ -331,6 +364,7 @@
 (defun super-forward-char ()
   (interactive)
   (ignore-errors (forward-char 5)))
+
 (bind-keys ("C-S-n" . super-next-line)
            ("C-S-p" . super-previous-line)
            ("C-S-b" . super-backward-char)
@@ -338,10 +372,24 @@
 
 (defun frame-maximize (&rest args) (set-frame-parameter nil 'fullscreen 'maximized))
 
-(diminish 'yas-global-mode)
-(diminish 'yas-minor-mode)
-(diminish 'server-mode)
-(diminish 'auto-revert-mode)
+(defun disable-themes (themes)
+  "Disable all current themes"
+  (dolist (theme themes)
+    (disable-theme theme)))
+
+(defun load-only-theme ()
+  "Load theme after disabling all current themes"
+  (interactive)
+  (let ((themes custom-enabled-themes))
+    (if (call-interactively 'load-theme)
+        (disable-themes themes))))
+
+(defun disable-all-themes ()
+  (interactive)
+  (mapcar #'disable-theme custom-enabled-themes))
+
+(bind-key "C-x t" 'load-only-theme)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
@@ -351,6 +399,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; General Purpose packages
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(diminish 'yas-global-mode)
+(diminish 'yas-minor-mode)
+(diminish 'server-mode)
+(diminish 'auto-revert-mode)
 
 ;;(setq use-package-verbose t)
 (require 'diminish)
@@ -432,24 +485,6 @@
   (eval-after-load 'swiper
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
-
-(defvar light-theme 'plan9)
-(defvar dark-theme 'atom-one-dark)
-
-(defun disable-themes (themes)
-  "Disable all current themes"
-  (dolist (theme themes)
-    (disable-theme theme)))
-(defun load-only-theme ()
-  "Load theme after disabling all current themes"
-  (interactive)
-  (let ((themes custom-enabled-themes))
-    (if (call-interactively 'load-theme)
-        (disable-themes themes))))
-(defun disable-all-themes ()
-  (interactive)
-  (mapcar #'disable-theme custom-enabled-themes))
-(bind-key "C-x t" 'load-only-theme)
 
 ;; provide icons to use in the modeline etc.
 ;; REQUIRED: install the fonts in `all-the-icons-fonts/'
@@ -621,9 +656,9 @@
                   (propertize (abbreviate-file-name dir-name) 'face 'ivy-subdir)
                 str)))
         str)))
-  (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
-  ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-full-paths-transformer)
-  ;;(ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
+  ;; (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-rich-switch-buffer-transformer)
+  ;; (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-full-paths-transformer)
+  ;; (ivy-set-display-transformer 'ivy-switch-buffer 'ivy-switch-buffer-transformer)
   (ivy-mode 1))
 
 ;; TODO: might be good to fiddle with fasd.el instead (to provide ivy support), and PR
@@ -638,8 +673,7 @@
               ("M-x" . counsel-M-x)
               ("C-x C-f" . counsel-find-file)
               ("C-x C-S-f" . counsel-fasd-find-file)
-              ("M-i" . counsel-grep-or-swiper)
-              ("M-y" . counsel-yank-pop))
+              ("M-i" . counsel-grep-or-swiper))
   :chords (("xx" . counsel-M-x)
            ("yy" . counsel-yank-pop))
   :diminish counsel-mode
@@ -652,8 +686,7 @@
   (use-package counsel-projectile
     :commands (counsel-projectile-on)
     :init (setq projectile-completion-system 'ivy)
-    :config
-    (setq counsel-rg-base-command "rg -i --no-heading --line-number --hidden %s .")
+    :config 
     (defun counsel-projectile-rg (&optional options)
       "Ivy version of `projectile-ripgrep'."
       (interactive)
@@ -670,6 +703,7 @@
                     options))
                  (options
                   (concat options " "
+                          "--hidden -g '!.git/'" " "
                           (mapconcat (lambda (i)
                                        (concat "--ignore " (shell-quote-argument i)))
                                      ignored
@@ -678,9 +712,9 @@
                         (projectile-project-root)
                         options
                         (projectile-prepend-project-name "ripgrep")))
-        (user-error "You're not in a project")))
+        (user-error "You're not in a project"))))
 
-    (define-key projectile-mode-map [remap projectile-ripgrep] #'counsel-projectile-rg))
+  (define-key projectile-mode-map [remap projectile-ripgrep] #'counsel-projectile-rg)
   (counsel-projectile-on)
   (counsel-mode 1))
 
@@ -1119,8 +1153,10 @@ Start `ielm' if it's not already running."
     (crux-start-or-switch-to 'ielm "*ielm*"))
   (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
-  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode) 
+  (add-hook 'eval-expression-minibuffer-setup-hook #'turn-on-smartparens-strict-mode)
   (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
+  (add-hook 'eval-expression-minibuffer-setup-hook #'rainbow-delimiters-mode)
   (define-key emacs-lisp-mode-map (kbd "M-.") #'find-function)
   (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'switch-to-ielm)
   (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
@@ -1312,9 +1348,10 @@ Start `ielm' if it's not already running."
 (use-package scala-mode
   :interpreter ("scala" . scala-mode)
   :commands (scala-mode)
+  :bind (("C-M-k" . kill-sexp))
   :init
   (add-hook 'scala-mode-hook (lambda ()
-                               (setq mode-name (all-the-icons-alltheicon "scala" :v-adjust -0.05))))
+                               (setq mode-name (all-the-icons-alltheicon "scala" :v-adjust -0.05)))) 
   :config
   ;; TODO use regex to find `\\class (.*) \\' in file instead of using filename
   (defun scala-find-spec-name ()
@@ -1450,35 +1487,9 @@ Start `ielm' if it's not already running."
   :init
   (delight 'dockerfile-mode (all-the-icons-fileicon "dockerfile") 'dockerfile-mode))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Misc. defuns
-;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun contextual-backspace ()
-  "Hungry whitespace or delete word depending on context.
-   https://github.com/fommil/dotfiles"
-  (interactive)
-  (if (looking-back "[[:space:]\n]\\{2,\\}" (- (point) 2))
-      (while (looking-back "[[:space:]\n]" (- (point) 1))
-        (delete-char -1))
-    (cond
-     ((and (boundp 'smartparens-strict-mode)
-           smartparens-strict-mode)
-      (sp-backward-kill-word 1))
-     (subword-mode
-      (subword-backward-kill 1))
-     (t
-      (backward-kill-word 1)))))
-
-(defun copy-file-name-to-clipboard ()
-  "Copy the current buffer file name to the clipboard."
-  (interactive)
-  (let ((filename (if (equal major-mode 'dired-mode)
-                      default-directory
-                    (buffer-file-name))))
-    (when filename
-      (kill-new filename)
-      (message "Copied buffer file name '%s' to the clipboard." filename))))
+;; load theme
+(defvar light-theme 'plan9)
+(defvar dark-theme 'atom-one-dark)
 
 (disable-all-themes)
 (load-theme dark-theme t)
