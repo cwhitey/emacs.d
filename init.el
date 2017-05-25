@@ -1162,6 +1162,7 @@ Start `ielm' if it's not already running."
   (add-hook 'emacs-lisp-mode-hook #'my-elisp-modes)
   (add-hook 'minibuffer-setup-hook (lambda (&rest args)
                                      (if (eq this-command 'eval-expression)
+                                         ;; smartparens and rainbow delimiters isn't working here
                                          (electric-pair-mode))))
   (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'switch-to-ielm)
   (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
@@ -1180,8 +1181,6 @@ Start `ielm' if it's not already running."
     (delight 'elisp-slime-nav-mode nil 'elisp-slime-nav)
     (add-hook 'ielm-mode-hook #'elisp-slime-nav-mode)
     (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode)))
-
-(use-package sh-script)
 
 ;; Web modes
 ;; TODO: investigate skewer-mode
@@ -1226,10 +1225,6 @@ Start `ielm' if it's not already running."
   :config
   (setq-default js-indent-level 2)
   (delight 'js2-mode (all-the-icons-alltheicon "javascript") 'js2-mode))
-
-(use-package tern
-  :disabled t ;; must install tern-server on local machine
-  :defer t)
 
 ;; Recommended in PATH: `scss' and `scss_lint'
 (use-package scss-mode
@@ -1311,7 +1306,7 @@ Start `ielm' if it's not already running."
     :config
     (cljr-add-keybindings-with-prefix "C-c C-m"))
   (use-package align-cljlet
-    :commands (align-cljlet))
+    :commands (align-cljlet)) 
   (add-hook 'clojure-mode-hook #'subword-mode)
   (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
   (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode)
@@ -1454,23 +1449,13 @@ Start `ielm' if it's not already running."
 (use-package ghc
   :commands (ghc-init ghc-debug))
 
-;; Erlang
-(use-package erlang
-  :commands (erlang-mode)
-  :init
-  (delight 'erlang-mode (all-the-icons-alltheicon "erlang") 'erlang))
+(eval-after-load "erlang-mode"
+  '(delight 'erlang-mode (all-the-icons-alltheicon "erlang") 'erlang))
 
-;; Markdown
-(use-package markdown-mode
-  :commands (markdown-mode)
-  :init
-  (delight 'markdown-mode (all-the-icons-octicon "markdown") 'markdown-mode))
+(eval-after-load "markdown-mode"
+  '(delight 'markdown-mode (all-the-icons-octicon "markdown") 'markdown-mode))
 
-;; Yaml
-(use-package yaml-mode
-  :commands (yaml-mode))
-
-;; `.git/config' files
+;; for `.git/config' files
 (use-package gitconfig-mode
   :defer t
   :commands (gitconfig-mode)
