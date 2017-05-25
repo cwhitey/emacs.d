@@ -802,7 +802,7 @@
          ("C-M-%" . anzu-query-replace-regexp))
   :config (global-anzu-mode))
 
-;; TODO: investigate easy-kill's easy-mark
+;; this is an insanely awesome and powerful package
 (use-package easy-kill
   :defer t
   :config
@@ -812,7 +812,7 @@
   :bind (:map drag-stuff-mode-map
               ("M-<up>" . drag-stuff-up)
               ("M-<down>" . drag-stuff-down))
-  :config
+  :init
   (delight 'drag-stuff-mode nil 'drag-stuff)
   (drag-stuff-global-mode 1))
 
@@ -845,15 +845,14 @@
   (add-hook 'sbt-mode-hook #'disable-vim-empty-lines-mode)
   (add-hook 'cider-repl-mode-hook #'disable-vim-empty-lines-mode))
 
-(use-package crux
-  :commands (crux-start-or-switch-to)
+(use-package crux 
   :bind (("C-c o" . crux-open-with)
          ("M-o" . crux-smart-open-line)
          ("C-c n" . crux-cleanup-buffer-or-region)
          ("C-M-z" . crux-indent-defun)
          ("C-c u" . crux-view-url)
          ("C-c e" . crux-eval-and-replace)
-         ;; ("C-c w" . crux-swap-windows)
+         ("C-c w" . crux-swap-windows)
          ("C-c D" . crux-delete-file-and-buffer)
          ("C-c r" . crux-rename-buffer-and-file)
          ("C-c t" . crux-visit-term-buffer)
@@ -866,7 +865,7 @@
          ("s-k" . crux-kill-whole-line)
          ("C-<backspace>" . crux-kill-line-backwards)
          ("s-o" . crux-smart-open-line-above)
-         ([remap move-beginning-of-line] . crux-move-beginning-of-line)
+         ([remap move-beginning-of-line] . crux-move-beginning-of-line) 
          ([(shift return)] . crux-smart-open-line)
          ([(control shift return)] . crux-smart-open-line-above)
          ([remap kill-whole-line] . crux-kill-whole-line)
@@ -910,11 +909,6 @@
    ("C-c m s" . mc/mark-sgml-tag-pair)
    ("C-c m d" . mc/mark-all-like-this-in-defun)
    ("M-<mouse-1>" . mc/add-cursor-on-click)))
-
-(use-package zop-to-char
-  :defer t
-  :bind (("M-z" . zop-up-to-char)
-         ("M-Z" . zop-to-char)))
 
 ;; save emacs buffers when they lose focus
 (use-package super-save
