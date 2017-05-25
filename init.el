@@ -321,6 +321,9 @@
 ;; isearch
 (global-set-key "\C-s" 'isearch-forward)
 
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+;; this damn key suspends the frame in OSX
+(global-unset-key (kbd "C-z"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Misc. defuns
@@ -493,7 +496,7 @@
   (setq all-the-icons-scale-factor 0.9
         all-the-icons-default-adjust 0))
 
-;; minimal mode line format
+;; minimal modeline format
 (setq-default mode-line-position '(line-number-mode
                                    ("["
                                     (:propertize "%l" face mode-line-buffer-id)
@@ -549,7 +552,7 @@
           ("s-f" . projectile-find-file)
           ("s-d" . projectile-find-dir)
           ("s-s" . projectile-ripgrep))
-  :config
+  :init
   (projectile-mode +1))
 
 ;; TODO use GNU Global plugin ggtags
@@ -720,6 +723,7 @@
 
 (use-package counsel-gtags
   :after counsel
+  :disabled t
   ;;:config
   ;;(ivy-set-display-transformer 'counsel-gtags--select-file 'counsel-git-grep-transformer)
   )
@@ -1151,31 +1155,31 @@
 Start `ielm' if it's not already running."
     (interactive)
     (crux-start-or-switch-to 'ielm "*ielm*"))
-  (add-hook 'emacs-lisp-mode-hook #'turn-on-smartparens-strict-mode)
-  (add-hook 'emacs-lisp-mode-hook #'eldoc-mode)
-  (add-hook 'emacs-lisp-mode-hook #'rainbow-delimiters-mode) 
-  (add-hook 'eval-expression-minibuffer-setup-hook #'turn-on-smartparens-strict-mode)
-  (add-hook 'eval-expression-minibuffer-setup-hook #'eldoc-mode)
-  (add-hook 'eval-expression-minibuffer-setup-hook #'rainbow-delimiters-mode)
-  (define-key emacs-lisp-mode-map (kbd "M-.") #'find-function)
+  (defun my-elisp-modes (&rest args)
+    (turn-on-smartparens-strict-mode)
+    (eldoc-mode)
+    (rainbow-delimiters-mode))
+  (add-hook 'emacs-lisp-mode-hook #'my-elisp-modes)
+  (add-hook 'minibuffer-setup-hook (lambda (&rest args)
+                                     (if (eq this-command 'eval-expression)
+                                         (electric-pair-mode))))
   (define-key emacs-lisp-mode-map (kbd "C-c C-z") #'switch-to-ielm)
   (define-key emacs-lisp-mode-map (kbd "C-c C-c") #'eval-defun)
-  (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer))
+  (define-key emacs-lisp-mode-map (kbd "C-c C-b") #'eval-buffer)
 
-(use-package ielm
-  :defer t
-  :init
-  (add-hook 'ielm-mode-hook #'eldoc-mode)
-  (add-hook 'ielm-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'ielm-mode-hook #'turn-on-smartparens-strict-mode))
-
-;; Navigate emacs lisp with `M-.' and `M-,'
-(use-package elisp-slime-nav
-  :defer t
-  :config
-  (delight 'elisp-slime-nav-mode nil 'elisp-slime-nav)
-  (dolist (hook '(emacs-lisp-mode-hook ielm-mode-hook))
-    (add-hook hook #'elisp-slime-nav-mode)))
+  (use-package ielm
+    :defer t
+    :init
+    (add-hook 'ielm-mode-hook #'my-elisp-modes))
+  
+  ;; Navigate emacs lisp with `M-.' and `M-,'
+  (use-package elisp-slime-nav
+    :bind (("M-." . elisp-slime-nav-find-elisp-thing-at-point))
+    :defer t
+    :config
+    (delight 'elisp-slime-nav-mode nil 'elisp-slime-nav)
+    (add-hook 'ielm-mode-hook #'elisp-slime-nav-mode)
+    (add-hook 'emacs-lisp-mode-hook #'elisp-slime-nav-mode)))
 
 (use-package sh-script)
 
@@ -1262,16 +1266,13 @@ Start `ielm' if it's not already running."
          "\\Vagrantfile\\'"
          "\\Brewfile\\'")
   :init
-  (add-hook 'ruby-mode-hook #'subword-mode)
-  (add-hook 'ruby-mode-hook #'robe-mode)
-  (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
+  (dolist (mode '(#'robe-mode #'inf-ruby-minor-mode))
+    (add-hook 'ruby-mode-hook mode))
   (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.95 :v-adjust 0.1) 'ruby-mode)
   :config
   (use-package inf-ruby)
   (use-package robe)
-  (use-package ruby-tools
-    :init
-    (delight 'ruby-tools-mode nil 'ruby-tools))
+  (use-package ruby-tools :diminish ruby-tools-mode)
   (use-package chruby
     :config (chruby "ruby 2.2.3"))
   (use-package rspec-mode)
