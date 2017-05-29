@@ -1255,8 +1255,8 @@ Start `ielm' if it's not already running."
          "\\Vagrantfile\\'"
          "\\Brewfile\\'")
   :init
-  (dolist (mode '(#'robe-mode #'inf-ruby-minor-mode))
-    (add-hook 'ruby-mode-hook mode))
+  (add-hook 'ruby-mode-hook #'robe-mode)
+  (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)  
   (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.95 :v-adjust 0.1) 'ruby-mode)
   :config
   (use-package inf-ruby)
