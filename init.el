@@ -326,7 +326,7 @@
 (global-unset-key (kbd "C-z"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Misc. defuns
+;; Misc. functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun contextual-backspace ()
   "Hungry whitespace or delete word depending on context.
@@ -393,6 +393,14 @@
 
 (bind-key "C-x t" 'load-only-theme)
 
+(defun open-file-in-atom ()
+  (interactive)
+  (let ((f (if (equal major-mode 'dired-mode)
+               (expand-file-name default-directory)
+             (if (buffer-file-name)
+                 (buffer-file-name)))))
+    (if f (shell-command (concat "atom " (buffer-file-name))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Packages
@@ -437,7 +445,18 @@
   ;;Maximize frame after zooming
   (advice-add 'zoom-frm-in :after 'frame-maximize)
   (advice-add 'zoom-frm-out :after 'frame-maximize)
-  (advice-add 'zoom-frm-unzoom :after 'frame-maximize))
+  (advice-add 'zoom-frm-unzoom :after 'frame-maximize)
+
+  (defun zoom-for-small-screen ()
+    (interactive)
+    (zoom-frm-unzoom)
+    (zoom-frm-out))
+
+  (defun zoom-for-large-screen ()
+    (interactive)
+    (zoom-frm-unzoom)
+    (zoom-frm-in)
+    (zoom-frm-in)))
 
 ;; THEMES (more themes here: https://pawelbx.github.io/emacs-theme-gallery/)
 ;; these are also promising:
