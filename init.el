@@ -95,7 +95,7 @@
                                helm helm-ag helm-descbinds helm-projectile
                                swiper ivy ivy-rich counsel counsel-projectile
                                ;; pretty themes
-                               ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme doom-themes
+                               ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme doom-themes gruvbox-theme forest-blue-theme nord-theme challenger-deep-theme
                                rainbow-delimiters
                                rainbow-mode ;; Render RGB strings with color
                                dumb-jump 
@@ -393,6 +393,12 @@
 
 (bind-key "C-x t" 'load-only-theme)
 
+(defun use-file-with-command (command file-name &optional options)
+  (shell-command (concat command " " options " " file-name)))
+
+(defun use-buffer-with-command (command &optional options)
+  )
+
 (defun open-file-in-atom ()
   (interactive)
   (let ((f (if (equal major-mode 'dired-mode)
@@ -441,12 +447,7 @@
          ("C-x C-+" . text-scale-increase)
          ("C-x C--" . text-scale-decrease)
          ("C-x C-0" . text-scale-adjust))
-  :config
-  ;;Maximize frame after zooming
-  (advice-add 'zoom-frm-in :after 'frame-maximize)
-  (advice-add 'zoom-frm-out :after 'frame-maximize)
-  (advice-add 'zoom-frm-unzoom :after 'frame-maximize)
-
+  :init
   (defun zoom-for-small-screen ()
     (interactive)
     (zoom-frm-unzoom)
@@ -456,11 +457,16 @@
     (interactive)
     (zoom-frm-unzoom)
     (zoom-frm-in)
-    (zoom-frm-in)))
+    (zoom-frm-in))
+  :config
+  ;;Maximize frame after zooming
+  (advice-add 'zoom-frm-in :after 'frame-maximize)
+  (advice-add 'zoom-frm-out :after 'frame-maximize)
+  (advice-add 'zoom-frm-unzoom :after 'frame-maximize))
 
 ;; THEMES (more themes here: https://pawelbx.github.io/emacs-theme-gallery/)
 ;; these are also promising:
-;; - apropospriate-dark (fix avy, fix startup, fix modeline)
+;; - apropospriate-dark (fix avy, fix startup, fix mode-line)
 ;; - flatland
 ;; - atom-dark (very dark)
 ;; - atom-one-dark
@@ -508,41 +514,33 @@
     '(progn
        (set-face-background 'swiper-line-face "#404040"))))
 
-;; provide icons to use in the modeline etc.
+;; provide icons to use in the mode-line etc.
 ;; REQUIRED: install the fonts in `all-the-icons-fonts/'
 (use-package all-the-icons
   :config
   (setq all-the-icons-scale-factor 0.9
         all-the-icons-default-adjust 0))
 
-;; minimal modeline format
+;; minimal mode-line format
 (setq-default mode-line-position '(line-number-mode
                                    ("["
                                     (:propertize "%l" face mode-line-buffer-id)
                                     (column-number-mode ":%c")
                                     "]"
                                     ("  %3p"))))
-(defvar my-mode-line-buffer-identification
-  '(:propertize "%7b" face mode-line-buffer-id))
-(defvar my-vc-mode-line
-  '(" "
-    (:eval (all-the-icons-octicon "git-branch" :height 0.95 :v-adjust 0.1))
-    (:propertize
-     ;; Strip the backend name from the VC status information
-     (:eval (let ((backend (symbol-name (vc-backend (buffer-file-name)))))
-              (substring vc-mode (+ (length backend) 1))))
-     face mode-line-buffer-id))
-  "Mode line format for VC Mode.")
-;; necessary to enable :propertize and :eval forms for custom mode-line forms
-(put 'my-vc-mode-line 'risky-local-variable t)
-(put 'my-mode-line-buffer-identification 'risky-local-variable t)
 (setq-default mode-line-format '(" "
-                                 my-mode-line-buffer-identification
-                                 "  "
+                                 '(:propertize "%7b" font-lock-face font-lock-warning-face)
+                                 mode-line-buffer-identification
                                  mode-line-position
                                  "  "
                                  mode-line-modes
-                                 (vc-mode my-vc-mode-line)
+                                 (vc-mode '(" "
+                                            (:eval (all-the-icons-octicon "git-branch" :height 0.95 :v-adjust 0.1))
+                                            (:propertize
+                                             ;; Strip the backend name from the VC status information
+                                             (:eval (let ((backend (symbol-name (vc-backend (buffer-file-name)))))
+                                                      (substring vc-mode (+ (length backend) 1))))
+                                             face mode-line-buffer-id)))
                                  "  "
                                  "-%-"))
 
@@ -572,6 +570,7 @@
           ("s-d" . projectile-find-dir)
           ("s-s" . projectile-ripgrep))
   :init
+  (setq projectile-sort-order 'modification-time)
   (projectile-mode +1))
 
 ;; TODO use GNU Global plugin ggtags
@@ -645,7 +644,9 @@
   :bind (:map ivy-mode-map
               ("C-x b" . ivy-switch-buffer)
               ("C-x C-b" . ivy-switch-buffer)
-              ("C-c r" . ivy-resume))
+              ("C-c r" . ivy-resume)
+              :map ivy-minibuffer-map
+              ("s-k"     . delete-minibuffer-contents))
   :diminish ivy-mode
   :init
   (setq ivy-height               16
@@ -750,7 +751,7 @@
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
-(use-package abbrev
+(use-package abbrev 
   :diminish abbrev-mode
   :config
   (setq save-abbrevs 'silently))
@@ -994,16 +995,15 @@
    company-tooltip-align-annotations t
    company-frontends '(company-pseudo-tooltip-unless-just-one-frontend
                        company-preview-if-just-one-frontend)
-   company-backends '(company-robe
-                      company-elisp
-                      company-semantic
-                      company-capf
+   company-backends '((company-capf :with company-dabbrev-code)
+                      company-robe
+                      company-semantic 
                       (company-dabbrev-code
                        company-gtags
                        company-etags
                        company-keywords)
                       company-files
-                      company-dabbrev))
+                      company-dabbrev)) 
   ;; disables TAB in company-mode, freeing it for yasnippet
   (define-key company-active-map [tab] nil)
   (define-key company-active-map (kbd "TAB") nil)
@@ -1123,8 +1123,7 @@
   (defun sp-restrict-c (sym)
     "Smartparens restriction on `SYM' for C-derived parenthesis."
     (sp-restrict-to-pairs-interactive "{([" sym))
-  (eval-after-load
-      'scala-mode
+  (eval-after-load 'scala-mode
     (lambda ()
       (bind-key "s-<delete>" (sp-restrict-c 'sp-kill-sexp) scala-mode-map)
       (bind-key "s-<backspace>" (sp-restrict-c 'sp-backward-kill-sexp) scala-mode-map)
@@ -1474,7 +1473,7 @@ Start `ielm' if it's not already running."
   :commands (gitconfig-mode)
   :mode ("\\gitconfig\\'" . gitconfig-mode)
   :init
-  (delight 'gitconfig-mode (all-the-icons-faicon "git") 'gitconfig-mode)
+  (delight 'gitconfig-mode (all-the-icons-faicon "git") :major)
   :config (add-hook 'gitconfig-mode-hook
                     (lambda ()
                       (setf indent-tabs-mode nil
@@ -1484,11 +1483,11 @@ Start `ielm' if it's not already running."
   :commands (dockerfile-mode)
   :mode ("\\Dockerfile\\'" . dockerfile-mode)
   :init
-  (delight 'dockerfile-mode (all-the-icons-fileicon "dockerfile") 'dockerfile-mode))
+  (delight 'dockerfile-mode (all-the-icons-fileicon "dockerfile") :major))
 
 ;; load theme
 (defvar light-theme 'plan9)
-(defvar dark-theme 'atom-one-dark)
+(defvar dark-theme 'gruvbox)
 
 (disable-all-themes)
 (load-theme dark-theme t)
