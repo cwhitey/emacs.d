@@ -10,7 +10,7 @@
 
 ;;; Commentary:
 
-;; Just my own personal Emacs config. 
+;; Just my own personal Emacs config.
 
 ;;; License:
 
@@ -67,7 +67,7 @@
                                aggressive-indent
                                hungry-delete
                                ;; completion
-                               company company-ghc 
+                               company company-ghc
                                all-the-icons
                                clipmon
                                ag
@@ -98,7 +98,7 @@
                                ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme doom-themes gruvbox-theme forest-blue-theme nord-theme challenger-deep-theme
                                rainbow-delimiters
                                rainbow-mode ;; Render RGB strings with color
-                               dumb-jump 
+                               dumb-jump
                                ;; clojure
                                clojure-mode cider clj-refactor align-cljlet
                                ;; ruby
@@ -108,7 +108,7 @@
                                ;; JS/JSON
                                js2-mode json-mode json-reformat
                                web-mode
-                               scss-mode 
+                               scss-mode
                                markdown-mode
                                dockerfile-mode
                                gitconfig-mode
@@ -245,14 +245,27 @@
 (delete-selection-mode t) ;; delete the selection with a keypress
 ;; revert buffers automatically when underlying files are changed externally
 (global-auto-revert-mode t)
+(setq auto-revert-check-vc-info t)
+;; Auto refresh dired, but be quiet about it
+(setq global-auto-revert-non-file-buffers t)
+(setq auto-revert-verbose nil)
+
+;; Show keystrokes in minibuffer early
+(setq echo-keystrokes 0.1)
+
+;; Do not show annoying menu-bar tips
+(setq suggest-key-bindings nil)
+
 ;; undo and redo window configuration with <C-left> and <C-right>
 (winner-mode 1)
 (global-hl-line-mode +1)
 
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
+;; Prefer utf8
+(setq locale-coding-system 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
 
 ;; store all backup and autosave files in the tmp dir
 (setq backup-directory-alist
@@ -521,6 +534,8 @@
   (setq all-the-icons-scale-factor 0.9
         all-the-icons-default-adjust 0))
 
+
+
 ;; minimal mode-line format
 (setq-default mode-line-position '(line-number-mode
                                    ("["
@@ -531,16 +546,11 @@
 (setq-default mode-line-format '(" "
                                  '(:propertize "%7b" font-lock-face font-lock-warning-face)
                                  mode-line-buffer-identification
+                                 "  "
                                  mode-line-position
                                  "  "
                                  mode-line-modes
-                                 (vc-mode '(" "
-                                            (:eval (all-the-icons-octicon "git-branch" :height 0.95 :v-adjust 0.1))
-                                            (:propertize
-                                             ;; Strip the backend name from the VC status information
-                                             (:eval (let ((backend (symbol-name (vc-backend (buffer-file-name)))))
-                                                      (substring vc-mode (+ (length backend) 1))))
-                                             face mode-line-buffer-id)))
+                                 (vc-mode vc-mode)
                                  "  "
                                  "-%-"))
 
@@ -694,6 +704,7 @@
   :defer 1
   :bind (:map counsel-mode-map
               ("M-x" . counsel-M-x)
+              ("C-x C-r" . counsel-recentf)
               ("C-x C-f" . counsel-find-file)
               ("C-x C-S-f" . counsel-fasd-find-file)
               ("M-i" . counsel-grep-or-swiper))
@@ -702,14 +713,14 @@
   :diminish counsel-mode
   :init
   (require 'smex) ; keep M-x history
-  :config 
+  :config
   ;; recenter screen after accept match
   (advice-add 'counsel-grep-or-swiper :after (lambda (&rest args) (recenter-top-bottom)))
   (setq counsel-yank-pop-separator (propertize "\n------------------------------\n" 'face 'error))
   (use-package counsel-projectile
     :commands (counsel-projectile-on)
     :init (setq projectile-completion-system 'ivy)
-    :config 
+    :config
     (defun counsel-projectile-rg (&optional options)
       "Ivy version of `projectile-ripgrep'."
       (interactive)
@@ -751,7 +762,7 @@
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
-(use-package abbrev 
+(use-package abbrev
   :diminish abbrev-mode
   :config
   (setq save-abbrevs 'silently))
@@ -865,7 +876,7 @@
   (add-hook 'sbt-mode-hook #'disable-vim-empty-lines-mode)
   (add-hook 'cider-repl-mode-hook #'disable-vim-empty-lines-mode))
 
-(use-package crux 
+(use-package crux
   :bind (("C-c o" . crux-open-with)
          ("M-o" . crux-smart-open-line)
          ("C-c n" . crux-cleanup-buffer-or-region)
@@ -885,7 +896,7 @@
          ("s-k" . crux-kill-whole-line)
          ("C-<backspace>" . crux-kill-line-backwards)
          ("s-o" . crux-smart-open-line-above)
-         ([remap move-beginning-of-line] . crux-move-beginning-of-line) 
+         ([remap move-beginning-of-line] . crux-move-beginning-of-line)
          ([(shift return)] . crux-smart-open-line)
          ([(control shift return)] . crux-smart-open-line-above)
          ([remap kill-whole-line] . crux-kill-whole-line)
@@ -997,13 +1008,13 @@
                        company-preview-if-just-one-frontend)
    company-backends '((company-capf :with company-dabbrev-code)
                       company-robe
-                      company-semantic 
+                      company-semantic
                       (company-dabbrev-code
                        company-gtags
                        company-etags
                        company-keywords)
                       company-files
-                      company-dabbrev)) 
+                      company-dabbrev))
   ;; disables TAB in company-mode, freeing it for yasnippet
   (define-key company-active-map [tab] nil)
   (define-key company-active-map (kbd "TAB") nil)
@@ -1184,7 +1195,7 @@ Start `ielm' if it's not already running."
     :defer t
     :init
     (add-hook 'ielm-mode-hook #'my-elisp-modes))
-  
+
   ;; Navigate emacs lisp with `M-.' and `M-,'
   (use-package elisp-slime-nav
     :bind (("M-." . elisp-slime-nav-find-elisp-thing-at-point))
@@ -1274,7 +1285,7 @@ Start `ielm' if it's not already running."
          "\\Brewfile\\'")
   :init
   (add-hook 'ruby-mode-hook #'robe-mode)
-  (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)  
+  (add-hook 'ruby-mode-hook #'inf-ruby-minor-mode)
   (delight 'ruby-mode (all-the-icons-octicon "ruby" :height 0.95 :v-adjust 0.1) 'ruby-mode)
   :config
   (use-package inf-ruby)
@@ -1318,7 +1329,7 @@ Start `ielm' if it's not already running."
     :config
     (cljr-add-keybindings-with-prefix "C-c C-m"))
   (use-package align-cljlet
-    :commands (align-cljlet)) 
+    :commands (align-cljlet))
   (add-hook 'clojure-mode-hook #'subword-mode)
   (add-hook 'clojure-mode-hook #'rainbow-delimiters-mode)
   (add-hook 'clojure-mode-hook #'turn-on-smartparens-strict-mode)
@@ -1359,7 +1370,7 @@ Start `ielm' if it's not already running."
   :bind (("C-M-k" . kill-sexp))
   :init
   (add-hook 'scala-mode-hook (lambda ()
-                               (setq mode-name (all-the-icons-alltheicon "scala" :v-adjust -0.05)))) 
+                               (setq mode-name (all-the-icons-alltheicon "scala" :v-adjust -0.05))))
   :config
   ;; TODO use regex to find `\\class (.*) \\' in file instead of using filename
   (defun scala-find-spec-name ()
@@ -1416,7 +1427,7 @@ Start `ielm' if it's not already running."
 
   (defalias 'scala-repl 'run-scala)
   (defalias 'sbt-console 'run-scala)
-  
+
   ;; WORKAROUND: https://github.com/ensime/emacs-sbt-mode/issues/31
   ;; allows using SPACE when in the minibuffer
   (substitute-key-definition
@@ -1426,10 +1437,10 @@ Start `ielm' if it's not already running."
 
 ;; WORKAROUND: https://github.com/syl20bnr/spacemacs/issues/6578
 (require 'ensime)
-(use-package ensime 
+(use-package ensime
   :commands (ensime ensime-mode)
   :after (scala-mode sbt-mode)
-  :init 
+  :init
   (defun ensime-gen-and-restart()
     "Regenerate `.ensime' file and restart the ensime server."
     (interactive)
@@ -1484,6 +1495,10 @@ Start `ielm' if it's not already running."
   :mode ("\\Dockerfile\\'" . dockerfile-mode)
   :init
   (delight 'dockerfile-mode (all-the-icons-fileicon "dockerfile") :major))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Stuff that should happen last
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; load theme
 (defvar light-theme 'plan9)
