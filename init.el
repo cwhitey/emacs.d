@@ -1043,8 +1043,8 @@
   (defun hungry-delete-mode-off ()
     "Turn off hungry delete mode."
     (hungry-delete-mode -1))
-  (global-hungry-delete-mode) ;; Enable `hungry-delete-mode' everywhere ..
-  ;; Except... `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
+  (add-hook 'prog-mode-hook 'hungry-delete-mode)
+  ;; `hungry-delete-mode'-loaded backspace does not work in `wdired-mode',
   ;; i.e. when editing file names in the *Dired* buffer.
   (add-hook 'wdired-mode-hook 'hungry-delete-mode-off)
   (bind-key "C-c <backspace>" 'hungry-delete-backward hungry-delete-mode-map)
