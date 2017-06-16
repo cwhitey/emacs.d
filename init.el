@@ -91,8 +91,7 @@
                                persistent-scratch
                                idle-highlight-mode
                                smartparens
-                               projectile
-                               helm helm-ag helm-descbinds helm-projectile
+                               projectile 
                                swiper ivy ivy-rich counsel counsel-projectile
                                ;; pretty themes
                                ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme doom-themes gruvbox-theme forest-blue-theme nord-theme challenger-deep-theme
@@ -249,6 +248,12 @@
 ;; Auto refresh dired, but be quiet about it
 (setq global-auto-revert-non-file-buffers t)
 (setq auto-revert-verbose nil)
+
+;; Do not pause on redisplay
+(setq redisplay-dont-pause t)
+
+;; Do not make any backup files
+(setq make-backup-files nil)
 
 ;; Show keystrokes in minibuffer early
 (setq echo-keystrokes 0.1)
@@ -409,16 +414,13 @@
 (defun use-file-with-command (command file-name &optional options)
   (shell-command (concat command " " options " " file-name)))
 
-(defun use-buffer-with-command (command &optional options)
-  )
-
 (defun open-file-in-atom ()
   (interactive)
-  (let ((f (if (equal major-mode 'dired-mode)
-               (expand-file-name default-directory)
-             (if (buffer-file-name)
-                 (buffer-file-name)))))
-    (if f (shell-command (concat "atom " (buffer-file-name))))))
+  (if (equal major-mode 'dired-mode)
+      (shell-command (concat "cd " (expand-file-name default-directory) "; "
+                             "atom ."))
+    (if (buffer-file-name)
+        (use-file-with-command "atom" (buffer-file-name)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -587,61 +589,6 @@
 ;; Help projectile resolve duplicates when using `projectile-find-tag'
 ;; (use-package etags-select
 ;;   :commands etags-select-find-tag)
-
-;; HELM HELM HELM
-(use-package helm
-  :disabled t
-  :defer 2
-  :diminish helm-mode
-  :bind-keymap (("C-c h" . helm-command-prefix))
-  :chords (("yy" . helm-show-kill-ring))
-  :bind (("M-y" . helm-show-kill-ring)
-         ("C-h r" . helm-info-emacs)
-         :map helm-command-map
-         ("SPC" . helm-all-mark-rings))
-  :init
-  (setq helm-split-window-in-side-p           t
-        helm-buffers-fuzzy-matching           t
-        helm-move-to-line-cycle-in-source     t
-        helm-ff-search-library-in-sexp        t
-        helm-ff-file-name-history-use-recentf t
-        helm-display-header-line              nil
-        helm-split-window-in-side-p           t
-        helm-autoresize-max-height            40
-        helm-autoresize-min-height            40
-        helm-candidate-number-limit           200)
-  :config
-  (require 'helm-config)
-  (require 'helm-eshell)
-
-  (defvar helm-source-header-default-background (face-attribute 'helm-source-header :background))
-  (defvar helm-source-header-default-foreground (face-attribute 'helm-source-header :foreground))
-  (defvar helm-source-header-default-box (face-attribute 'helm-source-header :box))
-  (defun helm-toggle-header-line ()
-    (if (> (length helm-sources) 1)
-        (set-face-attribute 'helm-source-header
-                            nil
-                            :foreground helm-source-header-default-foreground
-                            :background helm-source-header-default-background
-                            :box helm-source-header-default-box
-                            :height 1.0)
-      (set-face-attribute 'helm-source-header
-                          nil
-                          :foreground (face-attribute 'helm-selection :background)
-                          :background (face-attribute 'helm-selection :background)
-                          :box nil
-                          :height 0.1)))
-  (add-hook 'helm-before-initialize-hook 'helm-toggle-header-line)
-  (helm-autoresize-mode 1))
-
-;; TODO: This defer timeout forces helm to load? Figure out why helm doesn't load on its own
-(use-package helm-descbinds
-  :disabled t
-  :defer 3
-  :bind (("C-h b" . helm-descbinds)
-         ("C-h w" . helm-descbinds)))
-
-
 
 (use-package swiper
   :defer 1
