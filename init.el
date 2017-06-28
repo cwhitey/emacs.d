@@ -244,7 +244,7 @@
 (delete-selection-mode t) ;; delete the selection with a keypress
 ;; revert buffers automatically when underlying files are changed externally
 (global-auto-revert-mode t)
-(setq auto-revert-check-vc-info t)
+;;(setq auto-revert-check-vc-info t)
 ;; Auto refresh dired, but be quiet about it
 (setq global-auto-revert-non-file-buffers t)
 (setq auto-revert-verbose nil)
@@ -582,7 +582,8 @@
           ("s-d" . projectile-find-dir)
           ("s-s" . projectile-ripgrep))
   :init
-  (setq projectile-sort-order 'modification-time)
+  (setq projectile-sort-order 'recentf)
+  (setq projectile-enable-caching t)
   (projectile-mode +1))
 
 ;; TODO use GNU Global plugin ggtags
