@@ -1448,6 +1448,8 @@ Start `ielm' if it's not already running."
 ;; Stuff that should happen last
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(server-start)
+
 ;; load theme
 (defvar light-theme 'plan9)
 (defvar dark-theme 'gruvbox)
