@@ -992,8 +992,7 @@
                     jade-mode
                     ruby-mode
                     scala-mode))
-    (add-to-list 'aggressive-indent-excluded-modes source t))
-  (global-aggressive-indent-mode +1))
+    (add-to-list 'aggressive-indent-excluded-modes source t)))
 
 (use-package hungry-delete
   ;; Borrowed from `kaushalmodi'
