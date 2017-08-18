@@ -662,6 +662,7 @@
   :init
   (require 'smex) ; keep M-x history
   :config
+  (setq counsel-mode-override-describe-bindings t)
   ;; recenter screen after accept match
   (advice-add 'counsel-grep-or-swiper :after (lambda (&rest args) (recenter-top-bottom)))
   (setq counsel-yank-pop-separator (propertize "\n------------------------------\n" 'face 'error))
@@ -1126,6 +1127,8 @@ Start `ielm' if it's not already running."
     (interactive)
     (crux-start-or-switch-to 'ielm "*ielm*"))
   (defun my-elisp-modes (&rest args)
+    (electric-pair-mode -1)
+    (electric-indent-mode -1)
     (turn-on-smartparens-strict-mode)
     (eldoc-mode)
     (rainbow-delimiters-mode))
@@ -1442,6 +1445,11 @@ Start `ielm' if it's not already running."
   :mode ("\\Dockerfile\\'" . dockerfile-mode)
   :init
   (delight 'dockerfile-mode (all-the-icons-fileicon "dockerfile") :major))
+
+(use-package es-mode
+  :config
+  (setq es-always-pretty-print t
+        es-warn-on-delete-query nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Stuff that should happen last
