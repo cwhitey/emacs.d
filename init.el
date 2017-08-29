@@ -1408,15 +1408,17 @@ Start `ielm' if it's not already running."
 ;;   certain buffers won't allow M-DEL (subword-mode disabled?)
 (delight 'haskell-mode (all-the-icons-alltheicon "haskell") 'haskell-mode)
 (use-package haskell-mode
-  :disabled t
   :mode ("\\.hs\\'")
   :commands (haskell-mode)
-  :config
-  (add-hook 'haskell-mode-hook 'haskell-interactive-mode)
+  ;;:config
+  ;; (add-hook 'haskell-mode-hook 'haskell-interactive-mode)
   ;; (add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
   ;; (add-hook 'haskell-mode-hook 'turn-on-haskell-ghci)
   ;; (setq-default haskell-program-name "ghci")
   )
+
+(use-package intero
+  :mode ("\\.hs\\'"))
 
 ;; requires ghc-mod cmd tool
 (use-package ghc
