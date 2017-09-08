@@ -1448,7 +1448,12 @@ Start `ielm' if it's not already running."
   :init
   (delight 'dockerfile-mode (all-the-icons-fileicon "dockerfile") :major))
 
+;; TODO: 
+;;  - broken for text like: á
+;;  - popup (readonly) buffer always opens horizontally. annoying!
+;;  - needs an `execute-all'
 (use-package es-mode
+  :bind (("C-x C-e" . es-execute-request-dwim))
   :config
   (setq es-always-pretty-print t
         es-warn-on-delete-query nil))
