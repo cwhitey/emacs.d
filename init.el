@@ -93,7 +93,7 @@
                                smartparens
                                projectile 
                                swiper ivy ivy-rich counsel counsel-projectile
-                               ;; pretty themes
+                               ;; trustworthy and pretty themes
                                ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme doom-themes gruvbox-theme forest-blue-theme nord-theme challenger-deep-theme
                                rainbow-delimiters
                                rainbow-mode ;; Render RGB strings with color
@@ -111,6 +111,7 @@
                                markdown-mode
                                dockerfile-mode
                                gitconfig-mode
+                               es-mode
                                yaml-mode)
   "A list of packages to ensure are installed at launch.")
 
@@ -817,6 +818,7 @@
   :diminish vim-empty-lines-mode
   :init
   (add-hook 'prog-mode-hook 'vim-empty-lines-mode)
+  (add-hook 'text-mode-hook 'vim-empty-lines-mode)
   (defun disable-vim-empty-lines-mode ()
     (vim-empty-lines-mode -1))
   ;; `vim-empty-lines-mode' screws up repls
@@ -915,7 +917,9 @@
 (use-package git-link
   :defer t
   :commands (git-link)
-  :config (global-set-key (kbd "C-c w l") 'git-link))
+  :config
+  ;;(global-set-key (kbd "C-c w l") 'git-link)
+  )
 
 (use-package git-timemachine
   :defer t
@@ -985,15 +989,21 @@
 
 (use-package aggressive-indent
   :config
+  (dolist (source '(emacs-lisp-mode-hook
+                    clojure-mode-hook
+                    es-mode-hook))
+    (add-hook source 'aggressive-indent-mode))
+
   ;; TODO: cannot locally enable any modes in `aggressive-indent-excluded-modes'
   ;;   This would be helpful for testing etc.. PR potential?
-  (dolist (source '(diary-mode
-                    css-mode
-                    less-css-mode
-                    jade-mode
-                    ruby-mode
-                    scala-mode))
-    (add-to-list 'aggressive-indent-excluded-modes source t)))
+  ;; (dolist (source '(diary-mode
+  ;;                   css-mode
+  ;;                   less-css-mode
+  ;;                   jade-mode
+  ;;                   ruby-mode
+  ;;                   scala-mode))
+  ;;   (add-to-list 'aggressive-indent-excluded-modes source t))
+  )
 
 (use-package hungry-delete
   ;; Borrowed from `kaushalmodi'
@@ -1077,8 +1087,7 @@
   ;; Scala mode
   (sp-local-pair 'scala-mode "\"\"\"" "\"\"\"")
   (sp-local-pair 'scala-mode "(" nil :post-handlers '(("||\n[i]" "RET")))
-  (sp-local-pair 'scala-mode "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
-  (sp-local-pair 'web-mode "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
+  (sp-local-pair '(scala-mode web-mode es-mode) "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
   (defun sp-restrict-c (sym)
     "Smartparens restriction on `SYM' for C-derived parenthesis."
     (sp-restrict-to-pairs-interactive "{([" sym))
@@ -1092,7 +1101,7 @@
 
   ;; WORKAROUND: make deleting empty pairs work as expected with hungry-delete-mode
   ;; `https://github.com/syl20bnr/spacemacs/issues/6584'
-  (defadvice hungry-delete-backward (before sp-delete-pair-advice activate) (save-match-data (sp-delete-pair (ad-get-arg 0))))
+  ;; (defadvice hungry-delete-backward (before sp-delete-pair-advice activate) (save-match-data (sp-delete-pair (ad-get-arg 0))))
 
   (show-smartparens-global-mode t)
   (smartparens-global-mode t))
@@ -1190,6 +1199,10 @@ Start `ielm' if it's not already running."
 ;; use json-mode package only for JSON beautification
 (use-package json-mode
   :commands (json-mode-beautify))
+
+(use-package yaml-mode
+  :config
+  (add-hook 'yaml-mode-hook electric-indent-mode))
 
 (use-package js2-mode
   :commands (js2-mode)
@@ -1452,8 +1465,10 @@ Start `ielm' if it's not already running."
 ;;  - broken for text like: á
 ;;  - popup (readonly) buffer always opens horizontally. annoying!
 ;;  - needs an `execute-all'
+;;  - comments break on unclosed quotes
 (use-package es-mode
-  :bind (("C-x C-e" . es-execute-request-dwim))
+  :bind (:map es-mode-map
+              ("C-x C-e" . es-execute-request-dwim))
   :config
   (setq es-always-pretty-print t
         es-warn-on-delete-query nil))
