@@ -344,6 +344,8 @@
 ;; this damn key suspends the frame in OSX
 (global-unset-key (kbd "C-z"))
 
+(put 'upcase-region 'disabled nil)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Misc. functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1117,6 +1119,10 @@
                ("C-M-." . dumb-jump-go)
                ("C-M-," . dumb-jump-back))
   :config (dumb-jump-mode))
+
+(use-package sh-mode
+  :config
+  (add-hook 'sh-mode-hook #'electric-pair-mode))
 
 (use-package lisp-mode
   :defer t
