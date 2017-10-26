@@ -256,8 +256,11 @@
 ;; Do not make any backup files
 (setq make-backup-files nil)
 
-;; Show keystrokes in minibuffer early
-(setq echo-keystrokes 0.1)
+;; Minibuffer
+(setq echo-keystrokes 0.1) ;; show keystrokes in minibuffer early
+(setq minibuffer-message-timeout 0.8)
+(setq enable-recursive-minibuffers t)
+(minibuffer-depth-indicate-mode 1)
 
 ;; Do not show annoying menu-bar tips
 (setq suggest-key-bindings nil)
@@ -1047,6 +1050,9 @@
               ("C-M-p" . sp-previous-sexp)
               ("C-M-k" . sp-kill-sexp)
               ("C-M-w" . sp-copy-sexp)
+              ("M-F" . sp-forward-symbol)
+              ("M-B" . sp-backward-symbol)
+              ("C-S-<backspace>" . sp-backward-kill-symbol)
               ("C-<right>" . sp-forward-slurp-sexp)
               ("C-<left>" . sp-forward-barf-sexp)
               ("C-M-<left>" . sp-backward-slurp-sexp)
@@ -1054,59 +1060,70 @@
               ("M-D" . sp-splice-sexp)
               ("C-M-<delete>" . sp-splice-sexp-killing-forward)
               ("C-M-<backspace>" . sp-splice-sexp-killing-backward)
-              ("C-S-<backspace>" . sp-splice-sexp-killing-around)
+              ;;("C-S-<backspace>" . sp-splice-sexp-killing-around)
               ("C-]" . sp-select-next-thing-exchange)
               ("C-M-]" . sp-select-next-thing)
               ("M-F" . sp-forward-symbol)
               ("M-B" . sp-backward-symbol)
+              ("C-M-SPC" . sp-mark-sexp)
               :map emacs-lisp-mode-map
               (")" . sp-up-sexp))
   :config
   (require 'smartparens-config)
-  (require 'smartparens-clojure)
-  (require 'smartparens-scala)
-  (require 'smartparens-html)
-  (require 'smartparens-haskell)
-  (require 'smartparens-racket)
-  (require 'smartparens-ruby)
 
-  (setq sp-hybrid-kill-entire-symbol nil
-        ;; don't highlight pair after creation
-        sp-highlight-pair-overlay nil
-        sp-show-pair-delay 0.05)
+  (show-smartparens-global-mode t)
+  (smartparens-global-mode t)
+  
+  (setq sp-hybrid-kill-entire-symbol nil 
+        sp-highlight-pair-overlay nil ;; don't highlight pair after creation
+        sp-show-pair-delay 0.3)
 
   (sp-pair "(" ")" :wrap "C-(") ;; how do people live without this?
   (sp-pair "[" "]" :wrap "s-[") ;; C-[ sends ESC :(
   (sp-pair "{" "}" :wrap "C-{")
 
-  ;; Web mode
+  ;; web-mode
   (defun sp-web-mode-is-code-context (id action context)
     (and (eq action 'insert)
          (not (or (get-text-property (point) 'part-side)
                   (get-text-property (point) 'block-side)))))
   (sp-local-pair 'web-mode "<" nil :when '(sp-web-mode-is-code-context))
 
-  ;; Scala mode
+  ;; markdown
+  (defun sp--markdown-skip-asterisk (ms mb me)
+    (save-excursion
+      (goto-char mb)
+      (save-match-data (looking-at "^\\* "))))
+  (sp-with-modes 'markdown-mode
+    (sp-local-pair "*" "*"
+                   :unless '(sp-point-after-word-p sp-point-at-bol-p)
+                   :skip-match 'sp--markdown-skip-asterisk)
+    (sp-local-pair "**" "**")
+    (sp-local-pair "_" "_" :unless '(sp-point-after-word-p)))
+  
+  ;; haskell
+  (add-to-list 'sp-no-reindent-after-kill-modes 'haskell-mode)
+  
+  ;; scala-mode
   (sp-local-pair 'scala-mode "\"\"\"" "\"\"\"")
   (sp-local-pair 'scala-mode "(" nil :post-handlers '(("||\n[i]" "RET")))
+  ;; open block when '{' is following by RET
   (sp-local-pair '(scala-mode web-mode es-mode) "{" nil :post-handlers '(("||\n[i]" "RET") ("| " "SPC")))
   (defun sp-restrict-c (sym)
     "Smartparens restriction on `SYM' for C-derived parenthesis."
     (sp-restrict-to-pairs-interactive "{([" sym))
   (eval-after-load 'scala-mode
     (lambda ()
-      (bind-key "s-<delete>" (sp-restrict-c 'sp-kill-sexp) scala-mode-map)
-      (bind-key "s-<backspace>" (sp-restrict-c 'sp-backward-kill-sexp) scala-mode-map)
-      (bind-key "s-<home>" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
+      (bind-key "C-M-k" (sp-restrict-c 'sp-kill-sexp) scala-mode-map)
+      (bind-key "C-M-<backspace>" (sp-restrict-c 'sp-backward-kill-sexp) scala-mode-map)
+      (bind-key "C-M-a" (sp-restrict-c 'sp-beginning-of-sexp) scala-mode-map)
       (bind-key "s-<end>" (sp-restrict-c 'sp-end-of-sexp) scala-mode-map)
       (bind-key "C-<right>" 'sp-slurp-hybrid-sexp scala-mode-map)))
 
   ;; WORKAROUND: make deleting empty pairs work as expected with hungry-delete-mode
   ;; `https://github.com/syl20bnr/spacemacs/issues/6584'
   ;; (defadvice hungry-delete-backward (before sp-delete-pair-advice activate) (save-match-data (sp-delete-pair (ad-get-arg 0))))
-
-  (show-smartparens-global-mode t)
-  (smartparens-global-mode t))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Programming modes
@@ -1121,6 +1138,7 @@
   :config (dumb-jump-mode))
 
 (use-package sh-mode
+  :ensure nil
   :config
   (add-hook 'sh-mode-hook #'electric-pair-mode))
 
