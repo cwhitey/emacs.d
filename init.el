@@ -90,8 +90,10 @@
                                multiple-cursors
                                persistent-scratch
                                idle-highlight-mode
+                               which-key
                                smartparens
-                               projectile 
+                               projectile
+                               smex
                                swiper ivy ivy-rich counsel counsel-projectile
                                ;; trustworthy and pretty themes
                                ample-theme leuven-theme zenburn-theme solarized-theme apropospriate-theme plan9-theme flatui-theme seti-theme darktooth-theme doom-themes gruvbox-theme forest-blue-theme nord-theme challenger-deep-theme
