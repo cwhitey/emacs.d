@@ -100,6 +100,8 @@
                                rainbow-delimiters
                                rainbow-mode ;; Render RGB strings with color
                                dumb-jump
+                               ;; emacs
+                               elisp-slime-nav
                                ;; clojure
                                clojure-mode cider clj-refactor align-cljlet
                                ;; ruby
@@ -588,7 +590,7 @@
           ("C-c s" . projectile-ripgrep)
           ("s-f" . projectile-find-file)
           ("s-d" . projectile-find-dir)
-          ("s-s" . projectile-ripgrep))
+          ("s-s" . projectile-ag))
   :init
   (setq projectile-sort-order 'recentf)
   (setq projectile-enable-caching t)
@@ -679,7 +681,7 @@
     :init (setq projectile-completion-system 'ivy)
     :config
     (defun counsel-projectile-rg (&optional options)
-      "Ivy version of `projectile-ripgrep'."
+      "Ivy version of `projectile-ripgrep'. NOTE: `projectile-rg' doesnt exist anymore?'"
       (interactive)
       (if (projectile-project-p)
           (let* ((ignored
@@ -1075,8 +1077,8 @@
 
   (show-smartparens-global-mode t)
   (smartparens-global-mode t)
-  
-  (setq sp-hybrid-kill-entire-symbol nil 
+
+  (setq sp-hybrid-kill-entire-symbol nil
         sp-highlight-pair-overlay nil ;; don't highlight pair after creation
         sp-show-pair-delay 0.3)
 
@@ -1102,10 +1104,10 @@
                    :skip-match 'sp--markdown-skip-asterisk)
     (sp-local-pair "**" "**")
     (sp-local-pair "_" "_" :unless '(sp-point-after-word-p)))
-  
+
   ;; haskell
   (add-to-list 'sp-no-reindent-after-kill-modes 'haskell-mode)
-  
+
   ;; scala-mode
   (sp-local-pair 'scala-mode "\"\"\"" "\"\"\"")
   (sp-local-pair 'scala-mode "(" nil :post-handlers '(("||\n[i]" "RET")))
@@ -1487,7 +1489,7 @@ Start `ielm' if it's not already running."
   :init
   (delight 'dockerfile-mode (all-the-icons-fileicon "dockerfile") :major))
 
-;; TODO: 
+;; TODO:
 ;;  - broken for text like: á
 ;;  - popup (readonly) buffer always opens horizontally. annoying!
 ;;  - needs an `execute-all'
