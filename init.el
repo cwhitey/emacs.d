@@ -589,8 +589,7 @@
           ("C-c d" . projectile-find-dir)
           ("C-c s" . projectile-ripgrep)
           ("s-f" . projectile-find-file)
-          ("s-d" . projectile-find-dir)
-          ("s-s" . projectile-ag))
+          ("s-d" . projectile-find-dir))
   :init
   (setq projectile-sort-order 'recentf)
   (setq projectile-enable-caching t)
@@ -665,7 +664,8 @@
               ("C-x C-r" . counsel-recentf)
               ("C-x C-f" . counsel-find-file)
               ("C-x C-S-f" . counsel-fasd-find-file)
-              ("M-i" . counsel-grep-or-swiper))
+              ("M-i" . counsel-grep-or-swiper)
+              ("s-s" . counsel-projectile-ag))
   :chords (("xx" . counsel-M-x)
            ("yy" . counsel-yank-pop))
   :diminish counsel-mode
@@ -707,7 +707,7 @@
                         (projectile-prepend-project-name "ripgrep")))
         (user-error "You're not in a project"))))
 
-  (define-key projectile-mode-map [remap projectile-ripgrep] #'counsel-projectile-rg)
+  (define-key projectile-mode-map [remap projectile-ag] #'counsel-projectile-ag)
   (counsel-projectile-on)
   (counsel-mode 1))
 
