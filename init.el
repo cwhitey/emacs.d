@@ -44,7 +44,8 @@
         ("melpa"        . 0))
       ;; Pinned packages require Emacs 24.4+ to work.
       package-pinned-packages
-      '((cider        . "melpa-stable")
+      '((use-package  . "melpa")
+        (cider        . "melpa-stable")
         (clj-refactor . "melpa-stable")
         (ensime       . "melpa-stable")
         (sbt-mode     . "melpa-stable")
