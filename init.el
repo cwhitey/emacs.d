@@ -71,6 +71,7 @@
                                all-the-icons
                                clipmon
                                ag
+                               ripgrep
                                anzu
                                fasd
                                goto-chg
