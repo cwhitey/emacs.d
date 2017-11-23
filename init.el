@@ -1380,13 +1380,14 @@ Start `ielm' if it's not already running."
   (add-to-list 'scala-mode-hook (lambda () (electric-indent-mode 1))))
 
 ;; Scala Built Tool
+;; TODO: Doesn't save test commands to the 'input ring' (for history)
 (use-package sbt-mode
   :defer t
   :after scala-mode
   :commands (sbt-start sbt-command)
   :bind (("C-c C-s t" . sbt-test)
          ("C-c C-s o" . sbt-test-only)
-         ("C-c C-s c" . sbt-compile)
+         ("C-c C-s c" . sbt-test-compile)
          ("C-c C-s C" . sbt-compile-all))
   :config
 
